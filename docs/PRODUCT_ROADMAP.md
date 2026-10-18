@@ -26,7 +26,9 @@ Evolve method: investigate real workflow → small testable implementation slice
 
 Do **not** replace Parakeet or choose Whisper solely on vendor benchmarks. The existing macOS/Windows Parakeet runtime uses sherpa-onnx, checks the 465 MB model SHA-256 and unloads during idle/memory pressure. Whisper is not yet integrated. sherpa-onnx supports offline Whisper encoder/decoder/tokens through its same C recognizer API, making it a practical *candidate* without adding a second inference engine; verify the exact pinned runtime header and ABI before adding config.
 
-Proposed first slice:
+Parakeet installation consent is now enforced in source by an explicit Settings Download action on both native clients (device acceptance pending).
+
+Proposed next slices:
 1. Explicit model install consent with clearly displayed archive size, disk requirement, local privacy and attribution; cancel, retry, delete and checksum-verified installation. No background model downloads without opt-in.
 2. Adapter-level Whisper Tiny and Small (multilingual) behind the existing speech-provider interface. Pin exact archive, checksum, model identifiers, runtime and licence. The UI must not offer an engine until installation and a real transcription probe pass.
 3. Compare local transcriptions using a deterministic offline evaluation corpus (Australian English, varied accents, technical terms, Arabic and longer pauses) and report WER/CER, first partial, final latency, memory, CPU and language auto-detection. Do not invent performance numbers.
