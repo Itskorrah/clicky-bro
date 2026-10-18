@@ -620,11 +620,12 @@ final class CompanionManager: ObservableObject {
     private var activeAnswerSpeaker: StreamingAnswerSpeaker?
     private var activeAnswerPlayback: Task<Void, Error>?
 
-    /// The island's stop button: silence whatever Clicky is saying. Agent work keeps going.
+    /// Stop means stop the active turn, including any pending agent effects.
+    /// A voice-only mute is not authorisation for an agent to keep working.
     func stopSpeaking() {
-        guard voiceState == .responding else { return }
-        AppLog.append("ask: stopped speaking from the island")
-        interruptCurrentAnswer(includingAgentWork: false)
+        guard voiceState != .idle || agentActivityText != nil else { return }
+        AppLog.append("ask: stopped active turn from the island")
+        interruptCurrentAnswer(includingAgentWork: true)
         realtimeVoiceClient.stopSpeaking()
         // A cancelled answer skips its own reset to idle.
         voiceState = .idle
@@ -941,7 +942,7 @@ final class CompanionManager: ObservableObject {
         overlayWindowManager.hideOverlay()
         transientHideTask?.cancel()
 
-        interruptCurrentAnswer(includingAgentWork: false)
+        interruptCurrentAnswer(includingAgentWork: true)
         currentResponseTask = nil
         shortcutTransitionCancellable?.cancel()
         companionShortcutCancellable?.cancel()
@@ -1616,7 +1617,8 @@ final class CompanionManager: ObservableObject {
     /// Claude's response may include a [POINT:x,y:label] tag which triggers
     /// the buddy to fly to that element on screen.
     private func sendTranscriptToClaudeWithScreenshot(transcript: String, isGuidedStepContinuation: Bool = false) {
-        interruptCurrentAnswer(includingAgentWork: false)
+        // A new question replaces the previous turn; it must not leave old effects running.
+        interruptCurrentAnswer(includingAgentWork: true)
         // Anything the person asks starts afresh; only OpenClicky's own "what's next?" continues a guide.
         if !isGuidedStepContinuation {
             guidedStepsGivenSoFar = 0
