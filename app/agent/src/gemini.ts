@@ -105,10 +105,28 @@ export class GeminiAgent {
             }
             if (typeof args.content !== "string" || Buffer.byteLength(args.content) > 65536)
                 throw new Error("Content must be text of at most 64 KiB");
-            const decision = await this.hooks.onApproval?.({ kind: "fileChange", method: "gemini/write_file", summary: `Write ${target}`, params: { path: target, content: args.content } });
-            this.controller.signal.throwIfAborted();
-            if (decision !== "accept" && decision !== "acceptForSession")
-                return { error: "User approval required; file was not written" };
+            // A stop must release a run waiting on a native approval dialog, even
+            // if that UI never settles its own promise. The losing promise cannot
+            // write: the only side effect remains below the cancellation check.
+            const signal = this.controller.signal;
+            let onAbort = () => {};
+            const stopped = new Promise<never>((_resolve, reject) => {
+                onAbort = () => reject(new Error("Approval cancelled by Stop"));
+                signal.addEventListener("abort", onAbort, { once: true });
+            });
+            let decision: "accept" | "acceptForSession" | "decline" | "cancel" | undefined;
+            try {
+                decision = await Promise.race([
+                    Promise.resolve(this.hooks.onApproval?.({ kind: "fileChange", method: "gemini/write_file", summary: `Write ${target}`, params: { path: target, content: args.content } })),
+                    stopped,
+                ]);
+            } finally {
+                signal.removeEventListener("abort", onAbort);
+            }
+            signal.throwIfAborted();
+            // Never promote session-wide grants to authority to modify a file.
+            if (decision !== "accept")
+                return { error: "Per-action user approval required; file was not written" };
             // Revalidate after waiting for approval so symlink replacement cannot widen access.
             const rechecked = this.workspacePath(args.path, true);
             if (rechecked !== target)
