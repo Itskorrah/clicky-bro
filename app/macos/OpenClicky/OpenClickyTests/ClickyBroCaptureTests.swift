@@ -21,6 +21,26 @@ struct ClickyBroCaptureTests {
         #expect(!CompanionScreenCaptureUtility.matchesSelectedWindow(selected, windowID: 41, processID: 701))
         #expect(!CompanionScreenCaptureUtility.matchesSelectedWindow(nil, windowID: 41, processID: 700))
     }
+    @Test func movedWindowWithUnchangedSizeIsNotTreatedAsSameCapture() {
+        let before = CGRect(x: 20, y: -100, width: 800, height: 600)
+        let moved = CGRect(x: 21, y: -100, width: 800, height: 600)
+        let resized = CGRect(x: 20, y: -100, width: 801, height: 600)
+        #expect(CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: before))
+        #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: moved))
+        #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: resized))
+        #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: .zero, after: .zero))
+    }
+
+    @Test func captureDiagnosisSeparatesPermissionFromDeliveredFrame() {
+        let stale = CompanionCaptureDiagnosis(permissionReported: true, hadSelectedWindow: true,
+            frameCaptured: false, detail: "capture denied")
+        let working = CompanionCaptureDiagnosis(permissionReported: false, hadSelectedWindow: true,
+            frameCaptured: true, detail: "frame available")
+        #expect(stale.summary.contains("No usable local frame"))
+        #expect(working.summary.contains("Local frame captured"))
+        #expect(stale.summary.contains("macOS reports Screen Recording allowed"))
+    }
+
     @Test func privateKeyReaderRejectsSymlinksAndPublicPermissions() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
