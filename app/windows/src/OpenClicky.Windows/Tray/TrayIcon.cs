@@ -49,7 +49,7 @@ public sealed class TrayIcon : IDisposable
     {
         this.readState = readState;
         icon = LoadIcon();
-        notifyIcon = new NotifyIcon { Icon = icon, Text = "clicky-bro", Visible = false };
+        notifyIcon = new NotifyIcon { Icon = icon, Text = "Clicky Bro", Visible = false };
         notifyIcon.ContextMenuStrip = new ContextMenuStrip { ShowCheckMargin = true, ShowImageMargin = false };
         notifyIcon.ContextMenuStrip.Opening += (_, _) => BuildMenu(notifyIcon.ContextMenuStrip);
         // Either click opens the menu, as on the Mac.
@@ -80,7 +80,7 @@ public sealed class TrayIcon : IDisposable
     {
         var state = readState();
         menu.Items.Clear();
-        menu.Items.Add(new ToolStripLabel($"● clicky-bro — {state.StatusText}")
+        menu.Items.Add(new ToolStripLabel($"● Clicky Bro — {state.StatusText}")
         {
             Font = new Font(SystemFonts.MenuFont ?? Control.DefaultFont, FontStyle.Bold),
             ForeColor = state.StatusText == "Ready" ? Color.FromArgb(0x2E, 0x9E, 0x4F) : Color.FromArgb(0xD9, 0x7A, 0x00),
@@ -90,12 +90,12 @@ public sealed class TrayIcon : IDisposable
         menu.Items.Add(Item("Agent Mode", () => AgentModeToggled?.Invoke(), state.IsAgentModeEnabled));
         menu.Items.Add(Item(state.IslandIsSideDrawer ? "Dock Pointer in the Drawer" : "Dock Pointer in the Island", () => DockToggled?.Invoke(), state.IsCursorDocked));
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(Item("Open clicky-bro", () => OpenWindowRequested?.Invoke()));
+        menu.Items.Add(Item("Open Clicky Bro", () => OpenWindowRequested?.Invoke()));
         menu.Items.Add(Item("Open the Island", () => OpenIslandRequested?.Invoke()));
         menu.Items.Add(Item("Settings…", () => SettingsRequested?.Invoke(), shortcut: "Ctrl+,"));
         menu.Items.Add(Item("Replay Welcome…", () => ReplayWelcomeRequested?.Invoke()));
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(Item("Quit clicky-bro", () => QuitRequested?.Invoke()));
+        menu.Items.Add(Item("Quit Clicky Bro", () => QuitRequested?.Invoke()));
     }
 
     private static ToolStripMenuItem Item(string title, Action onClick, bool? isOn = null, string? shortcut = null)
