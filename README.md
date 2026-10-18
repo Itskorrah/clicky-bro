@@ -104,7 +104,7 @@ There are currently two local speech routes on the Mac:
 
 The Windows foundation also implements Parakeet. Local transcription has **no per-minute cloud API quota**, but uses CPU, memory and disk. Optional transcript polishing can independently use a cloud model, so a local recogniser does **not** necessarily make the final writing process offline.
 
-Download consent, downloadable multilingual Whisper models, long-form VAD and a guaranteed offline-only mode are prioritised in the [speech roadmap](docs/PRODUCT_ROADMAP.md). None is currently marketed as completed.
+Downloadable multilingual Whisper models, long-form VAD and a guaranteed offline-only mode are prioritised in the [speech roadmap](docs/PRODUCT_ROADMAP.md). None is currently marketed as completed.
 
 ## Privacy, security and authority
 
