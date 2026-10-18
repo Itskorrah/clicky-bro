@@ -56,7 +56,7 @@ The [product status](PRODUCT_STATUS.md) distinguishes shipped source, old test e
 
 In **Workspace → Helpers**, choose **Start with a template** to draft one of three read-only helpers: explain a local `error.txt`, plan from `goal.txt`, or review `draft.txt`. Place that file inside the agent's configured workspace, inspect the draft, then save and run it. No template turns on memory, file writes or desktop actions. Results appear in **Runs & files**. These workflows still need hands-on acceptance and are not a replacement for selected-window Teach.
 
-Gemini helper writes now require approval of each individual file action; a session-wide grant is insufficient, and Stop interrupts a pending approval. The native companion’s Stop control also cancels active agent work rather than only silencing speech. The source and regression tests for these changes are in a PR; **they have not yet passed a new native build**. See the [implementation record](docs/IMPLEMENTATION_2026-10-19.md) for reproducible commands and limitations.
+For interactive Gemini approval, each file request must receive its own explicit acceptance; session-wide approval is rejected, and Stop interrupts pending approvals. **A helper's explicit “Allow file writes” toggle remains a blanket opt-in for writes within that helper's workspace, without a further native dialogue**—use a disposable workspace and leave it off for read-only tasks. The native companion’s Stop control also cancels active agent work rather than only silencing speech. The source and regression tests for these changes are in a PR; **they have not yet passed a new native build**. See the [implementation record](docs/IMPLEMENTATION_2026-10-19.md) for reproducible commands and limitations.
 
 ## Verify
 
