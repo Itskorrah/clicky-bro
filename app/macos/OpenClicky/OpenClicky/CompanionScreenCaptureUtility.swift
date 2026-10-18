@@ -23,6 +23,22 @@ enum CompanionScreenCaptureStopReason: String, Sendable {
     case captureFailed
 }
 
+/// A local diagnostic records only whether a frame was delivered, never its pixels.
+/// CGPreflightScreenCaptureAccess is a useful signal, not proof that ScreenCaptureKit works.
+struct CompanionCaptureDiagnosis: Equatable {
+    let permissionReported: Bool
+    let hadSelectedWindow: Bool
+    let frameCaptured: Bool
+    let detail: String
+
+    var summary: String {
+        let permission = permissionReported ? "macOS reports Screen Recording allowed" : "macOS has not confirmed Screen Recording for this build"
+        let selection = hadSelectedWindow ? "Selected window present" : "No window selected"
+        let frame = frameCaptured ? "Local frame captured" : "No usable local frame"
+        return "\(permission) · \(selection) · \(frame). \(detail)"
+    }
+}
+
 /// Every model-facing capture is limited to one explicitly selected window.
 /// Closing/moving the target never silently expands sharing to a display.
 @MainActor
@@ -59,6 +75,33 @@ enum CompanionScreenCaptureUtility {
     static func cancelPendingWindowSelection() {
         guard activeWindowPicker != nil else { return }
         NSApp.abortModal()
+    }
+
+    /// The diagnostics button never opens a picker or sends image data to a provider.
+    /// Preflight and an actual selected-window frame are independent observations.
+    static func diagnoseSelectedWindow() async -> CompanionCaptureDiagnosis {
+        let reported = CGPreflightScreenCaptureAccess()
+        guard selection != nil else {
+            return CompanionCaptureDiagnosis(permissionReported: reported, hadSelectedWindow: false,
+                frameCaptured: false, detail: "Choose a window from the companion first, then test this exact app build.")
+        }
+        do {
+            let frame = try await captureSelectedWindow()
+            return CompanionCaptureDiagnosis(permissionReported: reported, hadSelectedWindow: true,
+                frameCaptured: !frame.imageData.isEmpty,
+                detail: "Received \(frame.screenshotWidthInPixels) × \(frame.screenshotHeightInPixels) pixels locally. Nothing was sent or saved.")
+        } catch is CancellationError {
+            return CompanionCaptureDiagnosis(permissionReported: reported, hadSelectedWindow: true,
+                frameCaptured: false, detail: "The test was cancelled.")
+        } catch {
+            return CompanionCaptureDiagnosis(permissionReported: reported, hadSelectedWindow: true,
+                frameCaptured: false, detail: "Capture failed: \(error.localizedDescription). Check this app’s Screen Recording entry, then quit and reopen.")
+        }
+    }
+
+    nonisolated static func hasStableWindowFrame(before: CGRect, after: CGRect) -> Bool {
+        before == after && before.width > 0 && before.height > 0 &&
+            before.width.isFinite && before.height.isFinite
     }
 
     static func captureSelectedWindow() async throws -> CompanionScreenCapture {
@@ -161,8 +204,8 @@ enum CompanionScreenCaptureUtility {
             stopSharing(ifMatching: selected, reason: .windowClosed)
             throw failure("The shared window closed during capture. Choose a window again; nothing else was captured.")
         }
-        guard latestWindow.frame.size == window.frame.size else {
-            throw failure("The shared window changed size during capture. Ask again for a fresh image.")
+        guard Self.hasStableWindowFrame(before: window.frame, after: latestWindow.frame) else {
+            throw failure("The shared window moved or resized during capture. Ask again for a fresh image.")
         }
         guard let data = NSBitmapImageRep(cgImage: image).representation(using: .jpeg, properties: [.compressionFactor: 0.8]) else {
             stopSharing(ifMatching: selected, reason: .captureFailed)
