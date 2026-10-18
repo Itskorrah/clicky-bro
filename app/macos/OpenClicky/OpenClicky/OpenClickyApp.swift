@@ -361,7 +361,7 @@ final class CompanionAppDelegate: NSObject, NSApplicationDelegate {
             workspaceController = controller
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 960, height: 680),
                                   styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-            window.title = "clicky-bro — Workspace"
+            window.title = "Clicky Bro — Workspace
             window.isReleasedWhenClosed = false
             window.contentView = NSHostingView(rootView: ClickyBroWorkspaceView(controller: controller))
             window.center()
