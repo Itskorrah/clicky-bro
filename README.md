@@ -58,6 +58,27 @@ In **Workspace → Helpers**, choose **Start with a template** to draft one of t
 
 For interactive Gemini approval, each file request must receive its own explicit acceptance; session-wide approval is rejected, and Stop interrupts pending approvals. **A helper's explicit “Allow file writes” toggle remains a blanket opt-in for writes within that helper's workspace, without a further native dialogue**—use a disposable workspace and leave it off for read-only tasks. The native companion’s Stop control also cancels active agent work rather than only silencing speech. The source and regression tests for these changes are in a PR; **they have not yet passed a new native build**. See the [implementation record](docs/IMPLEMENTATION_2026-10-19.md) for reproducible commands and limitations.
 
+## Verify without GitHub Actions
+
+A local, dependency-free verification runner checks the Python suite, agent and
+backend TypeScript checks, build, tests and ESLint, without installing packages,
+changing permissions or calling a paid provider. On a fresh checkout, install
+Node dependencies explicitly first:
+
+```bash
+npm ci --prefix app --ignore-scripts
+python3 scripts/check_local.py --list
+python3 scripts/check_local.py --report .local/evidence/checks.json
+```
+
+On a Mac use `python3 scripts/check_local.py --native` to include native tests;
+`--windows` includes the portable .NET core tests wherever the SDK is available;
+`--linux` opts into the Linux pytest suite. A non-zero exit can mean **missing
+prerequisites** (exit 2), not merely a failing test (exit 1). Exit 0 requires
+every selected check to pass. Reports contain results, durations and reasons
+only, never captured test output or keys. Existing report files are preserved.
+A passing runner is **not** acceptance of live macOS TCC, GUI or hardware.
+
 ## Verify
 
 ```bash

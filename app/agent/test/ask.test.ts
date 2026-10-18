@@ -21,6 +21,20 @@ beforeAll(async () => {
         res.writeHead(401, { "content-type": "application/json" }).end(JSON.stringify({ error: "nope" }));
         return;
       }
+      if (body.messages.at(-1)?.content === "send CRLF") {
+        res.writeHead(200, { "content-type": "text/event-stream" });
+        const event = (c: string) => "data: " + JSON.stringify({ choices: [{ delta: { content: c } }] }) + "\r\n\r\n";
+        const a = event("line ");
+        res.write(a.slice(0, -1));
+        res.write(a.slice(-1));
+        res.end(event("ending") + "data: [DONE]\r\n\r\n");
+        return;
+      }
+      if (body.messages.at(-1)?.content === "drop connection") {
+        res.writeHead(200, { "content-type": "text/event-stream" });
+        res.end("data: " + JSON.stringify({ choices: [{ delta: { content: "partial" } }] }) + "\n\n");
+        return;
+      }
       res.writeHead(200, { "content-type": "text/event-stream" });
       const chunk = (c: string) => `data: ${JSON.stringify({ choices: [{ delta: { content: c } }] })}\n\n`;
       res.write(chunk("Hel"));
@@ -55,6 +69,16 @@ describe("ask", () => {
     expect(last.body.model).toBe("default");
     expect(last.body.stream).toBe(true);
     expect(last.body.messages.at(-1)).toEqual({ role: "user", content: "say hi" });
+  });
+
+  it("accepts CRLF stream events split across writes", async () => {
+    const cfg = resolveConfig({ backendUrl: url, token: "good" });
+    expect(await ask(cfg, "send CRLF")).toBe("line ending");
+  });
+
+  it("rejects prematurely closed streams rather than silently treating them as success", async () => {
+    const cfg = resolveConfig({ backendUrl: url, token: "good" });
+    await expect(ask(cfg, "drop connection")).rejects.toThrow(/completion marker/);
   });
 
   it("attaches an image as a data URL part", async () => {

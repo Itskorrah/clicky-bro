@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import type { AgentConfig } from "./config.js";
 import { geminiAsk } from "./gemini.js";
+import { readSseAnswer } from "./sse.js";
+export { parseSseChunk, parseSseStream } from "./sse.js";
 import { openaiRoute, needsOpenAI, DIRECT_DEFAULTS } from "./providerRoute.js";
 
 export interface AskOptions {
@@ -22,39 +24,6 @@ const MIME: Record<string, string> = { ".png": "image/png", ".jpg": "image/jpeg"
 export function imageToDataUrl(imagePath: string): string {
   const mime = MIME[path.extname(imagePath).toLowerCase()] ?? "image/png";
   return `data:${mime};base64,${fs.readFileSync(imagePath).toString("base64")}`;
-}
-
-/** Extract text deltas from an OpenAI chat-completions SSE buffer. Returns the joined text and the unparsed tail. */
-export function parseSseChunk(buffer: string): { text: string; rest: string; done: boolean } {
-  let text = "";
-  let done = false;
-  let rest = buffer;
-  let i: number;
-  while ((i = rest.indexOf("\n\n")) >= 0) {
-    const event = rest.slice(0, i);
-    rest = rest.slice(i + 2);
-    for (const line of event.split("\n")) {
-      if (!line.startsWith("data:")) continue;
-      const data = line.slice(5).trim();
-      if (data === "[DONE]") {
-        done = true;
-        continue;
-      }
-      try {
-        const json = JSON.parse(data);
-        const delta = json.choices?.[0]?.delta?.content ?? json.choices?.[0]?.message?.content;
-        if (typeof delta === "string") text += delta;
-      } catch {
-        /* ignore keep-alives / partial */
-      }
-    }
-  }
-  return { text, rest, done };
-}
-
-/** Whole-buffer convenience for tests and non-streaming responses. */
-export function parseSseStream(text: string): string {
-  return parseSseChunk(text.endsWith("\n\n") ? text : text + "\n\n").text;
 }
 
 /**
@@ -94,22 +63,11 @@ export async function ask(cfg: AgentConfig, question: string, opts: AskOptions =
     // Non-streaming upstream (e.g. a provider that ignores stream:true).
     const json: any = await res.json();
     const text = json.choices?.[0]?.message?.content ?? "";
+    if (!text.trim()) throw new Error("Answer provider returned an empty response.");
     opts.onDelta?.(text);
     return text;
   }
 
-  let out = "";
-  let buffer = "";
-  const decoder = new TextDecoder();
-  for await (const chunk of res.body as unknown as AsyncIterable<Uint8Array>) {
-    buffer += decoder.decode(chunk, { stream: true });
-    const { text, rest, done } = parseSseChunk(buffer);
-    buffer = rest;
-    if (text) {
-      out += text;
-      opts.onDelta?.(text);
-    }
-    if (done) break;
-  }
-  return out;
+  if (!res.body) throw new Error("Answer provider returned an empty stream.");
+  return readSseAnswer(res.body as unknown as AsyncIterable<Uint8Array>, opts.onDelta);
 }
