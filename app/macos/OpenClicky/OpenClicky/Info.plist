@@ -7,11 +7,11 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>clicky-bro uses your microphone so you can talk to it</string>
+	<string>Clicky Bro uses your microphone when you start speaking to it.</string>
 	<key>NSScreenCaptureUsageDescription</key>
-	<string>clicky-bro needs screen recording access to see only the window you choose and help you.</string>
+	<string>Clicky Bro requests screen access to see only the window you select.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>clicky-bro uses speech recognition to transcribe your voice when you talk to it</string>
+	<string>Clicky Bro uses speech recognition to transcribe speech you choose to record.</string>
 	<key>SUEnableAutomaticChecks</key>
 	<false/>
 	<key>SUScheduledCheckInterval</key>
