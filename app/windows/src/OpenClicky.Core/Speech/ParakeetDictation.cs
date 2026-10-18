@@ -7,7 +7,8 @@
 // recogniser or Sarvam.
 //
 // The engine is the sherpa-onnx package that already ships for Kokoro; only the model (465 MB) is
-// downloaded. The loaded model lives in a helper process that starts the moment the dictation key
+// downloaded only after the user presses Download in Settings. The loaded model lives in a helper process
+// that starts the moment the dictation key
 // goes down (it loads while the person speaks) and ends after three minutes without a take, or at
 // once under memory pressure.
 
