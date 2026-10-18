@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">Clicky Bro</title>
+<desc id="desc">Original Clicky Bro mark: a cream cursor with a coral accent inside a charcoal rounded square.</desc>
+<rect x="16" y="16" width="480" height="480" rx="116" fill="#202329"/>
+<rect x="32" y="32" width="448" height="448" rx="100" fill="none" stroke="#616671" stroke-width="4" opacity=".45"/>
+<path d="M137 102L360 251L259 268L216 377C213 385 202 385 197 377L120 128C116 113 125 99 137 102Z" fill="#F6F7F9" stroke="#DCE1E7" stroke-width="10" stroke-linejoin="round"/>
+<path d="M259 268L303 376" stroke="#E8653F" stroke-width="41" stroke-linecap="round"/>
+<path d="M259 268L303 376" stroke="#F39A7E" stroke-width="11" stroke-linecap="round" opacity=".8"/>
+<circle cx="368" cy="147" r="26" fill="#E8653F"/>
+<path d="M368 108V96M407 147H419M368 186V198M329 147H317" stroke="#E8653F" stroke-width="10" stroke-linecap="round"/>
+</svg>
