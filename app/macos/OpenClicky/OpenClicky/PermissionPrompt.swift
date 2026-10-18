@@ -62,9 +62,9 @@ enum PermissionStep: String, CaseIterable, Identifiable {
     /// The line once the request is out and we're waiting on the user in System Settings.
     var waitingDetail: String {
         switch self {
-        case .microphone: return "switch openclicky on in the microphone list."
+        case .microphone: return "allow this running app in the Microphone list."
         case .accessibility: return "drag me into the accessibility list."
-        case .screenRecording: return "switch openclicky on (or drag me into the list), then quit & reopen."
+        case .screenRecording: return "allow this exact app build in Screen & System Audio Recording, then quit and reopen."
         case .screenContent: return "choose one window in the picker to start sharing."
         }
     }
