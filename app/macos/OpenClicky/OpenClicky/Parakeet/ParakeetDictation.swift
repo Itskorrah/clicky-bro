@@ -9,9 +9,8 @@
 //  languages. No Indian languages: those stay with Apple's recogniser or Sarvam.
 //
 //  The engine is the sherpa-onnx library that already ships for Kokoro; only the model (465 MB)
-//  is downloaded. It downloads on its own once the welcome tour is done and takes over from
-//  Apple's recogniser on every Mac (macOS 26's included: a tester on 26 only got it after finding
-//  it in Settings, 2026-10-15), unless the person already moved to another engine.
+//  is downloaded. It is installed only after the user presses Download, never silently
+//  after onboarding. Selecting Parakeet does not fetch a model or choose a paid engine.
 //
 //  The loaded model lives in a helper process that starts the moment the dictation key goes down
 //  (it loads while the person speaks) and ends after three minutes without a take, or at once
@@ -121,21 +120,11 @@ final class ParakeetDictation: ObservableObject {
     /// offline engine is the old recogniser; on 26 Apple's is better but Parakeet still hears more.
     nonisolated static var isRecommendedForThisMac: Bool { true }
 
-    /// At launch and when the welcome tour ends: on a Mac whose dictation is on the offline engine,
-    /// the model downloads in the background and takes over when it is ready.
+    /// Kept for existing launch call sites. Model installation now requires an explicit
+    /// Download press in Settings; onboarding/launch must not fetch 465 MB behind
+    /// the user's back or consume unrequested bandwidth and disk space.
     func startAutomaticSetup(tourIsFinished: Bool, engine currentEngine: DictationEngineChoice, bareLanguageCode: String?) {
-        guard Self.isRecommendedForThisMac, !Self.isInstalled, tourIsFinished, downloadTask == nil,
-              currentEngine == .offline, Self.hears(bareLanguageCode: bareLanguageCode),
-              !UserDefaults.standard.bool(forKey: Self.declinedKey),
-              ModelDownload.freeSpace() >= ModelDownload.automaticDownloadFreeSpace else { return }
-        Task {
-            if await ModelDownload.networkIsExpensiveOrConstrained() {
-                AppLog.append("parakeet: automatic download waits for an unmetered network")
-                return
-            }
-            AppLog.append("parakeet: automatic download started")
-            download(isAutomatic: true)
-        }
+        // No background download. The model remains available through Settings.
     }
 
     /// The engine once an automatic download finishes: Parakeet replaces the old offline

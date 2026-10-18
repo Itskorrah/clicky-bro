@@ -182,23 +182,12 @@ public sealed partial class ParakeetDictation : ObservableObject
     public void StartAutomaticSetup(bool tourIsFinished, DictationSettings settings) =>
         StartAutomaticSetup(tourIsFinished, settings.Engine.Id(), settings.Language.BareCode);
 
-    /// <summary>At launch and when the welcome tour ends: on a PC whose dictation is on the offline engine,
-    /// the model downloads in the background and takes over when it is ready.</summary>
+    /// <summary>Compatibility entry point for existing startup callers.
+    /// Parakeet installation now requires an explicit Download button click.
+    /// No network traffic or large model install is triggered by onboarding.</summary>
     public void StartAutomaticSetup(bool tourIsFinished, string currentEngineRawValue, string? bareLanguageCode)
     {
-        bool downloading;
-        lock (taskLock) downloading = downloadCancellation is not null;
-        if (!IsRecommendedForThisPC || IsInstalled || !tourIsFinished || downloading
-            || currentEngineRawValue != OfflineEngineRawValue || !Hears(bareLanguageCode)
-            || preferences.GetBool(DeclinedKey)
-            || ModelDownload.FreeSpace() < ModelDownload.AutomaticDownloadFreeSpace) return;
-        if (ModelDownload.NetworkIsExpensiveOrConstrained(network))
-        {
-            AppLog.Write("parakeet: automatic download waits for an unmetered network");
-            return;
-        }
-        AppLog.Write("parakeet: automatic download started");
-        Download(isAutomatic: true);
+        // Intentionally inert: never auto-install a 465 MB model.
     }
 
     /// <summary>The engine once an automatic download finishes: Parakeet replaces the old offline

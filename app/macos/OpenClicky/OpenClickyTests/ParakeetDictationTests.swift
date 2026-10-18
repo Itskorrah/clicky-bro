@@ -19,7 +19,7 @@ struct ParakeetDictationTests {
         #expect(!ParakeetDictation.hears(bareLanguageCode: "ml"))
     }
 
-    @Test func everyMacGetsParakeetWithoutAsking() {
+    @Test func everyMacCanChooseToInstallParakeet() {
         #expect(ParakeetDictation.isRecommendedForThisMac)
     }
 

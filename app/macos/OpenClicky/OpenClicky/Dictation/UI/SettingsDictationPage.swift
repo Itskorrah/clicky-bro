@@ -111,7 +111,6 @@ private struct VoiceProviderOption: View {
         VStack(alignment: .leading, spacing: 6) {
             Button(action: {
                 settings.engine = choice
-                if choice == .parakeet { ParakeetDictation.shared.download() }
             }) {
                 HStack(alignment: .top, spacing: 10) {
                     SettingsRadioDot(isSelected: isSelected).padding(.top, 1)
@@ -162,10 +161,10 @@ private struct ParakeetDownloadRow: View {
         HStack(spacing: 8) {
             switch parakeet.state {
             case .notInstalled:
-                caption("Not downloaded yet. Takes stay with Apple’s recogniser until it is.")
+                caption("Optional 465 MB download. Choose Download to install this offline model.")
                 Button("Download \(ParakeetDictation.downloadSizeText)") { parakeet.download() }.controlSize(.small)
             case .downloading(let fraction):
-                caption("Downloading, \(Int((fraction * 100).rounded()))%. Takes stay with Apple’s recogniser until it’s ready.")
+                caption("Downloading, \(Int((fraction * 100).rounded()))%. You can cancel before installation.")
                 ProgressView(value: fraction).frame(width: 100)
                 Button("Cancel") { parakeet.cancelDownload() }.controlSize(.small)
             case .unpacking:

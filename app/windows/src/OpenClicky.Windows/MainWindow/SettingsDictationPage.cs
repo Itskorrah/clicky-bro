@@ -104,7 +104,6 @@ internal sealed partial class SettingsRowFactory
             var option = Ui.RadioOption(isSelected, choice.SettingsTitle(), choice.SettingsDetail(), query, () =>
             {
                 Settings.Engine = choice;
-                if (choice == DictationEngineChoice.Parakeet && parakeet.State.Kind == ModelDownloadState.Stage.NotInstalled) parakeet.Download();
             }, Ui.Tag(choice.AudioDestinationTag(), choice.IsOnDevice()), badge);
             var stack = new StackPanel();
             stack.Children.Add(option);
@@ -134,8 +133,8 @@ internal sealed partial class SettingsRowFactory
 
     private static string ParakeetCaption(ModelDownloadState state) => state.Kind switch
     {
-        ModelDownloadState.Stage.NotInstalled => "Not downloaded yet. Takes stay with Windows speech recognition until it is.",
-        ModelDownloadState.Stage.Downloading => $"Downloading, {(int)Math.Round(state.Fraction * 100)}%. Takes stay with Windows speech recognition until it’s ready.",
+        ModelDownloadState.Stage.NotInstalled => "Optional 465 MB download. Press Download to install this offline model.",
+        ModelDownloadState.Stage.Downloading => $"Downloading, {(int)Math.Round(state.Fraction * 100)}%. You can cancel before installation.",
         ModelDownloadState.Stage.Unpacking => "Unpacking. Almost there.",
         ModelDownloadState.Stage.Failed => state.Message ?? "The download failed.",
         _ => "Downloaded. It loads while you speak, so takes start straight away.",
