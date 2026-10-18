@@ -12,22 +12,36 @@ After the final build:
 
 1. Quit the clicky-bro copy that is running.
 2. Open **System Settings > Privacy & Security > Screen & System Audio
-   Recording** and remove the old **OpenClicky** entry. The existing Enabled
-   row is for the older app identity.
+   Recording**. Do **not** remove or modify HeyClicky or another product's entry.
+   An old Allowed entry does not prove access for the currently running app.
+   If the current build is not listed, add the exact bundle in step 3.
 3. In Finder, choose **Go > Go to Folder**, enter
    `~/Library/Caches/clicky-bro/DerivedData-local/Build/Products/Debug/OpenClicky.app`,
    and locate that exact app bundle. Add that bundle to Screen & System Audio
    Recording and enable its entry.
 4. Relaunch the same app with `python3 scripts/dev.py launch`.
 
-The user has enabled the old OpenClicky row, but has not yet removed it and
-re-added the exact current bundle. The current bundle has not passed permission
+An old OpenClicky entry was observed in the previous developer environment, but
+the exact currently running bundle has not been confirmed as allowed. The current bundle has not passed permission
 acceptance or a full capture test. Do not count the Settings toggle by itself as
 success. A later rebuild can change the app's code identity again and may
 require repeating registration until a properly signed distribution provides a
 stable identity. No TCC reset or signing configuration change was made.
 
 ## Verify capture
+
+On this branch, first open **Settings → Privacy & Security → Selected-window capture test**. With no chosen window, press **Test frame** and confirm it says *No window selected* without opening a picker or sending an image. Then share a disposable window through the companion and press **Test frame** again. Record both independent fields: (a) Screen Recording permission as reported by CoreGraphics, and (b) a successfully delivered **local frame** with dimensions. Do not equate a green system permission row with a successful frame. A passed frame test still does not prove it contains the intended visible content.
+
+Check the following cases separately in the **same build and signature**: denied permission; allowed permission after app restart; selected window moved without resizing while capture is in progress; resized window; window closed; window moved to a second display; Stop during capture; Stop during model/approval; and an app relaunch with no sharing selected. A moved/resized-in-flight window should yield a retriable error, never a stale coordinate mapping or a full-screen image. When sharing stops, any cached realtime image must be cleared.
+
+To identify this *specific* build without changing permissions, run on the Mac (after building):
+
+```sh
+/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$HOME/Library/Caches/clicky-bro/DerivedData-local/Build/Products/Debug/OpenClicky.app/Contents/Info.plist"
+codesign -dv --verbose=4 "$HOME/Library/Caches/clicky-bro/DerivedData-local/Build/Products/Debug/OpenClicky.app" 2>&1
+```
+
+Record the macOS version and commit as well. Do not run `tccutil reset`, alter unrelated TCC entries or loosen OS security for testing. If the OS cannot associate permission with ad-hoc builds consistently, stabilise the signing identity and rebuild before retesting.
 
 Use a disposable window with no personal information. Confirm the app captures
 only the explicitly selected window, reports a clear failure when access is
