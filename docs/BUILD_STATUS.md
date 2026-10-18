@@ -4,6 +4,18 @@ Updated 18 October 2026. This is a local development build based on the pinned
 MIT native OpenClicky source, not a completed commercial HeyClicky replacement.
 The source and tests below distinguish implementation from runtime acceptance.
 
+## 19 October 2026 change note (branch pending review)
+
+The focused [implementation record](IMPLEMENTATION_2026-10-19.md) adds whole-frame
+position/size revalidation, an explicit local-only capture diagnostic in Privacy,
+strictly per-action Gemini file approvals, Stop while a native approval hook is
+pending, and three read-only workspace starter drafts. Regression tests were added
+but **not executed in the Linux/GitHub-only environment**; none of the historical
+test totals below includes these commits. Native capture permission, UI, dictation
+and Windows desktop acceptance remain open. See the root [PRODUCT_STATUS.md](../PRODUCT_STATUS.md).
+No new real-device screenshots, fresh build, deployment or release evidence was
+produced on this branch.
+
 ## Implemented in this checkout
 
 | Area | Current behavior | Acceptance still needed |
