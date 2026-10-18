@@ -50,6 +50,14 @@ to register the exact current bundle and verify capture. Grant Accessibility
 only when testing native pointing/insertion, and microphone/speech permissions
 when testing dictation. Sharing never silently expands to all displays.
 
+## Current feature-branch improvements (19 October 2026)
+
+The [product status](PRODUCT_STATUS.md) distinguishes shipped source, old test evidence and pending real-device acceptance. The new **Settings → Privacy & Security → Selected-window capture test** checks the OS permission signal separately from whether ScreenCaptureKit can actually return a JPEG from the window you already chose. It never opens another window picker, saves the frame or sends it to an AI provider. A window moving or resizing mid-capture invalidates that screenshot instead of providing a misplaced pointer.
+
+In **Workspace → Helpers**, choose **Start with a template** to draft one of three read-only helpers: explain a local `error.txt`, plan from `goal.txt`, or review `draft.txt`. Place that file inside the agent's configured workspace, inspect the draft, then save and run it. No template turns on memory, file writes or desktop actions. Results appear in **Runs & files**. These workflows still need hands-on acceptance and are not a replacement for selected-window Teach.
+
+Gemini helper writes now require approval of each individual file action; a session-wide grant is insufficient, and Stop interrupts a pending approval. The source and regression tests for these changes are in a PR; **they have not yet passed a new native build**. See the [implementation record](docs/IMPLEMENTATION_2026-10-19.md) for reproducible commands and limitations.
+
 ## Verify
 
 ```bash
