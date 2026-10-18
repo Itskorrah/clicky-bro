@@ -21,6 +21,7 @@ Previous test numbers are historical evidence recorded in [docs/BUILD_STATUS.md]
 - Settings → Privacy & Security offers **Selected-window capture test**. It compares CoreGraphics' permission preflight with an actual local ScreenCaptureKit JPEG from the *already shared* window. It does not select another window, upload or persist that image. Neither an Allowed TCC switch nor a successful synthetic test proves the pixels are semantically correct.
 - A window that changes **position or size** during the asynchronous screenshot now requires a fresh capture. Window ID and owning PID remain enforced; no display fallback is introduced.
 - Gemini workspace writes require a distinct `accept` for that action; `acceptForSession` is explicitly insufficient. Stop interrupts a pending approval wait without allowing a late write.
+- The companion’s Stop control, application shutdown and a replacement question now cancel active agent work as well as the current answer. Actual in-flight native effects must still be checked on macOS: cancellation cannot undo an effect already completed.
 - Workspace starter drafts cover **error explanation** (`error.txt`), **step planning** (`goal.txt`) and **draft review** (`draft.txt`). They are read-only, memory-off, never auto-run and produce ordinary audited run results only when saved and explicitly run. They are examples, not proven live-screen workflows.
 
 ## Privacy and trust boundaries
