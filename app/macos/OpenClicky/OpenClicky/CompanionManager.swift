@@ -634,10 +634,10 @@ final class CompanionManager: ObservableObject {
 
     /// Silences everything this manager is saying and abandons the answer in progress: the queued
     /// pieces of a spoken answer, the response task, the answer voice, and a system-voice or
-    /// recorded notice. `includingAgentWork` also ends a running agent turn: a new question
-    /// replaces it, while the island's stop button only silences the voice and leaves the agent
-    /// working. The realtime session is left alone: its next turn cancels its own reply, and only
-    /// the stop button silences it outright.
+    /// recorded notice. `includingAgentWork` ends a running agent turn: a new question,
+    /// the island's Stop control or shutdown replaces/cancels pending agent work.
+    /// Already completed effects cannot be undone. The realtime session is left alone:
+    /// its next turn cancels its own reply, while Stop silences it outright.
     private func interruptCurrentAnswer(includingAgentWork: Bool) {
         CompanionScreenCaptureUtility.cancelPendingWindowSelection()
         if let alert = activeQuickActionAlert {
