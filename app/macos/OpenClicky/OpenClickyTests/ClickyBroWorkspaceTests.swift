@@ -214,7 +214,7 @@ struct ClickyBroWorkspaceTests {
             #expect(helper.scope.contains("Do not take desktop actions"))
             #expect(!helper.name.isEmpty)
         }
-        #expect(Set(WorkspaceStarterTemplate.allCases.map(\\.requiredFile)).count == 3)
+        #expect(Set(WorkspaceStarterTemplate.allCases.map(\.requiredFile)).count == 3)
     }
 
     @Test func olderHelpersDecodeWithoutFilePermissionAndMemberwiseInitStaysAvailable() throws {
