@@ -1,3 +1,5 @@
+> **19 October 2026 source note:** Azure theme tokens, a local speech-quality benchmark and explicit Parakeet Download actions are being developed. These changes do **not** have fresh current-branch Swift/WPF builds or real-model/device acceptance. No unverified capability below should be considered released.
+
 # clicky-bro development status
 
 Updated 18 October 2026. This is a local development build based on the pinned

@@ -21,7 +21,23 @@ enum DS {
     enum Colors {
 
         /// The agent result card's status dot once the agent has answered.
-        static let accent = Color(hex: "#2563eb")             // Tailwind Blue 600
+        static let accent = adaptive(light: 0x2563EB, dark: 0x60A5FA)
+        static let canvas = adaptive(light: 0xF7FAFF, dark: 0x0B1220)
+        static let surface = adaptive(light: 0xFFFFFF, dark: 0x172338)
+        static let surfaceRaised = adaptive(light: 0xEFF6FF, dark: 0x1D2B44)
+        static let primaryText = adaptive(light: 0x0F172A, dark: 0xF8FAFC)
+        static let secondaryText = adaptive(light: 0x64748B, dark: 0xA8B6CA)
+        static let border = adaptive(light: 0xDEE7F3, dark: 0x334155)
+
+        /// Semantic colours follow this window's effective NSAppearance, including system dark mode.
+        private static func adaptive(light: UInt32, dark: UInt32) -> Color {
+            Color(nsColor: NSColor(name: nil) { appearance in
+                let value = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light
+                return NSColor(srgbRed: CGFloat((value >> 16) & 0xff) / 255,
+                               green: CGFloat((value >> 8) & 0xff) / 255,
+                               blue: CGFloat(value & 0xff) / 255, alpha: 1)
+            })
+        }
 
         /// The agent result card's status dot while the companion is still working.
         static let warning = Color(hex: "#FFB224")            // Radix Amber 9
@@ -32,7 +48,7 @@ enum DS {
         /// Kept distinct from the accent since it serves a different purpose
         /// (screen overlay vs in-app UI).
         // OpenClicky: the buddy is red-orange like the current HeyClicky cursor (upstream was blue #3380FF).
-        static let overlayCursorColor = Color(hex: "#F0452B")
+        static let overlayCursorColor = Color(hex: "#3B82F6")
     }
 
     // MARK: - HUD (the notch island, always dark)
@@ -40,18 +56,18 @@ enum DS {
     /// The refinement sheet's "HUD · always dark" palette and control sizes. The island does not
     /// follow the system appearance: it is part of the notch.
     enum HUD {
-        static let island = Color(hex: "#000000")
+        static let island = Color(hex: "#0B1220")
         /// Pills and the gear in the band, a step lighter than the island.
-        static let bandControl = Color(hex: "#1A1A1A")
-        static let surfaceRaised = Color(hex: "#262626")
+        static let bandControl = Color(hex: "#172338")
+        static let surfaceRaised = Color(hex: "#22324A")
         /// The (i) button and other secondary squares on a surface.
-        static let surfaceRaisedSoft = Color(hex: "#2A2A2A")
+        static let surfaceRaisedSoft = Color(hex: "#293C56")
         static let text = Color(hex: "#FFFFFF")
-        static let text2 = Color(hex: "#A3A3A3")
-        static let text3 = Color(hex: "#8A8A8A")
-        static let pointer = Color(hex: "#FF5A3C")
+        static let text2 = Color(hex: "#B8C8E0")
+        static let text3 = Color(hex: "#9BAFCB")
+        static let pointer = Color(hex: "#60A5FA")
         /// The "!" disc behind a permission card's mark.
-        static let pointerTint = Color(hex: "#2A1A14")
+        static let pointerTint = Color(hex: "#193454")
         static let live = Color(hex: "#34C77B")
 
         static let pillHeight: CGFloat = 24
