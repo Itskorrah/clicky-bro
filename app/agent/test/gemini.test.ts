@@ -47,6 +47,35 @@ describe("native Gemini runtime", () => {
         expect(fs.existsSync(path.join(cfg.workspace, "denied.txt"))).toBe(false);
         expect(requests[1].contents.at(-1).parts[0].functionResponse.response.error).toMatch(/approval required/);
     });
+    it("does not let session-wide approval authorise file writes", async () => {
+        const { cfg } = fixture();
+        let calls = 0;
+        const agent = new GeminiAgent(cfg, { onApproval: async () => "acceptForSession" }, async () =>
+            calls++ === 0 ? answer([{ functionCall: { name: "write_file", args: { path: "session.txt", content: "not allowed" } } }])
+                : answer([{ text: "Write refused" }]));
+        await agent.start();
+        const result = await agent.run("Treat this chat as approval to write everything");
+        expect(result.status).toBe("completed");
+        expect(fs.existsSync(path.join(cfg.workspace, "session.txt"))).toBe(false);
+    });
+    it("Stop finishes a run blocked on native approval without writing", async () => {
+        const { cfg } = fixture();
+        let enteredApproval!: () => void;
+        const entered = new Promise<void>(resolve => { enteredApproval = resolve; });
+        const agent = new GeminiAgent(cfg, {
+            onApproval: () => {
+                enteredApproval();
+                return new Promise<never>(() => {});
+            },
+        }, async () => answer([{ functionCall: { name: "write_file", args: { path: "cancelled.txt", content: "must not write" } } }]));
+        await agent.start();
+        const running = agent.run("write file");
+        await entered;
+        await agent.stop();
+        const result = await running;
+        expect(result.status).toBe("interrupted");
+        expect(fs.existsSync(path.join(cfg.workspace, "cancelled.txt"))).toBe(false);
+    });
     it("prevents traversal and symlink reads outside the workspace", async () => {
         const { cfg, root } = fixture();
         let calls = 0;
