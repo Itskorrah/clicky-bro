@@ -20,6 +20,7 @@ Evolve's audit → prioritise → implement → verify → ship methodology is a
 | Capture diagnostics | A green permission checkbox might coexist with unusable TCC capture; no extra screen permission or network should be inferred | Privacy settings provide explicit test of an *already selected* window; report both preflight and actual local JPEG, without storing/sending pixels |
 | Gemini file approval | Model text, a read-only helper or session-wide approval must never become permission to write a local file | Allow only a single explicit `accept`; reject `acceptForSession` |
 | Gemini Stop | A pending UI approval hook can remain unresolved after Stop | Race that hook against abort and ensure cancellation is checked before any filesystem effect |
+| Native companion Stop | Pressing the island’s Stop previously silenced speech but left an agent working; starting a new question and quitting could also leave agent work active | Cancel active agent work from Stop, shutdown and replacement questions; verify effects and approvals on a physical Mac |
 | Workspace usefulness | Empty workspace gives no safe first-run use cases | Three starter drafts: error.txt explanation, goal.txt plan, draft.txt review; default-deny memory/writes; explicit save/run |
 | Permission copy | Old product name can cause approval of the wrong app's TCC row | Refer to the exact running bundle rather than an adopted upstream product name |
 
