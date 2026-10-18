@@ -32,11 +32,33 @@ public static class DS
     public static class Colors
     {
         /// <summary>The agent result card's status dot once the agent has answered (Tailwind Blue 600).</summary>
-        public static readonly Color Accent = Hex("#2563eb");
+        public static readonly Color Accent = Hex("#2563EB");
+        /// Semantic Azure palette, mirrored in SwiftUI and XAML.
+        public static class AzureLight
+        {
+            public static readonly Color Canvas = Hex("#F7FAFF");
+            public static readonly Color Surface = Hex("#FFFFFF");
+            public static readonly Color SurfaceRaised = Hex("#EFF6FF");
+            public static readonly Color PrimaryText = Hex("#0F172A");
+            public static readonly Color SecondaryText = Hex("#64748B");
+            public static readonly Color Border = Hex("#DEE7F3");
+            public static readonly Color Accent = Hex("#2563EB");
+        }
+
+        public static class AzureDark
+        {
+            public static readonly Color Canvas = Hex("#0B1220");
+            public static readonly Color Surface = Hex("#172338");
+            public static readonly Color SurfaceRaised = Hex("#1D2B44");
+            public static readonly Color PrimaryText = Hex("#F8FAFC");
+            public static readonly Color SecondaryText = Hex("#A8B6CA");
+            public static readonly Color Border = Hex("#334155");
+            public static readonly Color Accent = Hex("#60A5FA");
+        }
         /// <summary>The agent result card's status dot while the companion is still working (Radix Amber 9).</summary>
         public static readonly Color Warning = Hex("#FFB224");
         /// <summary>The pointer and its bubbles: red-orange like the current HeyClicky cursor.</summary>
-        public static readonly Color OverlayCursor = Hex("#F0452B");
+        public static readonly Color OverlayCursor = Hex("#3B82F6");
 
         public static readonly SolidColorBrush OverlayCursorBrush = Brush(OverlayCursor);
     }
@@ -44,18 +66,18 @@ public static class DS
     /// <summary>The island, always dark: it is part of the top of the screen, not the app's appearance.</summary>
     public static class HUD
     {
-        public static readonly Color Island = Hex("#000000");
+        public static readonly Color Island = Hex("#0B1220");
         /// <summary>Pills and the gear in the band, a step lighter than the island.</summary>
-        public static readonly Color BandControl = Hex("#1A1A1A");
-        public static readonly Color SurfaceRaised = Hex("#262626");
+        public static readonly Color BandControl = Hex("#172338");
+        public static readonly Color SurfaceRaised = Hex("#22324A");
         /// <summary>The (i) button and other secondary squares on a surface.</summary>
-        public static readonly Color SurfaceRaisedSoft = Hex("#2A2A2A");
+        public static readonly Color SurfaceRaisedSoft = Hex("#293C56");
         public static readonly Color Text = Hex("#FFFFFF");
-        public static readonly Color Text2 = Hex("#A3A3A3");
-        public static readonly Color Text3 = Hex("#8A8A8A");
-        public static readonly Color Pointer = Hex("#FF5A3C");
+        public static readonly Color Text2 = Hex("#B8C8E0");
+        public static readonly Color Text3 = Hex("#9BAFCB");
+        public static readonly Color Pointer = Hex("#60A5FA");
         /// <summary>The "!" disc behind a permission card's mark.</summary>
-        public static readonly Color PointerTint = Hex("#2A1A14");
+        public static readonly Color PointerTint = Hex("#193454");
         public static readonly Color Live = Hex("#34C77B");
         /// <summary>The tour's "heard you" line.</summary>
         public static readonly Color Good = Color.FromRgb(102, 217, 128);
