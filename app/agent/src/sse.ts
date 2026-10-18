@@ -30,7 +30,7 @@ export function parseSseChunk(buffer: string): { text: string; rest: string; don
       // Ignore non-JSON keep-alives rather than accidentally rendering them.
     }
   }
-  if (rest.length > MAX_EVENT_CHARS) throw new Error("Answer stream event exceeded 1 MiB");
+  if (!done && rest.length > MAX_EVENT_CHARS) throw new Error("Answer stream event exceeded 1 MiB");
   return { text, rest, done };
 }
 
