@@ -68,20 +68,8 @@ enum DictationSettingsPage: String, CaseIterable, Identifiable {
         }
     }
 
-    var tint: Color {
-        switch self {
-        case .general: return Color(red: 0.557, green: 0.557, blue: 0.576)
-        case .dictation: return Color(red: 1.0, green: 0.231, blue: 0.188)
-        case .clicky: return Color(red: 1.0, green: 0.584, blue: 0.0)
-        case .voice: return Color(red: 0.996, green: 0.176, blue: 0.333)
-        case .orb: return Color(red: 0.11, green: 0.11, blue: 0.118)
-        case .keyboard: return Color(red: 0.388, green: 0.388, blue: 0.4)
-        case .keys: return Color(red: 0.545, green: 0.42, blue: 0.0)
-        case .account: return Color(red: 0.204, green: 0.78, blue: 0.349)
-        case .privacy: return Color(red: 0.0, green: 0.478, blue: 1.0)
-        case .about: return Color(red: 0.682, green: 0.682, blue: 0.698)
-        }
-    }
+    /// A single restrained blue for navigation, instead of ten competing accent colours.
+    var tint: Color { DS.Colors.accent }
 }
 
 /// One page (or the search results) as a grouped form: a section per group, its footer under it.
@@ -127,12 +115,7 @@ struct SettingsFormView: View {
 /// macOS in light and dark.
 enum SettingsLook {
     /// The proposal's orange accent: #D24E2A in light, #E8653F in dark.
-    static let accent = Color(nsColor: NSColor(name: nil) { appearance in
-        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(srgbRed: 0.91, green: 0.396, blue: 0.247, alpha: 1)
-            : NSColor(srgbRed: 0.824, green: 0.306, blue: 0.165, alpha: 1)
-    })
-
+    static let accent = DS.Colors.accent
     static let rowTitle = Font.system(size: 13)
     static let caption = Font.system(size: 11)
     static let micro = Font.system(size: 10)
