@@ -33,7 +33,7 @@ extension SettingsCatalog {
                 view: AnyView(HUDPlacementRow(companionManager: companionManager))),
             SettingsItem(
                 id: "general.menuBarIcon", page: .general, section: "",
-                title: "Show in menu bar", detail: "Off is fine: the island is OpenClicky’s home.",
+                title: "Show in menu bar", detail: "Off is fine: the island is Clicky Bro’s home.",
                 keywords: ["menu bar", "status item", "icon", "tray"],
                 view: AnyView(MenuBarIconRow(companionManager: companionManager))),
             SettingsItem(
@@ -229,7 +229,7 @@ private struct MenuBarIconRow: View {
     var body: some View {
         let isForcedOn = placement == .hidden
         SettingsRow(title: "Show in menu bar",
-                    detail: isForcedOn ? "Always on while OpenClicky is hidden, so you can still reach it." : "Off is fine: the island is OpenClicky’s home.") {
+                    detail: isForcedOn ? "Always on while OpenClicky is hidden, so you can still reach it." : "Off is fine: the island is Clicky Bro’s home.") {
             SettingsSwitch(isOn: Binding(get: { isVisible || isForcedOn }, set: { companionManager.setMenuBarIconVisible($0) }))
                 .disabled(isForcedOn)
         }
