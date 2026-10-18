@@ -93,7 +93,7 @@ final class DictationWindowController: NSWindowController, NSWindowDelegate {
             contentRect: NSRect(origin: .zero, size: Self.startingSize),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered, defer: false)
-        window.title = "clicky-bro"
+        window.title = "Clicky Bro"
         window.setFrameAutosaveName("OpenClickyWindow")
         window.isReleasedWhenClosed = false
         // A toolbar lets the split view put the page title and the sidebar button in the title bar.

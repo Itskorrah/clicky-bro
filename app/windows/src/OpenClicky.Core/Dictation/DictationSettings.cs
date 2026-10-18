@@ -57,7 +57,7 @@ public static class DictationEngineChoices
         DictationEngineChoice.Offline => "Windows speech",
         DictationEngineChoice.Parakeet => "Parakeet",
         DictationEngineChoice.Sarvam => "Sarvam",
-        DictationEngineChoice.OpenClicky => "clicky-bro",
+        DictationEngineChoice.OpenClicky => "Clicky Bro",
         _ => "AssemblyAI",
     };
 
@@ -94,8 +94,8 @@ public static class DictationEngineChoices
         DictationEngineChoice.Offline => "Windows speech recognition",
         DictationEngineChoice.Parakeet => "Parakeet, on this PC",
         DictationEngineChoice.Sarvam => "Sarvam",
-        DictationEngineChoice.OpenClicky => "OpenAI, via clicky-bro",
-        _ => "AssemblyAI, via clicky-bro",
+        DictationEngineChoice.OpenClicky => "OpenAI, via Clicky Bro",
+        _ => "AssemblyAI, via Clicky Bro",
     };
 
     /// <summary>The title of the "how to dictate" row on the Your words page.</summary>
@@ -134,7 +134,7 @@ public static class DictationEngineChoices
             ? $"Far more accurate than Windows speech recognition, and nothing leaves this PC. English and 24 European languages. A {ParakeetFacts.DownloadSizeText} download."
             : $"NVIDIA’s open model, offline. English and 24 European languages. A {ParakeetFacts.DownloadSizeText} download.",
         DictationEngineChoice.Sarvam => "Saaras hears eleven Indian languages. Billed by Sarvam to your key.",
-        DictationEngineChoice.OpenClicky => "Needs an clicky-bro account or your own OpenAI key.",
+        DictationEngineChoice.OpenClicky => "Needs a Clicky Bro account or your own OpenAI key.",
         _ => "Words appear as you speak. Needs the clicky-bro backend.",
     };
 
