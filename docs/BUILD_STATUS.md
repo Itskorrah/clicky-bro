@@ -1,0 +1,112 @@
+# clicky-bro development status
+
+Updated 18 October 2026. This is a local development build based on the pinned
+MIT native OpenClicky source, not a completed commercial HeyClicky replacement.
+The source and tests below distinguish implementation from runtime acceptance.
+
+## Implemented in this checkout
+
+| Area | Current behavior | Acceptance still needed |
+| --- | --- | --- |
+| Local environment | Isolated app IDs; launcher-staged agent under `~/Library/Caches/clicky-bro/development`; private runtime under `~/Library/Application Support/clicky-bro/development`; one-time preservation migration from `.local/`; own Gemini key | Fresh-machine setup and release packaging |
+| macOS Ask/capture | User chooses one window; capture revalidates its identity and never falls back to a display; sharing has a visible Stop control | Current development bundle's Screen Recording permission is not accepted; real permission denial, closed/moved window, mixed-monitor capture and focus checks |
+| Teach/actions | Teach observes and verifies steps without action tools; Agent mode is off by default and separately confirms native effects | Real-world grounding, ambiguity and cancellation on disposable native windows |
+| Gemini execution | Direct native/TypeScript Gemini protocol, original tool metadata and results, bounded requests/actions, strict successful terminal response before tools, explicit failure without paid fallback | Task quality and sustained usage beyond small synthetic probes |
+| Voice/dictation | Native system speech selected by default; existing native dictation engines retained | Actual microphone/transcription, focus-safe insertion, interruption and language acceptance |
+| Helpers and memory | macOS editor, persistent scoped helpers and explicit opt-in notes; file-write permission independent of memory/scope text | Windows UI parity, follow-up/steering, richer lifecycle and memory provenance |
+| Routines | Local intervals, per-session opt-in, persisted occurrence deduplication, no burst replay, interrupted restart state | Sleep/clock/DST/native scheduling observations and richer schedules |
+| Files/history | Gemini threads, saved run status and text artifacts; bounded list/read/write tools inside the workspace | Safe rich file previews, attachments and end-to-end artifact workflows |
+| Skills/integrations | Adopted skill/settings source retained; direct Gemini supports the declared workspace file tools | General MCP/connector execution, scoped auth, real account-service acceptance |
+| Windows | Native WPF client, Gemini continuation, default-deny per-action native approval, cancellation checks and write-in-place target guards | Physical Windows desktop acceptance, chosen-capture contract and new workspace UI |
+
+Scope and memory are instructions, not an operating-system sandbox. Helpers can
+read supported text files in the configured agent workspace, and only the separate
+write checkbox grants their supported workspace writes. Keep that workspace
+separate from personal documents. Desktop automation uses a different native
+approval path. Unsupported general voice actions fail closed instead of executing
+through the older realtime callback.
+
+## Verification
+
+The following checks ran locally with synthetic fixtures and isolated data.
+Raw logs are ignored under `.local/evidence/`; credentials and user runtime state
+are excluded from delivery.
+
+| Check | Result / boundary |
+| --- | --- |
+| Offline Python suite | 15 passed: 8 private-runtime migration/staging tests and 7 provider/credential tests |
+| TypeScript agent typecheck and build | Passed |
+| TypeScript agent suite | 119 passed, 3 explicit real-Codex integration tests skipped |
+| Native provider/teaching focused security suite | 29 passed before the full native run |
+| Independent repair reproduction | Five incomplete/refused response variants: no effects or approvals. Valid STOP control: approved fixture write succeeds. Windows/native strict terminal guards and key redaction reviewed. |
+| Initial live Python Gemini probes | Text, generated image, function selection and calculator continuation all passed (4 requests) |
+| Actual native Gemini smoke | Generated red-square image correctly answered; 1 request, approximately 3.0 seconds |
+| Actual system-speech smoke | Local Daniel voice produced 294 KiB / 3.4 seconds of audio in approximately 0.96 seconds; no cloud TTS |
+| Actual direct Gemini CLI run | Approved disposable `acceptance.txt` write matched exact expected content; completed result and 1 artifact recorded |
+| macOS live helper run/restart | Passed 18 October 2026. The root launched the private Application Support runtime, ran the text-only helper once, and observed completed `CLICKY_BRO_HELPER_OK` with inline `Answer.txt` artifact. After Cmd-Q and relaunch, the same completed row and artifact remained visible and matched persisted state; one previously completed migrated run also remained. The helper run took 2.313 seconds; two live Gemini GUI requests were used for this batch. This validates the helper/runtime persistence slice only. |
+| Native macOS unit suite | Authoritative run: 705 passed, 0 failed, 0 skipped, covering the preceding functional, privacy and Stop-observer fixes. The final standalone app build passed after the accessibility-row follow-up. A focused helper-button UI test compiled but timed out while enabling automation mode before its body ran; it is not a passing UI result. Broader UI automation, capture and permission acceptance remain open. |
+
+The old real-Codex/fake-model integration suite reproduced 2 failures/1 pass on
+untouched upstream before becoming explicit opt-in; it is not passing evidence.
+The initial full macOS attempt was stopped after an inherited unpaced audio
+harness flooded its queue. Its partial passing cases were not counted as a
+completed run. The authoritative native unit run passed 705/705. The later
+accessibility-row source follow-up compiled in the final standalone app build,
+but its focused UI test timed out before executing; broader automated UI and
+capture acceptance remain pending. The Windows results currently verified are
+below.
+
+| Windows check | Result / boundary |
+| --- | --- |
+| Windows core suite on macOS | .NET SDK 8.0.426; 1,066 passed, 5 failed, 0 skipped / 1,071 total. The five failures exactly match the untouched upstream baseline. All nine new cancellation, identity and clipboard-restoration regression cases passed. This is portable core-test evidence, not Windows OS acceptance. See `docs/TESTING_WINDOWS.md` and ignored `.local/evidence/windows-agent/windows-final-core.trx`. |
+| Windows WPF cross-build | Passed against the latest source with .NET SDK 8.0.426 after restore used absolute paths to the existing isolated NuGet cache and `EnableWindowsTargeting=true`: 0 errors, 1 inherited `WFAC010` high-DPI manifest warning. The earlier `NETSDK1064` was caused by relative NuGet paths in generated assets; the stale publish folder remains unverified. This cross-build is not Windows OS acceptance. Exact commands are in `docs/TESTING_WINDOWS.md`. |
+
+## Material limits
+
+- Windows desktop testing is explicitly deferred by the user until their PC is
+  available for it. A Mac cross-build is not evidence of Windows capture, audio,
+  hotkey, focus or input behavior.
+- The ignored self-contained Windows publish folder was produced before the
+  latest cancellation/target-safety repairs and is stale. It is not a final
+  source artifact and has not been executed on Windows.
+- Current macOS development-bundle Screen Recording permission is not accepted.
+  Final launch diagnostics reported Accessibility, Screen Recording and
+  microphone unavailable and `screenContent` false. Settings can show an Allowed
+  entry from an older build while an ad-hoc rebuild has a different CDHash; the
+  current bundle has not completed a full capture test. The user has enabled
+  the old OpenClicky row, but has not yet removed it and added the exact current app at
+  `~/Library/Caches/clicky-bro/DerivedData-local/Build/Products/Debug/OpenClicky.app`.
+  Follow [TESTING_MACOS.md](TESTING_MACOS.md) after the final build. The
+  reviewed code and source tests show no automatic display-capture fallback, but
+  that is not a runtime capture acceptance result. A later
+  rebuild may require repeating registration until a properly signed distribution
+  has a stable code identity. No TCC reset or signing configuration change was
+  made. The live helper run/restart passed; capture, Accessibility and
+  microphone acceptance remain pending.
+- Native macOS Accessibility, selected-window capture, teaching and dictation
+  still need manual acceptance before release claims.
+- Native text-field rewriting is disabled when exact shared-window identity
+  cannot be established. Realtime actions direct users to the approved Agent
+  route. These are explicit safety limits, not feature parity.
+- New workspace routines only run while this application is open. Interrupted
+  work is recorded; it is not silently retried or resumed.
+- No customer accounts, billing/plans/teams/referrals, managed connector backend,
+  production notifications, signed installer, trusted update service or commercial
+  deployment was provisioned. Inherited interfaces do not establish those services.
+- Private local key files use owner-only permissions; OS credential-store
+  integration remains release work. Free-model availability and limits belong
+  to the provider and can change; an allowlist is not a billing cap.
+- Upstream OpenClicky names remain in internal project/class names and retained
+  attribution. The project-owned product name is clicky-bro. This build is not
+  installed over HeyClicky.
+
+## Continue
+
+Use the root README and [TESTING_MACOS.md](TESTING_MACOS.md) for Mac acceptance,
+and [TESTING_WINDOWS.md](TESTING_WINDOWS.md) for the deferred PC test.
+[NEXT_STEPS.md](NEXT_STEPS.md) prioritizes acceptance and remaining feature work
+against the research crosswalk. Root task metadata was
+verified as GPT-6.1 Sol High; this Windows worker ran as GPT-6 Luna Max. These
+were task assignments, with no host/global model setting changed. Keep source
+orchestration short with at most two workers and serialize heavy builds on the
+8 GiB Mac.

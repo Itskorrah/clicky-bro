@@ -1,0 +1,156 @@
+//
+//  GlobalPushToTalkShortcutMonitor.swift
+//  OpenClicky
+//
+//  Captures push-to-talk keyboard shortcuts while OpenClicky is running in the
+//  background. Uses a listen-only CGEvent tap so modifier-only shortcuts like
+//  ctrl + option behave more like a real system-wide voice tool.
+//
+
+import AppKit
+import Combine
+import CoreGraphics
+import Foundation
+
+final class GlobalPushToTalkShortcutMonitor: ObservableObject {
+    /// Talk (control + option) press / release, as before.
+    let shortcutTransitionPublisher = PassthroughSubject<BuddyPushToTalkShortcut.ShortcutTransition, Never>()
+    /// The other HeyClicky shortcuts: text composer (control ×2), dictation (fn + control held),
+    /// hands-free toggle (fn + control ×2).
+    let companionShortcutPublisher = PassthroughSubject<CompanionShortcutEvent, Never>()
+
+    /// Recognises all four shortcuts from the tap's modifier and key events (main thread only).
+    private var shortcutRecognizer = CompanionShortcutRecognizer()
+
+    /// The key that dictates (Settings → shortcuts). Takes effect on the next press.
+    var dictationKey: DictationHotkey {
+        get { shortcutRecognizer.dictationKey }
+        set { shortcutRecognizer.dictationKey = newValue }
+    }
+
+    private var globalEventTap: CFMachPort?
+    private var globalEventTapRunLoopSource: CFRunLoopSource?
+
+    deinit {
+        stop()
+    }
+
+    func start() {
+        // If the event tap is already running, don't restart it: restarting resets the shortcut
+        // recogniser, which would drop a press in progress when the permission poller calls
+        // refreshAllPermissions → start() every few seconds.
+        guard globalEventTap == nil else { return }
+
+        let monitoredEventTypes: [CGEventType] = [.flagsChanged, .keyDown, .keyUp]
+        let eventMask = monitoredEventTypes.reduce(CGEventMask(0)) { currentMask, eventType in
+            currentMask | (CGEventMask(1) << eventType.rawValue)
+        }
+
+        let eventTapCallback: CGEventTapCallBack = { _, eventType, event, userInfo in
+            guard let userInfo else {
+                return Unmanaged.passUnretained(event)
+            }
+
+            let globalPushToTalkShortcutMonitor = Unmanaged<GlobalPushToTalkShortcutMonitor>
+                .fromOpaque(userInfo)
+                .takeUnretainedValue()
+
+            return globalPushToTalkShortcutMonitor.handleGlobalEventTap(
+                eventType: eventType,
+                event: event
+            )
+        }
+
+        guard let globalEventTap = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .listenOnly,
+            eventsOfInterest: eventMask,
+            callback: eventTapCallback,
+            userInfo: Unmanaged.passUnretained(self).toOpaque()
+        ) else {
+            print("⚠️ Global push-to-talk: couldn't create CGEvent tap")
+            return
+        }
+
+        guard let globalEventTapRunLoopSource = CFMachPortCreateRunLoopSource(
+            kCFAllocatorDefault,
+            globalEventTap,
+            0
+        ) else {
+            CFMachPortInvalidate(globalEventTap)
+            print("⚠️ Global push-to-talk: couldn't create event tap run loop source")
+            return
+        }
+
+        self.globalEventTap = globalEventTap
+        self.globalEventTapRunLoopSource = globalEventTapRunLoopSource
+
+        CFRunLoopAddSource(CFRunLoopGetMain(), globalEventTapRunLoopSource, .commonModes)
+        CGEvent.tapEnable(tap: globalEventTap, enable: true)
+    }
+
+    func stop() {
+        shortcutRecognizer.reset()
+
+        if let globalEventTapRunLoopSource {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), globalEventTapRunLoopSource, .commonModes)
+            self.globalEventTapRunLoopSource = nil
+        }
+
+        if let globalEventTap {
+            CFMachPortInvalidate(globalEventTap)
+            self.globalEventTap = nil
+        }
+    }
+
+    private func handleGlobalEventTap(
+        eventType: CGEventType,
+        event: CGEvent
+    ) -> Unmanaged<CGEvent>? {
+        if eventType == .tapDisabledByTimeout || eventType == .tapDisabledByUserInput {
+            if let globalEventTap {
+                CGEvent.tapEnable(tap: globalEventTap, enable: true)
+            }
+            return Unmanaged.passUnretained(event)
+        }
+
+        let recognizerEventKind: CompanionShortcutRecognizer.EventKind?
+        switch eventType {
+        case .flagsChanged: recognizerEventKind = .flagsChanged
+        case .keyDown: recognizerEventKind = .keyDown
+        case .keyUp: recognizerEventKind = .keyUp
+        default: recognizerEventKind = nil
+        }
+        guard let recognizerEventKind else { return Unmanaged.passUnretained(event) }
+        // Keystrokes OpenClicky typed itself (live dictation) are not the person pressing keys.
+        if event.getIntegerValueField(.eventSourceUserData) == FrontAppTextInserter.liveTypingEventMarker {
+            return Unmanaged.passUnretained(event)
+        }
+
+        let eventKeyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
+        // The per-key device bits stay in: they tell the right control (or option, or command) from
+        // the left one when one of them is the dictation key. The recogniser picks the flags it reads.
+        let modifierFlags = NSEvent.ModifierFlags(rawValue: UInt(event.flags.rawValue))
+        let shortcutEvents = shortcutRecognizer.handle(
+            recognizerEventKind,
+            keyCode: eventKeyCode,
+            modifierFlags: modifierFlags,
+            at: ProcessInfo.processInfo.systemUptime
+        )
+
+        for shortcutEvent in shortcutEvents {
+            switch shortcutEvent {
+            case .talkPressed:
+                shortcutTransitionPublisher.send(.pressed)
+            case .talkReleased:
+                shortcutTransitionPublisher.send(.released)
+            case .dictationPressed, .dictationEditPressed, .dictationEditModifierJoined, .dictationReleased, .dictationDoubleTapped,
+                 .escapePressed, .textComposerRequested, .handsFreeToggleRequested:
+                companionShortcutPublisher.send(shortcutEvent)
+            }
+        }
+
+        return Unmanaged.passUnretained(event)
+    }
+}

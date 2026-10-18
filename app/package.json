@@ -1,0 +1,36 @@
+{
+  "name": "openclicky",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Open-source macOS AI voice assistant (headless initial cut: agent bridge + key-holding backend)",
+  "workspaces": [
+    "backend",
+    "agent"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:swift": "swiftlint lint --quiet",
+    "dev:backend": "npm run dev --workspace backend",
+    "port-skills": "node scripts/port-skills.mjs",
+    "release:mac": "bash macos/OpenClicky/scripts/release.sh",
+    "release:mac:publish": "bash macos/OpenClicky/scripts/release.sh --publish",
+    "clean:mac-builds": "bash macos/OpenClicky/scripts/clean-stray-builds.sh",
+    "upstream:check": "node scripts/upstream-watch.mjs --write",
+    "deploy:backend": "bash scripts/deploy-backend.sh",
+    "lint:source": "bash macos/OpenClicky/scripts/check-source-rules.sh",
+    "check:skills": "node scripts/check-app-skills.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
+    "typescript-eslint": "^8.70.0"
+  }
+}

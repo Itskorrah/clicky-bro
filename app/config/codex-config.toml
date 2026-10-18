@@ -1,0 +1,57 @@
+# OpenClicky Codex CLI config template (derived from reference/codex-config.toml, HeyClicky v1.0.48).
+#
+# Rendered by agent/src/codexHome.ts into $CLICKY_BRO_CODEX_HOME/config.toml on every run.
+# Placeholders (double-brace): MODEL_LINE, CLICKY_BRO_ROOT, PROVIDER_ROUTE, WORKSPACE, MCP_SERVERS, USER_SKILLS_ACTIVE.
+#
+# Verified against Codex CLI 0.152.1 (`codex app-server --strict-config`).
+
+{{MODEL_LINE}}
+model_provider = "openclicky"
+
+# The product's behavior contract (routing doctrine, approval gate, style rules).
+model_instructions_file = "{{CLICKY_BRO_ROOT}}/skills/ModelInstructions.md"
+
+# HeyClicky set these as top-level keys (Codex 0.132); in Codex 0.152 they are feature flags.
+[features]
+js_repl = true
+multi_agent = true
+
+# Own keys first. With the person's own OpenAI key (CLICKY_BRO_OPENAI_KEY) Codex calls OpenAI directly
+# with it, and nothing goes through OpenClicky's servers. Without one, Codex calls the OpenClicky
+# backend with the account's token (`Authorization: Bearer $CLICKY_BRO_SESSION_TOKEN`) and the
+# backend's key does the work. The two lines below are filled in by agent/src/codexHome.ts.
+[model_providers.openclicky]
+name = "OpenClicky"
+{{PROVIDER_ROUTE}}
+# Codex 0.152.x rejects `wire_api = "chat"`; both routes speak the Responses API (/v1/responses).
+wire_api = "responses"
+requires_openai_auth = false
+supports_websockets = false
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[[skills.config]]
+path = "{{CLICKY_BRO_ROOT}}/skills"
+enabled = true
+
+# User library (HUD "Add skills" / `openclicky skills`): symlinks to activated skills only.
+[[skills.config]]
+path = "{{USER_SKILLS_ACTIVE}}"
+enabled = true
+
+# `clicky-crons` intentionally removed: Remote Tasks / scheduled crons are out of scope for this cut.
+#
+# Optional MCP servers, rendered only when configured on the agent side:
+#   COMPOSIO_MCP_URL  -> [mcp_servers.composio]      (external integrations; header x-consumer-api-key = COMPOSIO_API_KEY,
+#                                                     else Codex MCP OAuth: `codex mcp login composio` once)
+#   CUA_DRIVER_BIN    -> [mcp_servers.computer-use]  (Computer Use via cua-driver --socket)
+{{MCP_SERVERS}}
+
+[projects."{{WORKSPACE}}"]
+trust_level = "trusted"
+
+# Where the workspace-write sandbox may write outside the workspace (agent/src/config.ts,
+# CLICKY_BRO_WRITABLE_ROOTS / `writableRoots` in shell.json). Without it Codex can only write inside
+# the thread's cwd, so "make a folder on my Desktop" is refused with no way to ask permission.
+{{SANDBOX_WRITABLE_ROOTS}}

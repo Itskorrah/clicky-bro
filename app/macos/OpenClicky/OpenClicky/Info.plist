@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>clicky-bro</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>clicky-bro uses your microphone so you can talk to it</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>clicky-bro needs screen recording access to see only the window you choose and help you.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>clicky-bro uses speech recognition to transcribe your voice when you talk to it</string>
+	<key>SUEnableAutomaticChecks</key>
+	<false/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+	<key>VoiceTranscriptionProvider</key>
+	<string>apple</string>
+</dict>
+</plist>

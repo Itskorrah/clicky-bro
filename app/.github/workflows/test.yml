@@ -1,0 +1,93 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Type-checks src AND test. The workspaces' build tsconfigs include only `src`, so test files
+      # were never checked — which is how a test importing a type `jose` had already removed, and
+      # test helpers minting JWTs that no Supabase would issue, both went unnoticed.
+      - run: npm run typecheck
+      # Errors only. The 371 warnings are the backlog the linter was added to make visible, not a
+      # reason to fail the build; `--max-warnings` stays off until that list is worked down.
+      - run: npm run lint
+      # Every app skill's shape, size and content (talk-only, no links or commands); a skill pull
+      # request has to pass this before anyone reads it.
+      - run: npm run check:skills
+      - run: npm test
+      - run: npm run build -w backend
+      - run: npm run build -w agent
+
+  macos-app:
+    # macOS 26's SDK: the offline dictation engine uses SpeechAnalyzer (macOS 26), which the
+    # macos-15 image's Xcode cannot compile. The app still runs on macOS 14.2.
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      # Errors only, matching the TypeScript job. The 85 violations in the current backlog are all
+      # warnings and exit 0; `--strict` would upgrade them to errors and fail every build until the
+      # backlog is cleared, which is not what the linter is here for yet.
+      - name: SwiftLint
+        run: |
+          brew install swiftlint
+          swiftlint lint --quiet
+      # RealtimeAudioEngineConcurrencyTests is a CoreAudio race test that needs a real audio graph;
+      # the hosted runner reports an audio device but cannot build one, and the test host dies. It
+      # runs by hand (see its header) and under the Thread Sanitizer, not here.
+      - name: Build the app and run its unit tests (unsigned)
+        working-directory: macos/OpenClicky
+        # Both commands pipe into `tail`, and the default shell (`bash -e`) reports the exit status
+        # of the LAST command in a pipeline — so a failed build showed up as a green check. An
+        # explicit `shell: bash` runs with `-o pipefail`, which fails the step on xcodebuild itself.
+        shell: bash
+        run: |
+          xcodebuild -project OpenClicky.xcodeproj -scheme OpenClicky -destination 'platform=macOS' \
+            -derivedDataPath build/DerivedData build-for-testing CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log | tail -5
+          xcodebuild -project OpenClicky.xcodeproj -scheme OpenClicky -destination 'platform=macOS' \
+            -derivedDataPath build/DerivedData test-without-building -only-testing:OpenClickyTests \
+            -skip-testing:OpenClickyTests/RealtimeAudioEngineConcurrencyTests CODE_SIGNING_ALLOWED=NO 2>&1 | tee test.log | tail -20
+      - name: Show the errors when the build or the tests failed
+        if: failure()
+        working-directory: macos/OpenClicky
+        run: |
+          # Swift Testing says which check failed in "recorded an issue" / "Expectation failed" lines.
+          grep -E "error:|failed on|recorded an issue|Expectation failed" build.log test.log 2>/dev/null | sort -u | head -60 || true
+
+  linux-client:
+    # The Linux client (linux/, docs/linux.md). Its X11 tests start their own Xvfb and press keys
+    # through XTEST on it; the tests that need the offline models or a real key skip themselves here.
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: linux
+    steps:
+      - uses: actions/checkout@v4
+      # PyGObject (GTK 3) comes from the distribution, as linux/README.md says, not from pip.
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-gi gir1.2-gtk-3.0 python3-venv xvfb
+      # The offline extra (sherpa-onnx) too, so Settings' offline engine and voice rows are tested; the
+      # models themselves are not downloaded here, and the tests that need them skip themselves.
+      - run: python3 -m venv --system-site-packages .venv && .venv/bin/pip install -e '.[test,offline]'
+      - run: .venv/bin/python -m pytest -q
+
+  windows-client:
+    # The Windows client (windows/). Building the solution compiles the WPF app too, which only builds
+    # on Windows; the Core tests include the PATH / PATHEXT / npm-shim ones that assume Windows paths.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet build windows/OpenClicky.Windows.sln -c Release
+      - run: dotnet test windows/tests/OpenClicky.Core.Tests -c Release --no-build

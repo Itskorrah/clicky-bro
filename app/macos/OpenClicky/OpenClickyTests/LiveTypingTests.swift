@@ -1,0 +1,387 @@
+//
+//  LiveTypingTests.swift
+//  OpenClickyTests
+//
+//  The pure parts of live typing: which words of a revising partial transcript have settled, how a
+//  settled phrase is formatted and spaced, and how the final transcript is lined up against what
+//  was already typed.
+//
+
+import ApplicationServices
+import CoreGraphics
+import Foundation
+import Testing
+@testable import OpenClicky
+
+struct StableWordCommitterTests {
+    private let start = Date(timeIntervalSince1970: 1_000)
+    private func at(_ seconds: Double) -> Date { start.addingTimeInterval(seconds) }
+
+    @Test func nothingCommitsBeforeTheWordsHaveBeenStableLongEnough() {
+        var committer = StableWordCommitter(timing: .algorithmTests)
+        #expect(committer.observe(partial: "hello there my friend", at: at(0)).isEmpty)
+        #expect(committer.observe(partial: "hello there my friend", at: at(0.3)).isEmpty)
+        #expect(committer.committedWords.isEmpty)
+    }
+
+    @Test func onlyWordsOlderThanTheVolatileTailCommit() {
+        var committer = StableWordCommitter(timing: .algorithmTests)
+        _ = committer.observe(partial: "hello there my friend", at: at(0))
+        let committed = committer.observe(partial: "hello there my friend", at: at(0.7))
+        // The last two words of the partial can still be revised; they wait.
+        #expect(committed == ["hello", "there"])
+        #expect(committer.committedWords == ["hello", "there"])
+    }
+
+    @Test func aRevisedWordRestartsItsClock() {
+        var committer = StableWordCommitter(timing: .algorithmTests)
+        _ = committer.observe(partial: "the whether is nice today", at: at(0))
+        // "whether" is revised to "weather" at 0.5 s: only "the" has been stable for 0.6 s at 0.7 s.
+        _ = committer.observe(partial: "the weather is nice today", at: at(0.5))
+        #expect(committer.observe(partial: "the weather is nice today", at: at(0.7)) == ["the"])
+        #expect(committer.observe(partial: "the weather is nice today", at: at(1.2)) == ["weather", "is"])
+    }
+
+    @Test func committedWordsAreNeverRetracted() {
+        var committer = StableWordCommitter(timing: .algorithmTests)
+        _ = committer.observe(partial: "send it to bob now please", at: at(0))
+        _ = committer.observe(partial: "send it to bob now please", at: at(0.7))
+        #expect(committer.committedWords == ["send", "it", "to", "bob"])
+        // The engine revises an already committed word: the commit stands, and nothing more commits
+        // while the partial no longer lines up with what was typed.
+        #expect(committer.observe(partial: "send it to rob now please and thanks", at: at(0.8)).isEmpty)
+        #expect(committer.committedWords == ["send", "it", "to", "bob"])
+        // Once it lines up again, the settled words after it carry on.
+        let more = committer.observe(partial: "send it to bob now please and thanks", at: at(1.5))
+        #expect(more == ["now", "please"])
+        #expect(committer.committedWords == ["send", "it", "to", "bob", "now", "please"])
+    }
+
+    @Test func aShorterPartialDoesNotLoseCommittedWords() {
+        var committer = StableWordCommitter(timing: .algorithmTests)
+        _ = committer.observe(partial: "one two three four", at: at(0))
+        _ = committer.observe(partial: "one two three four", at: at(0.7))
+        #expect(committer.observe(partial: "one", at: at(0.9)).isEmpty)
+        #expect(committer.committedWords == ["one", "two"])
+    }
+
+    @Test func aMultiWordDictionaryAliasIsNotSplitAcrossPhrases() {
+        var committer = StableWordCommitter(protectedPhrases: [["aditya", "shatriya"]], timing: .algorithmTests)
+        _ = committer.observe(partial: "ask aditya shatriya about it", at: at(0))
+        // "ask aditya shatriya" are stable and past the tail, so all three commit together.
+        #expect(committer.observe(partial: "ask aditya shatriya about it", at: at(0.7)) == ["ask", "aditya", "shatriya"])
+
+        var holding = StableWordCommitter(protectedPhrases: [["aditya", "shatriya"]], timing: .algorithmTests)
+        _ = holding.observe(partial: "ask aditya shatriya now", at: at(0))
+        // Only "ask aditya" is past the tail; "aditya" might begin the alias, so it waits.
+        #expect(holding.observe(partial: "ask aditya shatriya now", at: at(0.7)) == ["ask"])
+    }
+
+    @Test func aTakeThatMightStillBeASpokenShortcutWaits() {
+        var committer = StableWordCommitter(takeStartTriggers: [["my", "sign", "off", "please"]], timing: .algorithmTests)
+        _ = committer.observe(partial: "my sign off", at: at(0))
+        #expect(committer.observe(partial: "my sign off", at: at(0.7)).isEmpty)
+        #expect(committer.observe(partial: "my sign off please", at: at(0.75)).isEmpty)
+        // Longer than the trigger: no longer a shortcut, so the settled words go.
+        #expect(committer.observe(partial: "my sign off please send", at: at(0.8)) == ["my", "sign", "off"])
+        _ = committer.observe(partial: "my sign off please send it now", at: at(0.9))
+        _ = committer.observe(partial: "my sign off please send it now", at: at(1.6))
+        #expect(committer.committedWords == ["my", "sign", "off", "please", "send"])
+    }
+}
+
+struct LivePhraseFormatterTests {
+    private func context(style: DictationStyle? = nil, dictionary: [DictionaryTerm] = [], shortcuts: [SpokenShortcut] = []) -> TakeFormattingContext {
+        TakeFormattingContext(
+            style: style ?? DictationStyle.seeded().first { $0.id == "other" }!,
+            dictionary: dictionary, shortcuts: shortcuts, appName: "Terminal", language: .auto, script: .native)
+    }
+
+    @Test func theFirstPhraseOfATakeIsCapitalisedLikeAFinishedTake() {
+        let text = LivePhraseFormatter.textToType(phraseWords: ["git", "status"], context: context(), typedSoFar: "")
+        #expect(text == "Git status")
+    }
+
+    @Test func laterPhrasesGetASpaceAndKeepTheirCase() {
+        let text = LivePhraseFormatter.textToType(phraseWords: ["and", "then"], context: context(), typedSoFar: "Hello there")
+        #expect(text == " and then")
+    }
+
+    @Test func aPhraseAfterASentenceEndIsCapitalised() {
+        let text = LivePhraseFormatter.textToType(phraseWords: ["how", "are", "you"], context: context(), typedSoFar: "Hello there.")
+        #expect(text == " How are you")
+    }
+
+    @Test func noSpaceIsAddedAfterExistingWhitespaceOrBeforePunctuation() {
+        #expect(LivePhraseFormatter.textToType(phraseWords: ["next"], context: context(), typedSoFar: "Hello\n") == "Next")
+        #expect(LivePhraseFormatter.textToType(phraseWords: [",", "then"], context: context(), typedSoFar: "Hello") == ", then")
+    }
+
+    @Test func dictionaryTermsAndFillersAreApplied() {
+        let term = DictionaryTerm(written: "Aaditya Kshatriya", heardAs: ["aditya shatriya"])
+        let text = LivePhraseFormatter.textToType(phraseWords: ["um", "ask", "aditya", "shatriya"], context: context(dictionary: [term]), typedSoFar: "")
+        #expect(text == "Ask Aaditya Kshatriya")
+    }
+
+    @Test func aPhraseOfOnlyFillersTypesNothing() {
+        #expect(LivePhraseFormatter.textToType(phraseWords: ["um"], context: context(), typedSoFar: "Hello") == "")
+    }
+
+    @Test func aSpokenShortcutIsNeverExpandedInATypedPhrase() {
+        // Whole-take shortcuts always take the paste path; inside a typed take a trigger is words.
+        let shortcut = SpokenShortcut(trigger: "my sign-off", replacement: "Warm regards,\nPrasanth")
+        let inside = LivePhraseFormatter.textToType(phraseWords: ["my", "sign", "off"], context: context(shortcuts: [shortcut]), typedSoFar: "Add")
+        #expect(inside == " my sign off")
+    }
+
+    @Test func controlCharactersAreDetected() {
+        #expect(LivePhraseFormatter.containsControlCharacters("line one\nline two"))
+        #expect(LivePhraseFormatter.containsControlCharacters("tab\there"))
+        #expect(LivePhraseFormatter.containsControlCharacters("escape \u{1B}[A"))
+        #expect(LivePhraseFormatter.containsControlCharacters("next\u{85}line"))
+        #expect(LivePhraseFormatter.containsControlCharacters("line\u{2028}separator"))
+        #expect(LivePhraseFormatter.containsControlCharacters("paragraph\u{2029}separator"))
+        #expect(!LivePhraseFormatter.containsControlCharacters(" Hello, there! 25 kg — ok"))
+    }
+
+    /// Format characters move no line: they are parts of ordinary words and emoji (F-12).
+    @Test func joinersSoftHyphensAndEmojiSequencesType() {
+        let wordsThatMustType = [
+            "ज़िन्दगी\u{200C}में",      // Hindi with a zero-width non-joiner
+            "കാര്\u{200D}",              // a Malayalam chillu written with a zero-width joiner
+            "👨\u{200D}👩\u{200D}👧",     // a family emoji
+            "🏳\u{FE0F}\u{200D}🌈",       // a flag emoji with a variation selector
+            "co\u{00AD}operate",         // a soft hyphen
+            "zero\u{200B}width",         // a zero-width space
+        ]
+        for word in wordsThatMustType {
+            #expect(!LivePhraseFormatter.containsControlCharacters(word), "\(word.unicodeScalars.map { String($0.value, radix: 16) })")
+        }
+    }
+
+    @Test func theCasualStyleStaysLowercase() {
+        let casual = DictationStyle.seeded().first { $0.id == "personal-messaging" }!
+        #expect(LivePhraseFormatter.textToType(phraseWords: ["lemme", "know"], context: context(style: casual), typedSoFar: "") == "lemme know")
+    }
+}
+
+struct TranscriptAlignmentTests {
+    @Test func theRemainderIsWhatFollowsTheCommittedWords() {
+        let alignment = TranscriptAlignment.align(finalWords: ["Hello,", "there", "my", "friend."], committedWords: ["hello", "there"])
+        #expect(alignment.remainderStartIndex == 2)
+        #expect(alignment.alignedByWords)
+        #expect(alignment.remainingWords(of: ["Hello,", "there", "my", "friend."]) == ["my", "friend."])
+    }
+
+    @Test func nothingCommittedMeansEverythingRemains() {
+        let alignment = TranscriptAlignment.align(finalWords: ["a", "b"], committedWords: [])
+        #expect(alignment.remainderStartIndex == 0)
+    }
+
+    @Test func aWordInsertedBeforeTheCommittedEndIsFoundByTheTrailingRun() {
+        // The engine added "oh" at the start; the committed words still end at "the meeting".
+        let final = ["oh", "move", "the", "meeting", "to", "friday"]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["move", "the", "meeting"])
+        #expect(alignment.remainderStartIndex == 4)
+        #expect(alignment.remainingWords(of: final) == ["to", "friday"])
+    }
+
+    @Test func revisedCommittedWordsLeaveEverythingAfterTheLastMatchForThePasteboard() {
+        // "bob" became "rob": nothing lines up, so nothing is typed blind; the words after the
+        // last matching one are what the person gets to paste.
+        let final = ["send", "it", "to", "rob", "now", "please"]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["send", "it", "to", "bob"])
+        #expect(!alignment.alignedByWords)
+        #expect(alignment.remainingWords(of: final) == ["rob", "now", "please"])
+    }
+
+    @Test func numbersRewrittenAtTheTailLoseNoWords() {
+        let final = ["I", "have", "25", "apples", "and", "three", "oranges."]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["I", "have", "twenty", "five", "apples", "and"])
+        #expect(alignment.alignedByWords)
+        #expect(alignment.remainingWords(of: final) == ["three", "oranges."])
+    }
+
+    @Test func gonnaWrittenOutAsGoingToLosesNoWords() {
+        let final = ["I'm", "going", "to", "go", "home", "now"]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["I'm", "gonna", "go"])
+        #expect(alignment.alignedByWords)
+        #expect(alignment.remainingWords(of: final) == ["home", "now"])
+    }
+
+    @Test func aMatchFarFromWhereTheWordsShouldBeIsNotTrusted() {
+        // "go" appears, but nine words past where the committed words end: not a match.
+        let final = ["we", "will", "see", "a", "b", "c", "d", "e", "f", "g", "h", "go"]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["I'm", "gonna", "go"])
+        #expect(!alignment.alignedByWords)
+        #expect(alignment.remainingWords(of: final) == final)
+    }
+
+    /// A lone common word several words on is another occurrence, not the typed one (F-25).
+    @Test func aOneWordRunFarFromTheExpectedEndDoesNotAlign() {
+        let final = ["the", "cat", "sat", "on", "a", "mat", "near", "the", "door"]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["the", "cat", "sat", "on", "the"])
+        #expect(!alignment.alignedByWords)
+        #expect(alignment.remainingWords(of: final) == ["a", "mat", "near", "the", "door"])
+
+        let otherFinal = ["please", "send", "it", "two", "times", "to", "bob"]
+        let otherAlignment = TranscriptAlignment.align(finalWords: otherFinal, committedWords: ["please", "send", "it", "to"])
+        #expect(!otherAlignment.alignedByWords)
+        #expect(otherAlignment.remainingWords(of: otherFinal) == ["two", "times", "to", "bob"])
+    }
+
+    @Test func aOneWordRunOneWordAwayStillAligns() {
+        // "uh" dropped from the middle: the typed "go" now ends one word earlier.
+        let final = ["we", "go", "home", "now"]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["we", "uh", "go"])
+        #expect(alignment.alignedByWords)
+        #expect(alignment.remainingWords(of: final) == ["home", "now"])
+    }
+
+    @Test func aFinalShorterThanTheCommittedWordsLeavesNothing() {
+        let final = ["send", "it"]
+        let alignment = TranscriptAlignment.align(finalWords: final, committedWords: ["send", "it", "to", "bob"])
+        #expect(alignment.remainingWords(of: final).isEmpty)
+    }
+}
+
+/// How a paste is judged after the field is read back (F-29).
+struct PasteLandingTests {
+    private func field(role: String? = "AXTextArea", editable: Bool = true, value: String?) -> FocusedFieldSnapshot {
+        FocusedFieldSnapshot(appBundleID: "com.apple.Notes", appName: "Notes", role: role, isEditable: editable, isSecure: false, value: value, selectedText: nil)
+    }
+
+    @Test func textFoundInTheFieldIsVerified() {
+        #expect(PasteLanding.landing(of: "hello there", before: field(value: ""), after: field(value: "hello there")) == .verified)
+    }
+
+    @Test func nothingEditableWithFocusIsNoTarget() {
+        let noElement = field(role: nil, editable: false, value: nil)
+        let notEditable = field(role: "AXGroup", editable: false, value: nil)
+        #expect(PasteLanding.landing(of: "hello there", before: field(value: ""), after: noElement) == .noTarget)
+        #expect(PasteLanding.landing(of: "hello there", before: field(value: ""), after: notEditable) == .noTarget)
+        // The controller copies the words for noTarget itself; nothing extra is kept here.
+        #expect(!PasteLanding.keepsPastedWordsOnPasteboard(before: field(value: ""), after: noElement))
+        #expect(!PasteLanding.keepsPastedWordsOnPasteboard(before: field(value: ""), after: notEditable))
+    }
+
+    /// Gmail, Slack, Electron: editable, but the value can't be read. The paste almost always
+    /// landed, so it is not reported as "press ⌘V" (that would paste twice) — but the old clipboard
+    /// is not put back, so the words can still be pasted if it didn't.
+    @Test func anEditableFieldThatCannotBeReadBackIsPostedAndKeepsTheWords() {
+        let webArea = field(role: "AXWebArea", editable: true, value: nil)
+        #expect(PasteLanding.landing(of: "hello there", before: field(role: "AXWebArea", value: nil), after: webArea) == .posted)
+        #expect(PasteLanding.keepsPastedWordsOnPasteboard(before: field(role: "AXWebArea", value: nil), after: webArea))
+        // A field that reads back is judged by its value; the clipboard comes back as usual.
+        #expect(!PasteLanding.keepsPastedWordsOnPasteboard(before: field(value: ""), after: field(value: "hello there")))
+    }
+
+    @Test func aReadableFieldWithoutTheTextIsPosted() {
+        #expect(PasteLanding.landing(of: "hello there", before: field(value: "abc"), after: field(value: "abc")) == .posted)
+    }
+}
+
+struct KeyboardTextChunkingTests {
+    @Test func textIsCutIntoChunksOfAtMostTwentyUTF16Units() {
+        let text = String(repeating: "abcde", count: 9)
+        let chunks = FrontAppTextInserter.keyboardChunks(of: text)
+        #expect(chunks.joined() == text)
+        #expect(chunks.allSatisfy { $0.utf16.count <= 20 })
+        #expect(chunks.count == 3)
+    }
+
+    @Test func surrogatePairsAreNeverSplit() {
+        let text = String(repeating: "a", count: 19) + "😀" + "b"
+        let chunks = FrontAppTextInserter.keyboardChunks(of: text)
+        #expect(chunks.joined() == text)
+        #expect(chunks.allSatisfy { $0.utf16.count <= 20 })
+        #expect(chunks.first == String(repeating: "a", count: 19))
+    }
+}
+
+struct LiveTypingDecisionTests {
+    @Test func onlyRealTextRolesAreTypedInto() {
+        for role in ["AXTextField", "AXTextArea", "AXComboBox", "AXSearchField"] {
+            #expect(FocusedTextTarget.isLiveTypingTextRole(role))
+        }
+        // A web page that has focus turns letters into single-key shortcuts (Gmail's e, #, !).
+        for role in ["AXWebArea", "AXGroup", "AXStaticText", "AXUnknown"] {
+            #expect(!FocusedTextTarget.isLiveTypingTextRole(role))
+        }
+        #expect(!FocusedTextTarget.isLiveTypingTextRole(nil))
+    }
+
+    /// Letters are commands in a terminal's full-screen programs (F-07).
+    @Test func terminalsAreNeverTypedIntoLive() {
+        let terminalIDs = ["com.apple.Terminal", "com.googlecode.iterm2", "net.kovidgoyal.kitty", "dev.warp.Warp-Stable",
+                           "com.mitchellh.ghostty", "co.zeit.hyper", "org.alacritty", "com.github.wez.wezterm"]
+        for terminalID in terminalIDs {
+            let terminalView = FocusedTextTarget(processID: 777, element: AXUIElementCreateApplication(777), role: "AXTextArea", isSecure: false, bundleID: terminalID)
+            #expect(LiveTypingExclusions.reasonNotToType(into: terminalView, fieldBundleID: nil, ownProcessID: 1, ownBundleID: "org.openclicky.app") == "a terminal")
+            // NSWorkspace's answer counts too, when the pid could not be named.
+            let unnamed = FocusedTextTarget(processID: 777, element: AXUIElementCreateApplication(777), role: "AXTextArea", isSecure: false)
+            #expect(LiveTypingExclusions.reasonNotToType(into: unnamed, fieldBundleID: terminalID, ownProcessID: 1, ownBundleID: "org.openclicky.app") == "a terminal")
+        }
+        let notes = FocusedTextTarget(processID: 777, element: AXUIElementCreateApplication(777), role: "AXTextArea", isSecure: false, bundleID: "com.apple.Notes")
+        #expect(LiveTypingExclusions.reasonNotToType(into: notes, fieldBundleID: "com.apple.Notes", ownProcessID: 1, ownBundleID: "org.openclicky.app") == nil)
+    }
+
+    /// The record page's "try it here" box would get the words twice (F-23).
+    @Test func openClickysOwnWindowsAreNeverTypedIntoLive() {
+        let ownBox = FocusedTextTarget(processID: 1, element: AXUIElementCreateApplication(1), role: "AXTextArea", isSecure: false)
+        #expect(LiveTypingExclusions.reasonNotToType(into: ownBox, fieldBundleID: nil, ownProcessID: 1, ownBundleID: "org.openclicky.app") != nil)
+        let ownByBundle = FocusedTextTarget(processID: 2, element: AXUIElementCreateApplication(2), role: "AXTextArea", isSecure: false, bundleID: "org.openclicky.app")
+        #expect(LiveTypingExclusions.reasonNotToType(into: ownByBundle, fieldBundleID: nil, ownProcessID: 1, ownBundleID: "org.openclicky.app") != nil)
+    }
+
+    @Test func onlyTheDictationKeysOwnModifierMayBeHeldWhileTyping() {
+        #expect(LiveTypingModifierGuard.allowsTyping(heldFlags: [], dictationKey: .fn))
+        #expect(LiveTypingModifierGuard.allowsTyping(heldFlags: .maskSecondaryFn, dictationKey: .fn))
+        #expect(LiveTypingModifierGuard.allowsTyping(heldFlags: .maskControl, dictationKey: .rightControl))
+        #expect(LiveTypingModifierGuard.allowsTyping(heldFlags: .maskCommand, dictationKey: .rightCommand))
+        #expect(LiveTypingModifierGuard.allowsTyping(heldFlags: .maskAlternate, dictationKey: .rightOption))
+        // Caps lock changes nothing about text posted as a unicode string.
+        #expect(LiveTypingModifierGuard.allowsTyping(heldFlags: [.maskSecondaryFn, .maskAlphaShift], dictationKey: .fn))
+
+        #expect(!LiveTypingModifierGuard.allowsTyping(heldFlags: [.maskSecondaryFn, .maskControl], dictationKey: .fn))
+        #expect(!LiveTypingModifierGuard.allowsTyping(heldFlags: .maskCommand, dictationKey: .fn))
+        #expect(!LiveTypingModifierGuard.allowsTyping(heldFlags: .maskShift, dictationKey: .rightControl))
+        #expect(!LiveTypingModifierGuard.allowsTyping(heldFlags: .maskSecondaryFn, dictationKey: .rightCommand))
+    }
+}
+
+
+extension StableWordCommitter.Timing {
+    /// The values these algorithm tests were written against (two held-back words, 0.6 s).
+    static let algorithmTests = StableWordCommitter.Timing(volatileTailWordCount: 2, requiredStableSeconds: 0.6, pauseSeconds: 60)
+}
+
+struct LiveTypingDefaultTimingTests {
+    private let start = Date(timeIntervalSince1970: 1_000)
+
+    @Test func theLiveTimingHoldsBackOneWordForAThirdOfASecond() {
+        var committer = StableWordCommitter()
+        _ = committer.observe(partial: "hello there friend", at: start)
+        #expect(committer.observe(partial: "hello there friend", at: start.addingTimeInterval(0.2)).isEmpty)
+        #expect(committer.observe(partial: "hello there friend", at: start.addingTimeInterval(0.35)) == ["hello", "there"])
+    }
+}
+
+struct LiveTypingPauseTests {
+    private let start = Date(timeIntervalSince1970: 1_000)
+
+    @Test func afterAPauseTheLastWordIsReleasedToo() {
+        var committer = StableWordCommitter()
+        _ = committer.observe(partial: "this is a test message", at: start)
+        #expect(committer.observe(partial: "this is a test message", at: start.addingTimeInterval(0.4)) == ["this", "is", "a", "test"])
+        // No new words for a while: the person has paused, so "message" is settled.
+        #expect(committer.observe(partial: "this is a test message", at: start.addingTimeInterval(1.0), personPaused: true) == ["message"])
+    }
+
+    @Test func aPauseStillWaitsForAWordThatJustChanged() {
+        var committer = StableWordCommitter()
+        _ = committer.observe(partial: "this is a test mess", at: start)
+        _ = committer.observe(partial: "this is a test message", at: start.addingTimeInterval(0.9))
+        #expect(committer.observe(partial: "this is a test message", at: start.addingTimeInterval(1.0), personPaused: true).isEmpty)
+    }
+}

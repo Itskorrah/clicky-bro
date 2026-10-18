@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolve Build"
+  short_description: "Implement complete improvements with regression coverage"
+  default_prompt: "Use $evolve-build to complete the selected improvement and verify its real behaviour."

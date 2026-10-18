@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolve"
+  short_description: "Continuously improve software with verified engineering"
+  default_prompt: "Use $evolve to investigate, implement and verify the highest-value improvements in this application."

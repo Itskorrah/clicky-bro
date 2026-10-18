@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Version>0.9.0</Version>
+    <Company>clicky-bro</Company>
+    <Product>clicky-bro</Product>
+  </PropertyGroup>
+</Project>

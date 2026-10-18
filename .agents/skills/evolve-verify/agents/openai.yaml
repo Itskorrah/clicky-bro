@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolve Verify"
+  short_description: "Independently verify outcomes, evidence and regressions"
+  default_prompt: "Use $evolve-verify to independently check this change against its acceptance criteria."
