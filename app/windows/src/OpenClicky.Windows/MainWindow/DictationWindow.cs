@@ -54,7 +54,7 @@ public sealed class DictationWindow : WpfUi.FluentWindow, IMainWindowActions
         rowFactory = new SettingsRowFactory(services, this);
         Tour = new SettingsTourController(services.Preferences, services.TourPointer, services.TourNarrator);
 
-        Title = "clicky-bro";
+        Title = "Clicky Bro";
         Icon = OpenClickyMarkDrawing.AppIconBitmap(64);
         ExtendsContentIntoTitleBar = true;
         WindowBackdropType = WpfUi.WindowBackdropType.Mica;
@@ -68,7 +68,7 @@ public sealed class DictationWindow : WpfUi.FluentWindow, IMainWindowActions
 
         var titleBar = new WpfUi.TitleBar
         {
-            Title = "clicky-bro",
+            Title = "Clicky Bro",
             Icon = new WpfUi.ImageIcon { Source = OpenClickyMarkDrawing.AppIconImage(), Width = 16, Height = 16 },
         };
         searchBox = new WpfUi.TextBox
