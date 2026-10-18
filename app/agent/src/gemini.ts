@@ -114,7 +114,7 @@ export class GeminiAgent {
                 onAbort = () => reject(new Error("Approval cancelled by Stop"));
                 signal.addEventListener("abort", onAbort, { once: true });
             });
-            let decision: "accept" | "acceptForSession" | "decline" | "cancel" | undefined;
+            let decision: Awaited<ReturnType<NonNullable<CodexAgentHooks["onApproval"]>>> | undefined;
             try {
                 decision = await Promise.race([
                     Promise.resolve(this.hooks.onApproval?.({ kind: "fileChange", method: "gemini/write_file", summary: `Write ${target}`, params: { path: target, content: args.content } })),
