@@ -7,9 +7,11 @@
 | PR | Status | Verified scope |
 | --- | --- | --- |
 | [#7 — public Clicky Bro branding](https://github.com/Itskorrah/clicky-bro/pull/7) | **Merged to main** (`652784ea590bb45882c505e3c65ab9cd6a4016ad`) | User-facing title, tray, permission and welcome string read-back; original SVG logo present in README |
-| [#8 — native colour customisation](https://github.com/Itskorrah/clicky-bro/pull/8) | **Draft, unmerged** | Isolated Swift palette compilation, accent contrast assertions; source review, but no current native project build |
-| [#9 — cursor geometry and visual polish](https://github.com/Itskorrah/clicky-bro/pull/9) | **Draft, unmerged** | Pure Swift bubble placement compiled on Linux and passed 5 isolated assertions; no native overlay acceptance |
-| [#1 — capture diagnostics and agent Stop](https://github.com/Itskorrah/clicky-bro/pull/1) | **Draft, unmerged** | Source work from prior independent branch; changes affect authority and permission boundaries, and **must not be bundled with cosmetic PRs** |
+| [#8 — native colour customisation](https://github.com/Itskorrah/clicky-bro/pull/8) | **Draft, unmerged**; head `91162ff`, base `16b81f0` | Swift palette compile and 42 isolated colour assertions were reported before the final bubble-contrast helper; no current native project build |
+| [#9 — cursor geometry and visual polish](https://github.com/Itskorrah/clicky-bro/pull/9) | **Draft, unmerged**; head `8c3df1d`, base `16b81f0` | Pure Swift bubble placement compiled on Linux and passed 5 isolated assertions; no native overlay acceptance |
+| [#1 — capture diagnostics and agent Stop](https://github.com/Itskorrah/clicky-bro/pull/1) | **Draft, unmerged; unverified**; head `e6feadd`, base `e77b4b5` | No current-branch full suite or native permission/safety acceptance. Its base is two commits behind `main`; refresh it before integration. Changes affect authority boundaries and **must not be bundled with cosmetic PRs** |
+
+**Current `main`:** `16b81f05fbda90278b30ae7ef9e7d0fc47cb7dd7` (includes merged PR #10).
 
 **Never equate a green GitHub mergeability flag, isolated Swift compile or source read-back with a passing native AppKit or WPF application.** GitHub Actions minutes are exhausted; do not trigger workflows merely to collect a checkmark.
 
@@ -50,6 +52,18 @@ Design audit sources: [Evolve](../.agents/skills/evolve/SKILL.md), ibelick's [im
 
 ### Baseline conditions
 
-The source-only Linux container has Swift 6.2.1 but **no Xcode, AppKit runtime, .NET SDK, native Windows GUI or access to the private repository via git/network**. GitHub connector fetch/update was used to push. Do not claim the Linux smoke tests validate microphone capture, native colour picker, cursor smoothness or screen reader accessibility. Historical 18 October tests listed elsewhere predate these changes.
+The continuation that produced this checkpoint ran in a source-only Linux
+container with Swift 6.2.1 but **no Xcode, AppKit runtime, .NET SDK, native
+Windows GUI or Git access to the private repository**. This local checkout is now
+on macOS with Xcode 26.6 and Swift 6.3.3; `dotnet` is not installed. No native
+build has yet been run here against PR #8, #9 or #1. The macOS gates above can now
+be attempted locally. A WPF cross-build can run on macOS with .NET and Windows
+targeting enabled, but `dotnet` is not installed here; Windows runtime and
+physical acceptance require a Windows host. Do not treat the Linux smoke tests
+as microphone, native colour picker, cursor smoothness or screen-reader
+acceptance.
 
-The next assistant/agent should **continue implementation and verification** rather than restating the design plan. Use evidence-backed small commits and merge only after the required local/platform tests.
+The next step is to run PR #8's macOS build and interaction gates, then reconcile
+PR #9 against that result. Keep PR #1 independent and update it to current `main`
+before integration. Use evidence-backed changes and merge only after the required
+local/platform tests.

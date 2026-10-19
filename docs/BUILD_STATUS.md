@@ -1,10 +1,11 @@
-> **19 October 2026 source note:** Azure theme tokens, a local speech-quality benchmark and explicit Parakeet Download actions are being developed. These changes do **not** have fresh current-branch Swift/WPF builds or real-model/device acceptance. No unverified capability below should be considered released.
+> **19 October 2026 update:** `main` is at `16b81f05`. PRs #2–#7 and #10 are merged. The Azure design foundation, speech benchmark, explicit Parakeet Download actions and public branding are in `main`; they still lack fresh current-source native app and device acceptance. PR #8 (themes) and #9 (cursor/bubbles) remain drafts awaiting native verification. PR #1 (capture/Stop safety) remains a separate, unverified draft based on `e77b4b59`, two commits behind current `main`. No current-source native app build or device acceptance has been recorded for these drafts. See the [19 October development checkpoint](DEVELOPMENT_CHECKPOINT_2026-10-19.md); the historical checks below do not verify the draft branches.
 
 # clicky-bro development status
 
-Updated 18 October 2026. This is a local development build based on the pinned
+Updated 19 October 2026. This is a local development build based on the pinned
 MIT native OpenClicky source, not a completed commercial HeyClicky replacement.
-The source and tests below distinguish implementation from runtime acceptance.
+The historical runtime checks below were recorded on earlier source revisions;
+the source and tests distinguish implementation from runtime acceptance.
 
 ## Implemented in this checkout
 

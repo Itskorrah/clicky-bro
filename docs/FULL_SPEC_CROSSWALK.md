@@ -2,6 +2,11 @@
 
 17 October 2026. The supplied specification is independent competitor research written without this project's full context. It is an input to our decisions, not a replacement for the project brief, verified findings, current development protocol or the user's instructions.
 
+> **19 October follow-up:** The native OpenClicky adoption decision is complete;
+> see [FOUNDATION_DECISION.md](FOUNDATION_DECISION.md). This remains a requirements
+> crosswalk, not an implementation or platform-acceptance report. Current status
+> is in [NEXT_STEPS.md](NEXT_STEPS.md) and [BUILD_STATUS.md](BUILD_STATUS.md).
+
 ## Review boundary
 
 Read the entire `HeyClicky_Competitive_Research_and_Build_Spec.md`: 48,905 bytes, 403 newline characters / 404 split lines, all 13 numbered sections, 60 catalogue entries, 22 test scenarios, proposed architecture/data objects, security requirements, use cases, deprecated features, delivery order, agent-assignment text and source register. SHA-256: `fde6f47f0dc385c7e459da024d9fcbf2984dbf367e555c83d79ffb49fd977228`.
@@ -124,7 +129,7 @@ These remain planned tests. Mapping does not constitute a passing result. Severa
 ## Recommendations that need project context
 
 - **Windows:** the document defers it to a late differentiation phase. The user already selected Windows support, so its feasibility and native contracts remain early decisions. There is no new approval to reverse that scope.
-- **Starting code:** its architecture discussion predates our pinned community-source assessment. Keep the two-candidate adoption gate before fresh scaffolding; no reason to repeat whole-app decompilation or assume the original Swift prototype is the best base.
+- **Starting code:** its architecture discussion predates our pinned community-source assessment. The two-candidate adoption gate was completed on 17 October 2026, with native OpenClicky selected; see `FOUNDATION_DECISION.md`. Do not repeat whole-app decompilation or assume the original Swift prototype is the best base.
 - **Development tools:** keep the lean Evolve/Context Mode/REA protocol. The attachment does not evaluate our existing environment, and its generic agent-assignment section does not replace it.
 - **Onboarding and UI:** preserve functional results while designing original interactions. Four questions, three starter characters, a macOS notch and competitor artwork are not architecture requirements for every platform.
 - **Refunds and performance:** a ten-second agent-credit refund is HeyClicky's billing policy; stopping an API request does not imply a provider refund. Advertised 450 ms onset, language counts, pace ranges and fifteen-step budgets need separate product choices and measured acceptance.
@@ -143,4 +148,8 @@ The declaration that all Instagram content was not reviewed remains accurate. Ne
 
 All 60 catalogue entries and 22 scenarios are now accounted for against our plan. This closes the missing-specification gap identified in RESEARCH_UPDATE.md. It adds precision and explicit fixtures rather than changing our overall architecture or authorizing implementation.
 
-The next development decision remains the isolated adoption/feasibility comparison of Prasanth OpenClicky and ClickyX, followed by one chosen foundation or selective, attributed reuse. Use GPT-6.1 Sol High for that native/runtime decision; routine implementation can use Medium after contracts are settled. No model or environment setting was changed here.
+At the time of this crosswalk, the next development decision was the isolated
+adoption/feasibility comparison of Prasanth OpenClicky and ClickyX. That decision
+was completed on 17 October 2026; subsequent implementation and acceptance work
+is tracked in `NEXT_STEPS.md` and `BUILD_STATUS.md`. No model or environment
+setting was changed here.

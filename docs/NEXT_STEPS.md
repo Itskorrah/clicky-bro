@@ -1,8 +1,12 @@
 # clicky-bro: current position and next acceptance work
 
-Updated 18 October 2026. The six authorized workstreams have progressed into a
-native development build. They are not all accepted product milestones. See
-[BUILD_STATUS.md](BUILD_STATUS.md) for exact checks and remaining limits.
+Updated 19 October 2026. The six authorized workstreams have progressed into a
+native development build. They are not all accepted product milestones. PR #7
+(public branding) and PR #10 (verification checkpoint) are merged; PRs #8 and #9
+remain drafts pending native verification, and PR #1 remains separate for safety
+verification. See [BUILD_STATUS.md](BUILD_STATUS.md) and
+[DEVELOPMENT_CHECKPOINT_2026-10-19.md](DEVELOPMENT_CHECKPOINT_2026-10-19.md) for
+exact gates.
 
 ## What has progressed
 
@@ -32,6 +36,12 @@ native development build. They are not all accepted product milestones. See
    after relaunch, and migration preserved the prior completed run. General
    connectors/MCP and Windows workspace UI parity are still open; inherited
    source presence is not end-to-end acceptance.
+7. **Identity and visual work:** PR #7 delivers public branding while preserving
+   compatible internal identities. PR #8 adds themes/custom colours and PR #9
+   refines the companion, but both remain drafts until current macOS/Windows
+   builds and native interaction acceptance pass. PR #1 changes capture and
+   Stop safety; keep it separate and update its branch to current `main` before
+   integration.
 
 ## Test the useful slice first
 
