@@ -14,6 +14,7 @@ public sealed class ClickyAccentPaletteTests
             var hex = ClickyAccentPalette.Resolve(preset.Id, "#FFFFFF", dark);
             Assert.True(ClickyAccentPalette.Contrast(hex, dark ? "#202329" : "#FFFFFF") >= 4.5,
                         $"Invalid contrast for {preset.Id} ({(dark ? "dark" : "light")}): {hex}");
+            Assert.True(ClickyAccentPalette.Contrast(ClickyAccentPalette.TextOnAccent(hex), hex) >= 4.5);
         }
     }
 
