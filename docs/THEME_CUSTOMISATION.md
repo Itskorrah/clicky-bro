@@ -36,7 +36,21 @@ On macOS, the `DS.Colors.accent` and `overlayCursorColor` computed colours read 
 
 **Navy refresh verification — 19 October 2026:** the macOS app build passed with an existing Info.plist build-phase warning, and the native suite passed **717 tests, 0 failed, 0 skipped** on macOS 26.5 arm64. The WPF project cross-build passed on macOS with 0 errors and one `WFAC010` high-DPI manifest warning. The portable Windows core suite reported **1,079 passed, 5 failed, 0 skipped (1,084 total)**; the five failures are the known Windows path/PATHEXT/npm-shim assumptions while running on macOS, so they are not Windows passes. The repository's Python suite passed **39 tests**. Swift parsing, XAML XML parsing, icon PNG/ICO dimension checks and `git diff --check` also passed. These results do not replace native Windows visual/accessibility acceptance.
 
-Still open: custom picker interaction and persistence across restart on macOS; native Windows colour dialog, stored values, mixed-DPI and multi-monitor rendering, keyboard order and Narrator; and real redacted screenshots of the app and companion in each theme. Windows native acceptance is deferred because no Windows PC was available. Keep any PR in draft until its applicable acceptance checks are complete.
+**Windows attempt — 19 October 2026:** the checkout started from `main` at
+`4535f2c74b733f39de1406be79e36ca555b9f454` on Windows 11 Pro build 26200; the
+tested verifier/branding follow-up is `06ee376a41ac89035c8bdb5097304909b56c5377`.
+The .NET SDK was absent, and a local download attempt was reset, so the WPF client
+and palette tests could not be built or run. The standalone Windows icon
+generator did run and its generated ICO includes all ten target sizes; the app,
+taskbar and tray were not available for inspection. Detailed results are in
+[TESTING_WINDOWS.md](TESTING_WINDOWS.md).
+
+Still open: custom picker interaction and persistence across restart on macOS;
+native Windows colour dialog, saved values, mixed-DPI and multi-monitor
+rendering, keyboard order, Narrator, and all other app-based acceptance because
+the Windows client could not be launched; and real redacted screenshots of the
+app and companion in each theme. PR #8 is already merged; keep the open PR #9
+draft until its applicable acceptance checks are complete.
 
 Before a general release:
 1. Compile on a Mac with Xcode and a Windows machine with the .NET 8 SDK; run the full local verifier and project-level tests.

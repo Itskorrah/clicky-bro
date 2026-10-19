@@ -2,6 +2,8 @@
 
 Use this file to continue the Clicky Bro work on a real Windows PC. The theme, navy UI, companion and icon stack is now on `main`; this session's main job is native Windows build, regression and acceptance evidence. The source was integrated before all platform gates passed, at the user's direction. That is not a Windows acceptance pass or release approval. Read this with [AGENTS.md](AGENTS.md), [the Windows test guide](docs/TESTING_WINDOWS.md), [the next-steps record](docs/NEXT_STEPS.md) and [the current build status](docs/BUILD_STATUS.md).
 
+> **Latest Windows attempt — 19 October 2026:** the work started from a clean `main` checkout at `4535f2c74b733f39de1406be79e36ca555b9f454`; the verifier and branding changes tested in that session are commit `06ee376a41ac89035c8bdb5097304909b56c5377`. The run was on Windows 11 Pro build 26200. Node typechecks/build and several checks ran, but the Windows client could not be built or launched because no .NET SDK is installed; the direct download was reset and Windows Package Manager had no applicable user-scope installer. This did not complete native UI acceptance. See [the dated Windows evidence](docs/TESTING_WINDOWS.md#19-october-2026-native-windows-attempt).
+
 ## Where to continue
 
 - Repository: [Itskorrah/clicky-bro](https://github.com/Itskorrah/clicky-bro)
@@ -48,6 +50,8 @@ Record the actual commit hash and Windows version in the results. Before making 
 Continue with the user's requested [KStack development stack](https://github.com/Itskorrah/kstack). Check whether a local KStack checkout already exists under .local/kstack. If missing, run git clone https://github.com/Itskorrah/kstack.git .local/kstack, then read its current Windows setup and use its native-desktop workflow. Keep KStack local to this checkout; do not change global Codex, shell, authentication or billing configuration. Use the repository's Evolve audit, build and verify skills. Record which workflow and skills actually ran; a written instruction is not evidence that a tool or active model changed.
 
 Model settings are controlled by the Windows Codex session, not this file. The conversation included a cost concern about GPT-6.1 Sol, while AGENTS.md specifies the project model route. Follow the latest explicit user/session instruction, verify the actual active and delegated model metadata, and do not change global settings or claim that this file switched a model. If workers are delegated, use only models and effort levels authorized by the current AGENTS.md and user instructions, keep them focused, and use at most two.
+
+For the 19 October 2026 session, the user requested GPT-6 Luna Max. The current thread metadata did not expose the effective model or effort, so that choice could not be independently verified. No worker was delegated and no global model setting was changed.
 
 Do not enable paid fallback or billing. A live provider check is optional and should use only an already-authorized, bounded free-model setup. Do not copy a key from another computer, expose credentials, or read developer Codex tokens.
 
@@ -110,7 +114,7 @@ Windows evidence does not complete the open macOS gates:
 - **PR #8:** native custom colour picker, persistence through restart, appearance changes, contrast and fresh Settings screenshots.
 - **PR #9:** fresh native companion screenshots, accessibility and click-through checks, and comparable CPU/GPU/frame-time measurements.
 
-Return to a Mac for these checks. Keep PRs as drafts until their required platform gates are complete. After acceptance, update the evidence with the exact tested commit; re-run checks whenever source or PR base changes. The intended integration order is PR #1 independent, then PR #8, then PR #9 based on #8, as recorded in [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md).
+Return to a Mac for these checks. PR #8 is already merged; PR #9 remains an open draft on its former theme branch, and PR #1 remains separate. Do not change those states as part of this Windows follow-up. After acceptance, update the evidence with the exact tested commit and re-run checks whenever source or PR base changes.
 
 ## Record and report results
 
@@ -123,4 +127,4 @@ Append a concise Windows result to [docs/TESTING_WINDOWS.md](docs/TESTING_WINDOW
 - sanitized screenshots of disposable content only;
 - known limitations and any check that could not be performed.
 
-Do not report a cross-build, browser rendering or macOS run as Windows acceptance. Push verified changes to the existing PR branch when ready; leave main and the draft/merge state unchanged.
+Do not report a cross-build, browser rendering or macOS run as Windows acceptance. The current user authorized verified follow-up commits to `main`; keep PR #9's former branch and PR #1 separate.

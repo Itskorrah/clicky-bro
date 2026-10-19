@@ -2,6 +2,8 @@
 
 > **Evidence boundary:** the integrated source's macOS native suite passed 717/717; the Windows WPF cross-build passed on macOS with 0 errors and one inherited high-DPI manifest warning; focused palette tests passed 7/7; the full portable Windows core suite reported 1,079 passed and five macOS-host failures. GitHub reported zero check-runs for source commit `5d2bcfe` when checked after integration. No Windows-native, full native screenshot, or current-bundle capture acceptance is claimed. See [the implementation record](IMPLEMENTATION_2026-10-19.md).
 
+> **19 October 2026 Windows attempt:** testing started from `main` at `4535f2c74b733f39de1406be79e36ca555b9f454`; the exact tested verifier/branding tree is commit `06ee376a41ac89035c8bdb5097304909b56c5377`. The host was Windows 11 Pro build 26200. The .NET SDK was absent and the local download attempt was reset, so the WPF app was not built or launched. Node build/typechecks ran; Python and npm test suites reported Windows portability or skill-format failures. Full results and evidence boundaries are in [TESTING_WINDOWS.md](TESTING_WINDOWS.md).
+
 # clicky-bro development status
 
 Updated 19 October 2026. This is a local development build based on the pinned
@@ -19,6 +21,8 @@ the source and tests distinguish implementation from runtime acceptance.
 
 Windows core tests on macOS reported **1,070 passed, 5 failed, 0 skipped of 1,075** on the #8 theme head and **1,076 passed, 5 failed, 0 skipped of 1,081** on the earlier integrated #8+#9 head. The latest navy/icon refresh run reports **1,079 passed, 5 failed, 0 skipped of 1,084**. The same five failures cover Windows drive/path separators and npm shim assumptions on the macOS host; they remain failures in the reports and are not Windows passes. GitHub currently reports no checks for PR #9. Test reports and raw logs stay in ignored `.local/evidence/`.
 
+The 19 October Windows local verifier passed agent typecheck/build, backend typecheck and ESLint. It failed the root Python suite, agent tests and backend tests, and skipped Windows core tests because the .NET SDK was unavailable. The Windows icon generator separately produced a ten-size ICO preview, but actual app/taskbar/tray rendering and all native UI checks remain pending.
+
 The current isolated macOS app's General Settings window and theme controls were inspected through accessibility. The accent menu and Reduce Motion control were visible; no theme preference changed. The custom colour picker and visual companion comparisons were not exercised. The isolated app was quit after inspection.
 
 ## Implemented in this checkout
@@ -34,7 +38,7 @@ The current isolated macOS app's General Settings window and theme controls were
 | Routines | Local intervals, per-session opt-in, persisted occurrence deduplication, no burst replay, interrupted restart state | Sleep/clock/DST/native scheduling observations and richer schedules |
 | Files/history | Gemini threads, saved run status and text artifacts; bounded list/read/write tools inside the workspace | Safe rich file previews, attachments and end-to-end artifact workflows |
 | Skills/integrations | Adopted skill/settings source retained; direct Gemini supports the declared workspace file tools | General MCP/connector execution, scoped auth, real account-service acceptance |
-| Windows | Native WPF client, Gemini continuation, default-deny per-action native approval, cancellation checks and write-in-place target guards | Physical Windows desktop acceptance, chosen-capture contract and new workspace UI |
+| Windows | Native WPF client source, Gemini continuation, default-deny per-action native approval, cancellation checks and write-in-place target guards | Current Windows build blocked by missing .NET SDK; native theme/companion, chosen-capture, focus, audio, accessibility and new workspace UI acceptance |
 
 Scope and memory are instructions, not an operating-system sandbox. Helpers can
 read supported text files in the configured agent workspace, and only the separate
@@ -84,9 +88,10 @@ below.
 
 ## Material limits
 
-- Windows desktop testing is explicitly deferred by the user until their PC is
-  available for it. A Mac cross-build is not evidence of Windows capture, audio,
-  hotkey, focus or input behavior.
+- A Windows 11 host was used on 19 October, but missing .NET SDK prevented a
+  native build or launch. A Mac cross-build is not evidence of Windows capture,
+  audio, hotkey, focus or input behavior; the current Windows suite failures
+  are recorded without weakening or skipping them.
 - The ignored self-contained Windows publish folder was produced before the
   latest cancellation/target-safety repairs and is stale. It is not a final
   source artifact and has not been executed on Windows.
@@ -124,7 +129,8 @@ below.
 ## Continue
 
 Use the root README and [TESTING_MACOS.md](TESTING_MACOS.md) for Mac acceptance,
-and [TESTING_WINDOWS.md](TESTING_WINDOWS.md) when a Windows PC is available.
+and [TESTING_WINDOWS.md](TESTING_WINDOWS.md) after installing the .NET 8 SDK on
+the Windows host.
 [NEXT_STEPS.md](NEXT_STEPS.md) prioritizes acceptance and remaining feature work
 against the research crosswalk. This pass used KStack's native-desktop routing
 and verification guidance with the project's Evolve implementation/verification

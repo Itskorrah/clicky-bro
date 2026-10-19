@@ -1,10 +1,12 @@
 # Test clicky-bro on Windows
 
-Native Windows acceptance has not yet been performed. Earlier WPF builds and
-portable-core test runs were executed on macOS and do not count as Windows
-acceptance. Use the [Windows Codex handoff](../CODEX_WINDOWS.md) to continue on
-a Windows 11 PC. The repository contains a native Windows client and shared
-TypeScript agent, not a macOS executable port.
+A Windows 11 host was available on 19 October 2026, but the required .NET SDK
+was missing, so the WPF client could not be built or launched. Native Windows
+visual, interaction and accessibility acceptance has not yet been performed.
+Earlier WPF builds and portable-core test runs on macOS do not count as Windows
+acceptance. Use the [Windows Codex handoff](../CODEX_WINDOWS.md) to continue.
+The repository contains a native Windows client and shared TypeScript agent,
+not a macOS executable port.
 
 ## Build and run
 
@@ -195,3 +197,79 @@ not a Windows pass. GitHub reported no checks for PR #9 at that time.
 Native Windows theme, icon, overlay, DPI, keyboard, Narrator, capture, audio and
 input acceptance remain open. No Windows hardware check is claimed. See
 [CODEX_WINDOWS.md](../CODEX_WINDOWS.md) for the continuation checklist.
+
+## 19 October 2026 native Windows attempt
+
+The required initial `git status --short --branch` reported `## No commits yet
+on master`; the worktree had no local files or commits to preserve. After adding
+the supplied `origin` and checking the current remote, `main` was fetched and
+checked out at `4535f2c74b733f39de1406be79e36ca555b9f454`. The automated checks
+ran against this source plus the README, verifier and focused-test changes
+listed below. That exact tested tree was committed as
+`06ee376a41ac89035c8bdb5097304909b56c5377` (parent `4535f2c`); the status and
+handoff documentation is a separate follow-up.
+
+**Device and display:** Windows 11 Pro, version `10.0.26200`, build `26200`,
+x64; Intel Core i7-10700F at 2.90 GHz; NVIDIA GeForce RTX 3070. Windows Forms
+reported two logical 1920x1080 displays. WMI separately reported 2560x1440 at
+143 Hz, and `HKCU:\Control Panel\Desktop\LogPixels` was `120` (125% system
+scaling). These APIs disagree about the display mode; physical monitor
+identity, per-monitor scaling and active refresh rate were not independently
+settled. No app performance measurement was possible.
+
+**Toolchain:** Node.js `v24.1.0`; Python `3.13.5`. `dotnet --info` showed only
+the .NET 5.0.4 host/runtime and no installed SDK; `dotnet --list-sdks` was
+empty. Windows Package Manager listed Microsoft .NET SDK `8.0.426`, but its
+user-scope install reported `No applicable installer found`. A direct local SDK
+download attempt could not reach Microsoft's endpoints because the HTTPS
+connection was reset. No machine-scope install or global settings change was
+made.
+
+**Build and automated checks:**
+
+| Command or check | Result |
+| --- | --- |
+| `npm ci --prefix app --ignore-scripts` | Passed; installed 299 packages. npm reported 7 audit findings (1 moderate, 6 high); no audit fix was run. |
+| `npm run build --prefix app --workspace agent` | Passed. The Windows verifier also passed agent typecheck/build, backend typecheck and ESLint. |
+| `dotnet build app/windows/OpenClicky.Windows.sln -c Debug` | Failed to start because no compatible .NET SDK is installed. |
+| `dotnet test app/windows/tests/OpenClicky.Core.Tests/OpenClicky.Core.Tests.csproj -c Debug` | Failed for the same missing SDK. The verifier skipped `windows-core-tests` and recorded `dotnet SDK unavailable (installed runtimes do not include an SDK)`. |
+| `py -3 -m unittest discover -s tests -v` | Failed: 43 tests total, 33 passed, 1 failed, 8 errors, 1 skipped. The failure expects POSIX mode `0600`; the errors are Windows-incompatible `os.getuid`/POSIX ownership assumptions in `scripts/dev.py`. These were not weakened. |
+| `py -3 -m unittest discover -s tests -p test_check_local.py -v` | Passed 9/9, including Windows npm shim resolution, missing-SDK skip and Unicode-output handling. |
+| `py -3 -m unittest discover -s tests -p test_public_branding.py -v` | Passed 3/3 after making source reads explicitly UTF-8. |
+| `npm run test --prefix app --workspace agent` (also run by the Windows verifier) | Failed. Direct diagnostics reported 28 failed, 101 passed, 4 skipped, plus 11 unhandled errors. Failures include attempts to spawn POSIX `.bin/tsx`/fake `.sh` files and Unix-specific path, shell and symlink assumptions. |
+| `npm run test --prefix app --workspace backend` | Failed: 261 passed, 1 failed out of 262. The failed skill checker found 17 bundled documents missing its required `Layout`, `Common tasks`, `Pointing hints` and `Gotchas` sections. |
+| `py -3 scripts/check_local.py --windows --report .local/evidence/windows-2026-10-19/local-verifier-final.json` | Completed with exit code 1: agent typecheck/build, backend typecheck and ESLint passed; root Python, agent tests and backend tests failed; Windows core tests were skipped because the SDK is absent. |
+
+The verifier was repaired during this run to resolve Windows `npm.cmd` through
+Node without a shell, detect runtime-only .NET installs before starting an SDK
+command, and decode subprocess output as UTF-8 with replacement. The README now
+links the editable vector mark, and the branding test reads UTF-8 source files
+explicitly. No provider or billing checks ran.
+
+The Windows icon generator ran and wrote an ignored evidence file:
+`.local/evidence/windows-2026-10-19/windows-regenerated.ico`. The checked-in
+and generated ICO both contain 16, 20, 24, 32, 40, 48, 64, 96, 128 and 256 pixel
+entries. A visual comparison is saved as
+`.local/evidence/windows-2026-10-19/icon-sizes-comparison.png`. This validates
+the standalone icon assets and generator only; the app, taskbar and tray were
+not built or inspected.
+
+**Native acceptance status:**
+
+| Acceptance area | Result |
+| --- | --- |
+| Theme controls: Navy default and saved values; all presets/custom colour; Light/Dark/Auto; valid/invalid hex; native picker; follow-accent/custom tint; Reset and restart persistence | Not run; the app was not built or launched. No user settings were touched. |
+| Theme keyboard focus, contrast and Narrator | Pending; no native app surface was available. |
+| Mixed-DPI monitor behavior | Pending. Display API readings conflicted, and no per-monitor DPI movement test ran. |
+| App/taskbar/tray icon at real Windows sizes | Standalone ICO entries and the Windows generator were inspected at 16, 32, 48 and 256 px; actual app/taskbar/tray rendering remains pending. |
+| Sanitized screenshots of welcome, caption and navigation overlays | Not captured; no app overlay was running. |
+| Click-through, interaction, cancellation, keyboard/screen-reader behavior, Reduce Motion, edge placement and multiple monitors | Pending; not run. |
+| CPU/GPU and frame-time baseline/comparison | Not measured; no app process or overlay was available. No performance claim is made. |
+| Broader baseline: launch/quit, persistence, capture scope, dictation/focus, action approval/refusal/Stop, workspace boundaries and failure recovery | Pending; no app run. Disposable-window/file fixtures were not created and no account/provider state was changed. |
+
+The machine-readable verifier summary is in ignored
+`.local/evidence/windows-2026-10-19/local-verifier-final.json`. There are no
+screenshots of the running app because it never launched. Continue with the
+.NET 8 SDK installed, then work through every native item above and the complete
+[Windows handoff](../CODEX_WINDOWS.md) checklist. Keep Windows evidence separate
+from the macOS-only checks recorded earlier.

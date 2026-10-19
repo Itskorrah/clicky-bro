@@ -1,6 +1,6 @@
 # Navy UI and app icon refresh — 19 October 2026
 
-This addendum records the user-requested GitHub-inspired navy UI and icon work. Commit `210ec8e` is pushed to PR #9's branch, `ui/refined-companion-motion-and-bubbles-2026-10-19`, stacked on PR #8's custom theme controls. The pull request remains a draft and is not merged into `main` while platform acceptance is pending.
+This addendum records the user-requested GitHub-inspired navy UI and icon work. It first landed in commit `210ec8e` on PR #9's branch, `ui/refined-companion-motion-and-bubbles-2026-10-19`, stacked on PR #8's custom theme controls. The user later integrated the source into `main`; PR #9 remains an open draft against its former branch. The integration does not complete the remaining platform acceptance.
 
 ## What changed
 
@@ -24,4 +24,20 @@ KStack was run from `.local/tools/kstack-20261019` with the `native-desktop` pro
 
 ## Still needed
 
-There was no Windows machine for native WPF appearance, colour-dialog, persistence, mixed-DPI, keyboard or Narrator acceptance. `pwsh` was also unavailable, so the Windows PowerShell icon generator was source-reviewed but not executed; the checked-in ICO was generated from the shared master with Pillow and its ten dimensions were validated. The macOS app opens to an OS system dialog in the current desktop session, so the settings window, custom picker and restart persistence could not be inspected safely; a same-state native screenshot was not captured. GitHub reports no checks for the updated PR branch. Keep the feature PRs in draft and do not merge them to `main` until these platform checks are completed.
+The Windows continuation ran on Windows 11 Pro build 26200 from current `main`
+at `4535f2c74b733f39de1406be79e36ca555b9f454`. No .NET SDK was installed and
+the verifier/branding fixes tested in that session are commit
+`06ee376a41ac89035c8bdb5097304909b56c5377`. No .NET SDK was installed and the
+local download attempt was reset, so native WPF appearance, colour-dialog,
+persistence, mixed-DPI, keyboard or Narrator acceptance could not run. The
+Windows PowerShell icon generator did run and generated ignored
+`.local/evidence/windows-2026-10-19/windows-regenerated.ico`; its 10 ICO sizes
+were compared with the checked-in asset in
+`.local/evidence/windows-2026-10-19/icon-sizes-comparison.png`. This does not
+verify app/taskbar/tray rendering. See
+[`TESTING_WINDOWS.md`](TESTING_WINDOWS.md) for full build, test and acceptance
+results. The macOS app opens to an OS system dialog in the current desktop
+session, so the settings window, custom picker and restart persistence could
+not be inspected safely; a same-state native screenshot was not captured. PR #8
+is already merged; keep the open PR #9 in draft until its remaining platform
+checks are completed. PR #1 remains separate.

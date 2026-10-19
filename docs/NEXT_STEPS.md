@@ -1,10 +1,11 @@
 # clicky-bro: current position and next acceptance work
 
-Updated 19 October 2026 after the user's request to continue on `main`. The
-theme, navy UI, companion and icon stack is now integrated into `main` ahead of
-its remaining native acceptance gates. This integration does not count as
-platform acceptance or release approval. Capture and Stop safety PR #1 remains
-separate. No desktop release or full HeyClicky parity is claimed.
+Updated 19 October 2026 after the Windows build attempt. The theme, navy UI,
+companion and icon stack is integrated into `main` ahead of its remaining native
+acceptance gates. The Windows host was available, but missing .NET SDK blocked
+the native build and app launch. This integration does not count as platform
+acceptance or release approval. Capture and Stop safety PR #1 remains separate.
+No desktop release or full HeyClicky parity is claimed.
 
 The [Navy UI and icon refresh](IMPLEMENTATION_2026-10-19.md) and theme controls
 are on `main` at source commit `5d2bcfee3639c58daca873a43ca76404c68f57d8`.
@@ -17,9 +18,10 @@ remain next.
 
 - The theme and companion stack was fast-forwarded to `main` at
   `5d2bcfee3639c58daca873a43ca76404c68f57d8` at the user's request, before
-  native acceptance was complete. This documentation follow-up advances the
-  main revision; use `git rev-parse HEAD` on the Windows PC to
-  record the exact checkout.
+  native acceptance was complete. The Windows session fetched current `main`
+  and began from `4535f2c74b733f39de1406be79e36ca555b9f454`. The tested
+  verifier/branding fixes are in `06ee376a41ac89035c8bdb5097304909b56c5377`;
+  this documentation follow-up records the results and pending acceptance.
 - PR #1 is updated to `6b5de4a`: **710 macOS native tests passed**, 0 failed and
   0 skipped; seven offline checks passed. The code and unit suite are ready for
   review, while live selected-window capture, TCC denial/revocation and a real
@@ -38,11 +40,17 @@ remain next.
   on macOS. The same five failures assume Windows path separators, drive paths
   or npm shims while running on macOS. These are reported failures, not Windows
   passes. GitHub reports no checks for the updated PR branch.
-- There was no Windows PC available. The macOS Screen Recording permission was
-  not granted or changed. The 18 October helper/runtime persistence check used
-  two live Gemini GUI requests, as recorded in [TESTING_MACOS.md](TESTING_MACOS.md).
-  The 19 October native acceptance checks used no provider requests or paid
-  fallback, Actions runs or deployments.
+- The Windows 11 Pro build-26200 host has an Intel Core i7-10700F and NVIDIA
+  GeForce RTX 3070. The native client was not built or launched because no .NET
+  SDK was installed and the local download attempt was reset. Node build and
+  typechecks passed; the Python, agent and backend suites have documented
+  Windows portability or skill-format failures. See the dated results in
+  [TESTING_WINDOWS.md](TESTING_WINDOWS.md). No Windows app screenshots or
+  performance measurements exist yet.
+- The macOS Screen Recording permission was not granted or changed. The 18
+  October helper/runtime persistence check used two live Gemini GUI requests,
+  as recorded in [TESTING_MACOS.md](TESTING_MACOS.md). This Windows attempt used
+  no provider requests or paid fallback, Actions runs or deployments.
 
 See [BUILD_STATUS.md](BUILD_STATUS.md) for evidence and boundaries and the
 [19 October checkpoint](DEVELOPMENT_CHECKPOINT_2026-10-19.md) for the exact PR
@@ -70,9 +78,11 @@ heads and integration status.
 4. **Complete the remaining gates on `main`.** PRs #8/#9 are integrated before
    their native acceptance gates pass. Keep PR #1 separate. Re-run checks after
    source changes; report actual results and label host-only or skipped checks.
-5. **Continue from `main` on Windows.** Follow [CODEX_WINDOWS.md](../CODEX_WINDOWS.md)
-   using `git pull --ff-only`; record the tested commit, OS build and actual
-   acceptance evidence. Push verified follow-up commits to `main` as authorized.
+5. **Finish Windows acceptance from `main`.** Install the .NET 8 SDK, fetch
+   `main` with `git pull --ff-only`, then follow [CODEX_WINDOWS.md](../CODEX_WINDOWS.md)
+   and the pending checklist in [TESTING_WINDOWS.md](TESTING_WINDOWS.md). Record
+   the exact tested commit, OS build and actual native evidence. Push verified
+   follow-up commits to `main` as authorized.
 
 ## Product work after these PRs
 
@@ -92,7 +102,19 @@ heads and integration status.
 KStack's `native-desktop` route identified native platform acceptance as a
 required verification step and selected focused routing/verification guidance.
 The project Evolve build and verify skills scoped implementation and independent
-review. One Luna Max reviewer checked the updated PR branches against the local
-evidence. KStack is a local ignored checkout and CLI/skill pack; it did not
-install globally or create a runtime agent swarm. Native builds were serialized
-on the 8 GiB Mac. No global model or authentication settings were changed.
+review. An independent reviewer checked the updated PR branches against the
+local evidence. Luna Max had been requested, but the host did not expose
+effective model metadata for independent confirmation. KStack is a local ignored checkout
+and CLI/skill pack; it did not install globally or create a runtime agent swarm.
+Native builds were serialized on the 8 GiB Mac. No global model or
+authentication settings were changed.
+
+For the 19 October Windows attempt, KStack's local `native-desktop` route and
+doctor ran; `verify-project` reported no trusted project verification commands
+configured. The local CLI inspected the repository root and `app`, routed the
+Windows project to `native-desktop`, and ran `verify-project` and `doctor` using
+`.local/kstack-state`; KStack's available skill checks passed. The project
+Evolve build and independent verification skills were read and followed. No
+worker was delegated because the current thread exposed no effective-model
+metadata to verify the requested Luna Max setting. The active model therefore
+remains unconfirmed; no global model or authentication setting was changed.
