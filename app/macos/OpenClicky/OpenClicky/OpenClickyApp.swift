@@ -34,6 +34,12 @@ struct OpenClickyApp: App {
         Settings {
             EmptyView()
         }
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button("Settings…") { appDelegate.showGeneralSettings() }
+                    .keyboardShortcut(",", modifiers: .command)
+            }
+        }
     }
 }
 
@@ -46,6 +52,10 @@ final class CompanionAppDelegate: NSObject, NSApplicationDelegate {
     private var workspaceController: ClickyBroWorkspaceController?
     private var workspaceWindow: NSWindow?
     private var sparkleUpdaterController: SPUStandardUpdaterController?
+
+    func showGeneralSettings() {
+        companionManager.showSettings(.general)
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Line-buffer stdout so `open -a OpenClicky --stdout app.log` shows prints as they happen
