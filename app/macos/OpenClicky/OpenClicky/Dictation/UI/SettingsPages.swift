@@ -115,7 +115,7 @@ struct SettingsFormView: View {
 /// macOS in light and dark.
 enum SettingsLook {
     /// The proposal's orange accent: #D24E2A in light, #E8653F in dark.
-    static let accent = DS.Colors.accent
+    static var accent: Color { DS.Colors.accent }
     static let rowTitle = Font.system(size: 13)
     static let caption = Font.system(size: 11)
     static let micro = Font.system(size: 10)
