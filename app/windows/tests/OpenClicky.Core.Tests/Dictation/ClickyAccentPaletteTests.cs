@@ -6,6 +6,19 @@ namespace OpenClicky.Core.Tests.Dictation;
 public sealed class ClickyAccentPaletteTests
 {
     [Fact]
+    public void AzurePresetMatchesManifestInBothAppearances()
+    {
+        Assert.Equal("#2563EB", ClickyAccentPalette.Resolve("azure", "#FFFFFF", dark: false));
+        Assert.Equal("#60A5FA", ClickyAccentPalette.Resolve("azure", "#FFFFFF", dark: true));
+        Assert.Equal("#2563EB", ClickyAccentPalette.ResolveCompanion(
+            "azure", "#FFFFFF", followAccent: true, customCompanionHex: "#000000", dark: false));
+        Assert.Equal("#60A5FA", ClickyAccentPalette.ResolveCompanion(
+            "azure", "#FFFFFF", followAccent: true, customCompanionHex: "#000000", dark: true));
+        Assert.True(ClickyAccentPalette.Contrast("#2563EB", "#FFFFFF") >= 4.5);
+        Assert.True(ClickyAccentPalette.Contrast("#60A5FA", "#202329") >= 4.5);
+    }
+
+    [Fact]
     public void EveryPresetUsesReadableColoursOnLightAndDarkSurfaces()
     {
         foreach (var preset in ClickyAccentPalette.Presets)

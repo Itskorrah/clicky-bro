@@ -3,6 +3,18 @@ import Testing
 @testable import OpenClicky
 
 struct ClickyThemePaletteTests {
+    @Test func azurePresetMatchesManifestInBothAppearances() {
+        let azure = [false: "#2563EB", true: "#60A5FA"]
+        for (dark, expected) in azure {
+            let resolved = ClickyThemePalette.resolve(preset: "azure", customHex: "#FFFFFF", dark: dark)
+            #expect(resolved == expected)
+            #expect(ClickyThemePalette.resolveCompanion(
+                preset: "azure", customAccentHex: "#FFFFFF", followsAccent: true,
+                customCompanionHex: "#000000", dark: dark) == expected)
+            #expect(ClickyThemePalette.contrast(resolved, dark ? "#202329" : "#FFFFFF") >= 4.5)
+        }
+    }
+
     @Test func presetsAlwaysMeetReadableContrastInBothAppearances() {
         for preset in ClickyThemePalette.presets {
             for dark in [false, true] {

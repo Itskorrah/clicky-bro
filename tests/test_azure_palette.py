@@ -54,11 +54,30 @@ class AzureDesignTokensTests(unittest.TestCase):
     def test_swift_tokens_match_manifest(self):
         self.assertIn("NSColor(name: nil)", self.mac)
         self.assertIn("appearance.bestMatch", self.mac)
-        for theme in ("light", "dark"):
-            for name, color in self.data[theme].items():
-                key = name[0].lower() + name[1:]
-                self.assertIn(f"{key} = adaptive(", self.mac)
-                self.assertIn("0x" + color[1:], self.mac)
+        for name in REQUIRED - {"Accent"}:
+            key = name[0].lower() + name[1:]
+            light = self.data["light"][name][1:]
+            dark = self.data["dark"][name][1:]
+            self.assertIn(f"static let {key} = adaptive(light: 0x{light}, dark: 0x{dark})", self.mac)
+
+        # Accent is intentionally user-selectable. Its Azure preset still owns the
+        # manifest values, and both the app token and overlay resolve from settings.
+        self.assertIn('case "azure": original = dark ? "#60A5FA" : "#2563EB"',
+                      (ROOT / "app/macos/OpenClicky/OpenClicky/ClickyThemePalette.swift").read_text(encoding="utf-8"))
+        self.assertIn("static var accent: Color { userColour(companion: false) }", self.mac)
+        self.assertIn("ClickyThemePalette.resolve(preset: preset, customHex: customAccent, dark: dark)", self.mac)
+        self.assertIn("static var overlayCursorColor: Color { userColour(companion: true) }", self.mac)
+        self.assertIn("ClickyThemePalette.resolveCompanion(", self.mac)
+
+    def test_windows_accent_token_and_overlay_follow_settings(self):
+        palette = (ROOT / "app/windows/src/OpenClicky.Core/Dictation/ClickyAccentPalette.cs").read_text(encoding="utf-8")
+        self.assertIn('"azure" => dark ? "#60A5FA" : "#2563EB"', palette)
+        self.assertRegex(self.win, r"public static Color Accent\s*\{\s*get\s*\{[\s\S]*?ClickyAccentPalette\.Resolve\(")
+        self.assertRegex(self.win, r"public static Color OverlayCursor\s*\{\s*get\s*\{[\s\S]*?ClickyAccentPalette\.ResolveCompanion\(")
+        overlay = (ROOT / "app/windows/src/OpenClicky.Windows/Overlay/OverlayWindow.cs").read_text(encoding="utf-8")
+        self.assertIn("DS.Colors.OverlayCursorBrush", overlay)
+        self.assertIn("DS.Colors.OverlayCursorTextBrush", overlay)
+        self.assertIn("TextOnAccent", self.win)
 
     def test_windows_code_and_xaml_match_manifest(self):
         ns = {"x": "http://schemas.microsoft.com/winfx/2006/xaml"}
@@ -74,10 +93,14 @@ class AzureDesignTokensTests(unittest.TestCase):
                 self.assertEqual(values[f"ClickyBro.Azure.{theme.title()}.{name}Color"], "#FF" + color[1:])
 
     def test_pointer_color_parity(self):
+        # Keep the legacy Azure resource aligned, while checking that live native
+        # overlay consumers now resolve the selected companion tint dynamically.
         pointer = self.data["overlays"]["pointer"]
-        self.assertIn(f"overlayCursorColor = Color(hex: \"{pointer}\")", self.mac)
-        self.assertIn(f"OverlayCursor = Hex(\"{pointer}\")", self.win)
+        self.assertRegex(pointer, r"^#[0-9A-F]{6}$")
         self.assertIn("#FF" + pointer[1:], self.xaml)
+        self.assertIn("DS.Colors.overlayCursorColor", (ROOT / "app/macos/OpenClicky/OpenClicky/OverlayWindow.swift").read_text(encoding="utf-8"))
+        self.assertIn("return companion\n                ? ClickyThemePalette.resolveCompanion(", self.mac)
+        self.assertIn("return Hex(ClickyAccentPalette.ResolveCompanion(", self.win)
 
 
 if __name__ == "__main__":
