@@ -25,21 +25,24 @@ enum DS {
         /// A computed value matters: settings views redraw on @Published changes.
         static var accent: Color { userColour(companion: false) }
 
+        private static func preferredHex(companion: Bool, appearance: NSAppearance) -> String {
+            let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            let preferences = UserDefaults.standard
+            let preset = preferences.string(forKey: "appearance.accentPreset") ?? "coral"
+            let customAccent = preferences.string(forKey: "appearance.customAccentHex") ?? "#D24E2A"
+            let follow = preferences.object(forKey: "appearance.companionFollowsAccent") == nil
+                ? true : preferences.bool(forKey: "appearance.companionFollowsAccent")
+            let customCompanion = preferences.string(forKey: "appearance.customCompanionHex") ?? "#E8653F"
+            return companion
+                ? ClickyThemePalette.resolveCompanion(
+                    preset: preset, customAccentHex: customAccent,
+                    followsAccent: follow, customCompanionHex: customCompanion, dark: dark)
+                : ClickyThemePalette.resolve(preset: preset, customHex: customAccent, dark: dark)
+        }
+
         private static func userColour(companion: Bool) -> Color {
             Color(nsColor: NSColor(name: nil) { appearance in
-                let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                let preferences = UserDefaults.standard
-                let preset = preferences.string(forKey: "appearance.accentPreset") ?? "coral"
-                let customAccent = preferences.string(forKey: "appearance.customAccentHex") ?? "#D24E2A"
-                let follow = preferences.object(forKey: "appearance.companionFollowsAccent") == nil
-                    ? true : preferences.bool(forKey: "appearance.companionFollowsAccent")
-                let customCompanion = preferences.string(forKey: "appearance.customCompanionHex") ?? "#E8653F"
-                let hex = companion
-                    ? ClickyThemePalette.resolveCompanion(
-                        preset: preset, customAccentHex: customAccent,
-                        followsAccent: follow, customCompanionHex: customCompanion, dark: dark)
-                    : ClickyThemePalette.resolve(preset: preset, customHex: customAccent, dark: dark)
-                return NSColor(hex: hex)
+                NSColor(hex: preferredHex(companion: companion, appearance: appearance))
             })
         }
         static let canvas = adaptive(light: 0xF7FAFF, dark: 0x0B1220)
@@ -67,8 +70,15 @@ enum DS {
         /// The cursor/bubble color used in OverlayWindow.
         /// Kept distinct from the accent since it serves a different purpose
         /// (screen overlay vs in-app UI).
-        // OpenClicky: the buddy is red-orange like the current HeyClicky cursor (upstream was blue #3380FF).
         static var overlayCursorColor: Color { userColour(companion: true) }
+
+        /// A pale custom pointer needs dark text; a dark custom pointer needs white text.
+        static var overlayCursorText: Color {
+            Color(nsColor: NSColor(name: nil) { appearance in
+                let accent = preferredHex(companion: true, appearance: appearance)
+                return NSColor(hex: ClickyThemePalette.textOnAccent(accent))
+            })
+        }
     }
 
     // MARK: - HUD (the notch island, always dark)
