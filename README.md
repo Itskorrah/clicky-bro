@@ -43,7 +43,7 @@ Most desktop assistants specialise in speech-to-text, visual question answering 
 </p>
 <p align="center"><sub>Historical Windows captures from the adopted foundation, before the Azure theme changes. These are neither fresh screenshots nor proof of a finished redesign. Fresh device screenshots are a release gate.</sub></p>
 
-**Approved visual direction:** Preserve the current native settings layout and calm light/dark styling. Classic Coral is the default; Azure Blue, additional colour presets and separate cursor colours are planned as optional personalisation. The logo above is a new repository-owned SVG; the existing native app icons remain separate and should not be represented as updated until their platform builds are verified. The [Azure token catalogue](design/tokens.json) synchronises semantic palettes across SwiftUI and WPF; [design specification](docs/DESIGN_SYSTEM.md). A completely new Home/conversation/workspace layout is still planned, not claimed as delivered.
+**Approved visual direction:** Preserve the current native settings layout and calm light/dark styling. Classic Coral is the default; Azure Blue, additional colour presets and separate cursor colours are planned as optional personalisation. The logo above is a new repository-owned SVG; the existing native app icons remain separate and should not be represented as updated until their platform builds are verified. The [Azure token catalogue](design/tokens.json) remains an optional preset reference. The approved default is Classic Coral, with source changes for [native customisation](docs/THEME_CUSTOMISATION.md); [design specification](docs/DESIGN_SYSTEM.md). A completely new Home/conversation/workspace layout is still planned, not claimed as delivered.
 
 ## Capabilities
 
