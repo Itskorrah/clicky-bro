@@ -74,6 +74,15 @@ public static class DS
         }
 
         public static SolidColorBrush OverlayCursorBrush => Brush(OverlayCursor);
+        public static Color OverlayCursorText
+        {
+            get
+            {
+                var colour = OverlayCursor;
+                return Hex(ClickyAccentPalette.TextOnAccent($"#{colour.R:X2}{colour.G:X2}{colour.B:X2}"));
+            }
+        }
+        public static SolidColorBrush OverlayCursorTextBrush => Brush(OverlayCursorText);
     }
 
     /// <summary>The island, always dark: it is part of the top of the screen, not the app's appearance.</summary>
