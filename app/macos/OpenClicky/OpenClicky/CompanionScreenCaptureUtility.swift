@@ -108,6 +108,14 @@ enum CompanionScreenCaptureUtility {
             frame.width > 0 && frame.height > 0 && frame.width.isFinite && frame.height.isFinite
     }
 
+    nonisolated static func captureDimensions(for frame: CGRect) -> (width: Int, height: Int)? {
+        // Validate before converting to Int: ScreenCaptureKit can expose non-finite
+        // bounds, and Int(NaN) traps instead of returning a capture error.
+        guard hasFinitePositiveGeometry(frame) else { return nil }
+        let ratio = min(1, 1280 / max(frame.width, frame.height))
+        return (max(1, Int(frame.width * ratio)), max(1, Int(frame.height * ratio)))
+    }
+
     static func captureSelectedWindow() async throws -> CompanionScreenCapture {
         try Task.checkCancellation()
         let available: SCShareableContent
@@ -171,11 +179,13 @@ enum CompanionScreenCaptureUtility {
             if selection != nil { stopSharing(reason: .windowClosed) }
             throw failure("The shared window is closed or unavailable. Choose a window again; nothing else was captured.")
         }
+        guard let dimensions = Self.captureDimensions(for: window.frame) else {
+            throw failure("The shared window has invalid dimensions. Choose it again; nothing was captured.")
+        }
         let filter = SCContentFilter(desktopIndependentWindow: window)
         let configuration = SCStreamConfiguration()
-        let ratio = min(1, 1280 / max(window.frame.width, window.frame.height))
-        configuration.width = max(1, Int(window.frame.width * ratio))
-        configuration.height = max(1, Int(window.frame.height * ratio))
+        configuration.width = dimensions.width
+        configuration.height = dimensions.height
         configuration.showsCursor = false
         configuration.ignoreShadowsSingleWindow = true
         let image: CGImage

@@ -35,6 +35,16 @@ struct ClickyBroCaptureTests {
         #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: infiniteExtent, after: infiniteExtent))
     }
 
+    @Test func captureSizingRejectsNonFiniteGeometryBeforeIntegerConversion() {
+        let valid = CGRect(x: 0, y: 0, width: 1600, height: 900)
+        let infiniteOrigin = CGRect(x: .infinity, y: 0, width: 1600, height: 900)
+        let infiniteExtent = CGRect(x: 0, y: 0, width: .infinity, height: 900)
+        #expect(CompanionScreenCaptureUtility.captureDimensions(for: valid)?.width == 1280)
+        #expect(CompanionScreenCaptureUtility.captureDimensions(for: valid)?.height == 720)
+        #expect(CompanionScreenCaptureUtility.captureDimensions(for: infiniteOrigin)?.width == nil)
+        #expect(CompanionScreenCaptureUtility.captureDimensions(for: infiniteExtent)?.height == nil)
+    }
+
     @Test func captureDiagnosisSeparatesPermissionFromDeliveredFrame() {
         let stale = CompanionCaptureDiagnosis(permissionReported: true, hadSelectedWindow: true,
             frameCaptured: false, detail: "capture denied")
