@@ -297,7 +297,18 @@ struct BlueCursorView: View {
                                 .preference(key: GuideStopHintSizePreferenceKey.self, value: geo.size)
                         }
                     )
-                    .position(x: cursorPosition.x - 12 - (guideStopHintSize.width / 2), y: cursorPosition.y + 14)
+                    .position(
+                        x: BubblePosition.center(
+                            preferred: cursorPosition.x - 12 - (guideStopHintSize.width / 2),
+                            extent: guideStopHintSize.width,
+                            screenExtent: screenFrame.width
+                        ),
+                        y: BubblePosition.center(
+                            preferred: cursorPosition.y + 14,
+                            extent: guideStopHintSize.height,
+                            screenExtent: screenFrame.height
+                        )
+                    )
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
                     .transition(.opacity)
                     .onPreferenceChange(GuideStopHintSizePreferenceKey.self) { newSize in
