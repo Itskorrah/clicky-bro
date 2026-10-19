@@ -31,6 +31,16 @@
 > [!IMPORTANT]
 > **Development alpha — not a general release.** Clicky Bro has native application source for macOS and Windows, but current-bundle capture, microphone, focus-safe insertion, accessibility and physical Windows acceptance are still open. There are no signed or notarised public installers. Read the [current build status](docs/BUILD_STATUS.md) before relying on any capability.
 
+## Use with Codex — copy-and-paste workflows
+
+Open the relevant project in Codex, paste this prompt and let it prepare the local environment, **verify** the setup and begin the actual workflow. Existing permissions and platform limits still apply.
+
+```text
+Set up and use https://github.com/Itskorrah/clicky-bro in my current Codex project. Read its README, AGENTS guidance (if present) and prompts/codex/setup-and-run.md. Inspect the current checkout and existing skills first. Open the latest Clicky Bro checkout and read `AGENTS.md`, `CODEX_WINDOWS.md`, `docs/TESTING_WINDOWS.md`, `docs/NEXT_STEPS.md`, `docs/BUILD_STATUS.md` and its Evolve skill instructions. Inspect active platform, branch and local work before changing anything. Reuse installed project skills, run `python3 scripts/check_local.py --report .local/evidence/offline.json` and the feasible native checks described in the repository, then choose the highest-impact currently feasible item from the documented handoff. Implement a complete, bounded improvement, test the real platform path and update status/evidence. Continue with further independent priority work where practical. Preserve the native SwiftUI/AppKit, WPF and shared TypeScript boundaries and app identity. Do not migrate other apps, access Codex tokens, enable paid model fallback or treat macOS cross-build as Windows physical acceptance. Follow existing local worker/tool constraints and keep secret runtime data out of Git. Run appropriate local tests, then for verified authorised scoped changes commit, push, open a PR and merge when permitted without bypassing branch protection. Do not depend on GitHub Actions. Report evidence and blockers.
+```
+
+Other copyable Codex workflows: [full setup and run](prompts/codex/setup-and-run.md) · [update](prompts/codex/update.md) · [resume](prompts/codex/resume.md) · [extended autonomous](prompts/codex/autonomous.md).
+
 ## The product
 
 Clicky Bro brings three desktop workflows together while making the data shared, the execution location and the required permissions visible.
