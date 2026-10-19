@@ -5,18 +5,21 @@ theme and companion PRs. This is a development checkpoint, not a release claim.
 
 ## Git and pull requests
 
-`origin/main` is `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`, the merge commit for
-PR #12. The open implementation PRs are updated but intentionally remain drafts:
+The code baseline for this acceptance pass was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`,
+the merge commit for PR #12. PR #11 later merged the refreshed documentation as
+`13990561f820b3c6e6ad248410693853b4d0b732`. The implementation PRs remain drafts:
 
-| PR | Head and base | Verified here | Acceptance still open |
+| PR | Tested source revision and base | Verified here | Acceptance still open |
 | --- | --- | --- | --- |
 | [#1 — capture diagnostics and Stop safety](https://github.com/Itskorrah/clicky-bro/pull/1) | `6b5de4a`; base `main` | macOS native suite 710/710; 7 offline checks | Real ScreenCaptureKit/TCC grant, denial and revocation; selected-window movement/closure; Stop during a live pending request |
 | [#8 — native theme customisation](https://github.com/Itskorrah/clicky-bro/pull/8) | `30d552f`; base `main` | Settings route native build passed; appearance controls/preset menu observed; integrated #8+#9 test suite 714/714 | Custom picker and restart persistence on Mac; native WPF picker, persistence, DPI and accessibility on Windows |
 | [#9 — companion geometry and motion](https://github.com/Itskorrah/clicky-bro/pull/9) | `946ca50`; base `feature/native-theme-customisation-2026-10-19` (#8) | Integrated #8+#9 test suite 714/714; WPF cross-build passed | Native overlay screenshots, motion/input/accessibility checks and measured performance; native Windows overlay/DPI tests |
 
-The three branches were fast-forward pushed from their prior PR heads. PR #9 is
-stacked on #8 to keep its diff limited to companion work. PR #12 is merged; PRs
-#1, #8 and #9 are not merged because native acceptance is incomplete.
+The implementation source revisions above were pushed as updated draft PRs.
+Subsequent mainline and branch-documentation commits did not change the tested
+app source. PR #9 is stacked on #8 to keep its diff limited to companion work.
+PR #12 and #11 are merged; PRs #1, #8 and #9 are not merged because native
+acceptance is incomplete.
 
 ## Evidence and boundaries
 
