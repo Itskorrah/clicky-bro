@@ -161,7 +161,7 @@ internal sealed partial class SettingsRowFactory
         var input = new TextBox { Text = initialHex, Width = 108, MaxLength = 7, VerticalContentAlignment = VerticalAlignment.Center };
         Ui.AutomationProperties(input, label + " RGB hex", "Enter #RRGGBB");
         row.Children.Add(input);
-        var error = Ui.Text("", SettingsLook.MicroSize, SettingsLook.Danger);
+        var error = Ui.Text("", SettingsLook.MicroSize, SettingsLook.TextSecondary);
         void Apply()
         {
             var normal = ClickyAccentPalette.NormalizeHex(input.Text);
