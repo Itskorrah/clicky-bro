@@ -26,7 +26,7 @@ Both platforms persist identical keys:
 
 Old preferences are never rewritten on load. Unknown preset/invalid old colour values fall back to Classic Coral. Existing appearance, orb, shortcut, cloud keys, model preferences and bundle identifiers are unchanged.
 
-**Source of truth:** `ClickyThemePalette.swift` and `ClickyAccentPalette.cs` hold matching preset IDs, contrast and input validation rules. They transform arbitrary user choices into colours with at least **4.5:1 contrast against their designated settings surfaces**. This ratio does not certify contrast against arbitrary application windows beneath the overlay or every possible UI material; native screenshot and accessibility review remains necessary.
+**Source of truth:** `ClickyThemePalette.swift` and `ClickyAccentPalette.cs` hold matching preset IDs, contrast and input validation rules. They transform arbitrary user choices into colours with at least **4.5:1 contrast against their designated settings surfaces**. Companion bubble foreground colour is also selected for contrast against its own background. These calculations do not certify contrast against arbitrary application windows beneath the overlay or every possible system material; native screenshot and accessibility review remain necessary.
 
 On macOS, the `DS.Colors.accent` and `overlayCursorColor` computed colours read the approved keys; SwiftUI settings and companion state refresh on changes. On Windows, `MainWindowTheme` updates the actual WPF-UI resource dictionary values; the overlay updates triangle/waveform/spinner and bubble brushes without rebuilding windows. Both clients retain native system-appearance handling.
 
