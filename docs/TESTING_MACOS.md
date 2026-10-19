@@ -54,11 +54,13 @@ Passing source tests or seeing an Allowed toggle does not prove operating-system
 capture acceptance. Final launcher diagnostics reported Accessibility, Screen
 Recording and microphone unavailable, with `screenContent` false. The current
 bundle has not passed permission or full capture acceptance. The authoritative
-native unit suite reported 705 passed, 0 failed and 0 skipped for the preceding
-functional/privacy/Stop fixes. A later focused helper-button UI test compiled,
-but its runner timed out enabling automation mode before its body ran. The final
-standalone app build passed. See [BUILD_STATUS.md](BUILD_STATUS.md) and the
-[root README](../README.md) for the exact boundaries.
+native unit suite on the earlier base reported 705 passed, 0 failed and 0
+skipped. On 19 October, PR #1 at `6b5de4a` passed 710 native tests with no
+failures or skips. These are code-level results; neither run establishes TCC or
+real capture acceptance. A focused helper-button UI test compiled, but its
+runner timed out enabling automation mode before its body ran. See
+[BUILD_STATUS.md](BUILD_STATUS.md) and the [root README](../README.md) for the
+current boundaries.
 
 ## Verify a persistent helper run
 
@@ -93,8 +95,7 @@ preserved. The canonical key stays in `.local/credentials/gemini.json`, while
 the launcher refreshes a private runtime mirror. Replacing the key does not
 change an already-running app; quit and relaunch it.
 
-The final standalone app build passed after the accessibility-row source
-follow-up. The authoritative native unit suite remains 705 passed, 0 failed,
-0 skipped for the preceding functional/privacy/Stop changes. The focused helper
-button UI test compiled, but the runner timed out enabling automation mode
-before the test body ran; this is not a passing UI result.
+The standalone app build and 705-test suite above belong to the earlier base
+source. PR #1 now has a 710-test native pass, but the focused helper-button UI
+test still has no passing result: its runner timed out enabling automation mode
+before the test body ran.

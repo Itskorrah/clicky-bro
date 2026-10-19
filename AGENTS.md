@@ -42,9 +42,12 @@ reuse its identity, or read developer Codex tokens.
 Useful current checks:
 
 ```bash
-python3 -m unittest discover -s tests -v
+python3 scripts/check_local.py --report .local/evidence/offline.json
+python3 scripts/dev.py test-native
 python3 scripts/gemini.py status
 ```
 
 Live `python3 scripts/gemini.py test` consumes four requests; do not run it as a
-routine offline check. Update this file with the chosen app's verified commands.
+routine offline check. Run native builds sequentially on this 8 GiB Mac. For
+Windows cross-build and physical acceptance, follow `docs/TESTING_WINDOWS.md`;
+a macOS cross-build is not Windows verification.
