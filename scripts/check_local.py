@@ -60,8 +60,27 @@ def checklist(*, native: bool = False, windows: bool = False, linux: bool = Fals
     return checks
 
 
+def command_argv(argv: tuple[str, ...], *, system: Optional[str] = None,
+                 which: Callable[[str], Optional[str]] = shutil.which) -> tuple[str, ...]:
+    """Resolve npm's Windows command shim to its JS CLI without starting a shell."""
+    system = system or platform.system()
+    if system != "Windows" or not argv or argv[0].lower() != "npm":
+        return argv
+    npm = which("npm")
+    node = which("node")
+    if not npm or not node:
+        return argv
+    npm_path = Path(npm)
+    if npm_path.suffix.lower() in {".cmd", ".bat"}:
+        cli = npm_path.parent / "node_modules" / "npm" / "bin" / "npm-cli.js"
+        if cli.is_file():
+            return (node, str(cli), *argv[1:])
+    return argv
+
+
 def unavailable(check: Check, root: Path, *, system: Optional[str] = None,
-                which: Callable[[str], Optional[str]] = shutil.which) -> str:
+                which: Callable[[str], Optional[str]] = shutil.which,
+                probe: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> str:
     system = system or platform.system()
     if check.prerequisite == "macos" and system != "Darwin":
         return "macOS/Xcode required; this platform cannot verify native AppKit or TCC"
@@ -75,20 +94,32 @@ def unavailable(check: Check, root: Path, *, system: Optional[str] = None,
     tool = check.argv[0]
     if tool != sys.executable and not which(tool):
         return f"{tool} is not installed or not on PATH"
-    if check.prerequisite == "dotnet" and not which("dotnet"):
-        return "dotnet SDK unavailable"
+    if check.prerequisite == "dotnet":
+        dotnet = which("dotnet")
+        if not dotnet:
+            return "dotnet SDK unavailable"
+        try:
+            sdk_list = probe([dotnet, "--list-sdks"], capture_output=True, text=True,
+                             encoding="utf-8", errors="replace",
+                             timeout=10, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            return ""
+        if sdk_list.returncode == 0 and not sdk_list.stdout.strip():
+            return "dotnet SDK unavailable (installed runtimes do not include an SDK)"
     return ""
 
 
 def execute(check: Check, root: Path, *, system: Optional[str] = None,
             which: Callable[[str], Optional[str]] = shutil.which,
-            runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> Result:
-    reason = unavailable(check, root, system=system, which=which)
+             runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+             probe: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> Result:
+    reason = unavailable(check, root, system=system, which=which, probe=probe)
     if reason:
         return Result(check.name, "skipped", 0.0, reason=reason)
     start = time.monotonic()
     try:
-        completed = runner(check.argv, cwd=root, capture_output=True, text=True,
+        completed = runner(command_argv(check.argv, system=system, which=which), cwd=root, capture_output=True,
+                           text=True, encoding="utf-8", errors="replace",
                            timeout=check.timeout, check=False)
         status = "passed" if completed.returncode == 0 else "failed"
         # Do not persist stdout/stderr: a provider test could accidentally print secrets.
@@ -122,7 +153,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     checks = checklist(native=args.native, windows=args.windows, linux=args.linux)
     if args.list:
         for check in checks:
-            print(f"{check.name}: {' '.join(check.argv)}")
+            print(f"{check.name}: {' '.join(command_argv(check.argv))}")
         return 0
     results = []
     for check in checks:

@@ -47,7 +47,7 @@ The refreshed visual system uses a **Primer-inspired navy and slate palette** ac
 - **Navy Slate** is the default accent for new installs: **#2B547B** in light appearance and **#80A9D4** in dark appearance.
 - Surfaces use restrained GitHub-like neutrals: **#F6F8FA** and white in light mode; **#0D1117**, **#161B22** and **#21262D** in dark mode.
 - Classic Coral and other saved presets, valid custom colours, Light/Dark/Auto appearance and unrelated settings are preserved. Reset changes only the accent preset and companion-follow preference.
-- The new app mark is the navy tile with a cobalt assistant face and a small cyan spark. The same artwork is generated for macOS, Windows and the companion status/tray surfaces.
+- The new app mark is the navy tile with a cobalt assistant face and a small cyan spark. The same artwork is generated for macOS, Windows and the companion status/tray surfaces. The editable vector mark is available at [docs/assets/clicky-bro-mark.svg](docs/assets/clicky-bro-mark.svg).
 - The existing native layout remains in place. The work improves colour, focus, hover and pressed states without replacing the settings app with a web dashboard.
 
 See the [theme controls and persistence contract](docs/THEME_CUSTOMISATION.md), [design system](docs/DESIGN_SYSTEM.md), [app icon guide](docs/APP_ICON.md) and [implementation record](docs/IMPLEMENTATION_2026-10-19.md). Fresh, redacted screenshots from real devices are still an acceptance gate; the historical captures elsewhere in the repository are not evidence of the refreshed interface.

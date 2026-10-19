@@ -32,9 +32,9 @@ class PublicBrandingTests(unittest.TestCase):
         self.assertEqual(project.count('INFOPLIST_KEY_CFBundleDisplayName = "Clicky Bro";'), 2)
         plist = plistlib.loads((ROOT / "app/macos/OpenClicky/OpenClicky/Info.plist").read_bytes())
         self.assertIn("Clicky Bro", plist["NSScreenCaptureUsageDescription"])
-        swift = (ROOT / "app/macos/OpenClicky/OpenClicky/Dictation/DictationSettings.swift").read_text()
+        swift = (ROOT / "app/macos/OpenClicky/OpenClicky/Dictation/DictationSettings.swift").read_text(encoding="utf-8")
         self.assertIn("case openclicky", swift)
-        windows = (ROOT / "app/windows/src/OpenClicky.Core/Dictation/DictationSettings.cs").read_text()
+        windows = (ROOT / "app/windows/src/OpenClicky.Core/Dictation/DictationSettings.cs").read_text(encoding="utf-8")
         self.assertIn('[RawValue("clicky-bro")] OpenClicky', windows)
 
 if __name__ == "__main__":
