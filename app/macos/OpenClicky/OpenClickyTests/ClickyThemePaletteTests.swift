@@ -22,6 +22,13 @@ struct ClickyThemePaletteTests {
             == ClickyThemePalette.resolve(preset: "coral", customHex: "", dark: false))
     }
 
+    @Test func selectedAppearanceOverridesTheSystemOnlyForLightAndDark() {
+        #expect(ClickyThemePalette.isDarkAppearance(.dark, systemIsDark: false))
+        #expect(!ClickyThemePalette.isDarkAppearance(.light, systemIsDark: true))
+        #expect(ClickyThemePalette.isDarkAppearance(.system, systemIsDark: true))
+        #expect(!ClickyThemePalette.isDarkAppearance(.system, systemIsDark: false))
+    }
+
     @Test func companionColourCanBeIndependent() {
         let standard = ClickyThemePalette.resolve(preset: "azure", customHex: "#FF00FF", dark: true)
         let following = ClickyThemePalette.resolveCompanion(

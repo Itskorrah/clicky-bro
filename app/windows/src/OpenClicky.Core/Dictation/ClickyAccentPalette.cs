@@ -14,7 +14,8 @@ public static class ClickyAccentPalette
 
     public static string? NormalizeHex(string? value)
     {
-        var raw = value?.Trim().TrimStart('#');
+        var raw = value?.Trim();
+        if (raw is not null && raw.StartsWith('#')) raw = raw[1..];
         if (raw?.Length != 6 || !raw.All(Uri.IsHexDigit)) return null;
         return "#" + raw.ToUpperInvariant();
     }

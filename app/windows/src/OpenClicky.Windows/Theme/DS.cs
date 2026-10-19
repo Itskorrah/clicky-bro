@@ -33,8 +33,20 @@ public static class DS
 
     public static class Colors
     {
-        /// <summary>The agent result card's status dot once the agent has answered (Tailwind Blue 600).</summary>
-        public static readonly Color Accent = Hex("#2563EB");
+        /// <summary>The agent result card's status dot after an answer, using the chosen app accent.</summary>
+        public static Color Accent
+        {
+            get
+            {
+                var settings = DictationSettings.Shared;
+                return Hex(ClickyAccentPalette.Resolve(
+                    settings.AccentPreset, settings.CustomAccentHex, IsDarkAppearance(settings)));
+            }
+        }
+
+        private static bool IsDarkAppearance(DictationSettings settings) =>
+            settings.Appearance == DictationAppearance.Dark
+            || (settings.Appearance == DictationAppearance.System && MainWindowTheme.SystemUsesDarkTheme());
         /// Semantic Azure palette, mirrored in SwiftUI and XAML.
         public static class AzureLight
         {
@@ -65,11 +77,9 @@ public static class DS
             get
             {
                 var settings = DictationSettings.Shared;
-                var dark = settings.Appearance == DictationAppearance.Dark
-                    || (settings.Appearance == DictationAppearance.System && MainWindowTheme.SystemUsesDarkTheme());
                 return Hex(ClickyAccentPalette.ResolveCompanion(
                     settings.AccentPreset, settings.CustomAccentHex,
-                    settings.CompanionFollowsAccent, settings.CustomCompanionHex, dark));
+                    settings.CompanionFollowsAccent, settings.CustomCompanionHex, IsDarkAppearance(settings)));
             }
         }
 

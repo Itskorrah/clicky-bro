@@ -26,8 +26,11 @@ enum DS {
         static var accent: Color { userColour(companion: false) }
 
         private static func preferredHex(companion: Bool, appearance: NSAppearance) -> String {
-            let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
             let preferences = UserDefaults.standard
+            let selectedAppearance = DictationAppearance(
+                rawValue: preferences.string(forKey: "dictation.appearance") ?? "") ?? .system
+            let systemIsDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            let dark = ClickyThemePalette.isDarkAppearance(selectedAppearance, systemIsDark: systemIsDark)
             let preset = preferences.string(forKey: "appearance.accentPreset") ?? "coral"
             let customAccent = preferences.string(forKey: "appearance.customAccentHex") ?? "#D24E2A"
             let follow = preferences.object(forKey: "appearance.companionFollowsAccent") == nil

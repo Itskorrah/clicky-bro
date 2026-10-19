@@ -23,6 +23,7 @@ public sealed class ClickyAccentPaletteTests
     {
         Assert.Equal("#ABCDEF", ClickyAccentPalette.NormalizeHex(" abcdef "));
         Assert.Null(ClickyAccentPalette.NormalizeHex("#12345"));
+        Assert.Null(ClickyAccentPalette.NormalizeHex("##ABCDEF"));
         Assert.Null(ClickyAccentPalette.NormalizeHex("12345678"));
         Assert.Equal(ClickyAccentPalette.Resolve("coral", "", false),
                      ClickyAccentPalette.Resolve("unsupported", "", false));

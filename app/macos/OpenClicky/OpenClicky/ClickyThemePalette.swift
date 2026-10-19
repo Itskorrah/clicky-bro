@@ -19,6 +19,14 @@ enum ClickyThemePalette {
         return "#" + raw.uppercased()
     }
 
+    static func isDarkAppearance(_ appearance: DictationAppearance, systemIsDark: Bool) -> Bool {
+        switch appearance {
+        case .light: return false
+        case .dark: return true
+        case .system: return systemIsDark
+        }
+    }
+
     static func resolve(preset: String, customHex: String, dark: Bool) -> String {
         let original: String
         switch preset {
