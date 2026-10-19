@@ -26,7 +26,7 @@ public sealed class PointerTriangleView : Grid
     private readonly DropShadowEffect glow;
     private readonly double baseGlowRadius;
 
-    public PointerTriangleView(double size = 16, Color? color = null, double glowRadius = 8)
+    public PointerTriangleView(double size = 16, Color? color = null, double glowRadius = 3)
     {
         var fillColor = color ?? DS.Colors.OverlayCursor;
         baseGlowRadius = glowRadius;
@@ -34,7 +34,7 @@ public sealed class PointerTriangleView : Grid
         Height = size;
         IsHitTestVisible = false;
         var path = new Path { Data = Shapes.Triangle(size, size), Fill = DS.Brush(fillColor), Width = size, Height = size };
-        glow = new DropShadowEffect { Color = fillColor, ShadowDepth = 0, BlurRadius = glowRadius * 2, Opacity = 1, RenderingBias = RenderingBias.Performance };
+        glow = new DropShadowEffect { Color = fillColor, ShadowDepth = 0, BlurRadius = glowRadius * 2, Opacity = 0.22, RenderingBias = RenderingBias.Performance };
         path.Effect = glowRadius > 0 ? glow : null;
         Children.Add(path);
         RenderTransformOrigin = new Point(0.5, 0.5);
@@ -57,7 +57,8 @@ public sealed class PointerTriangleView : Grid
         {
             scale.ScaleX = value;
             scale.ScaleY = value;
-            glow.BlurRadius = (baseGlowRadius + (value - 1.0) * 20) * 2;
+            var radius = Math.Clamp((baseGlowRadius + (value - 1.0) * 6) * 2, 0, 16);
+            if (Math.Abs(glow.BlurRadius - radius) > 0.05) glow.BlurRadius = radius;
         }
     }
 
@@ -66,7 +67,7 @@ public sealed class PointerTriangleView : Grid
     {
         set
         {
-            glow.Opacity = value ? 0 : 1;
+            glow.Opacity = value ? 0 : 0.22;
             Opacity = value ? 0.5 : 1;
         }
     }
@@ -93,7 +94,7 @@ public sealed class WaveformView : Canvas
             SetLeft(bars[index], index * 4);
             Children.Add(bars[index]);
         }
-        Effect = new DropShadowEffect { Color = barColor, ShadowDepth = 0, BlurRadius = 12, Opacity = 0.6, RenderingBias = RenderingBias.Performance };
+        Effect = new DropShadowEffect { Color = barColor, ShadowDepth = 0, BlurRadius = 6, Opacity = 0.22, RenderingBias = RenderingBias.Performance };
     }
 
     /// <summary>0…1 microphone level; the bars follow it over 0.08 s, linearly.</summary>
@@ -146,7 +147,7 @@ public sealed class SpinnerView : FrameworkElement
             segmentPens[index] = pen;
         }
         capBrush = DS.Brush(strokeColor, 0.85);
-        Effect = new DropShadowEffect { Color = strokeColor, ShadowDepth = 0, BlurRadius = 12, Opacity = 0.6, RenderingBias = RenderingBias.Performance };
+        Effect = new DropShadowEffect { Color = strokeColor, ShadowDepth = 0, BlurRadius = 6, Opacity = 0.22, RenderingBias = RenderingBias.Performance };
     }
 
     public void Tick() => rotation.Angle = MotionClock.Now % 0.8 / 0.8 * 360;
