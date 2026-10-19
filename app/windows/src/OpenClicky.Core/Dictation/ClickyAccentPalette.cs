@@ -41,6 +41,10 @@ public static class ClickyAccentPalette
                      : EnsureContrast(NormalizeHex(customCompanionHex) ?? "#E8653F",
                                       dark ? "#202329" : "#FFFFFF", dark);
 
+    /// <summary>Choose readable bubble copy regardless of a user-chosen background tint.</summary>
+    public static string TextOnAccent(string accent) =>
+        Contrast("#FFFFFF", accent) >= Contrast("#0F172A", accent) ? "#FFFFFF" : "#0F172A";
+
     public static double Contrast(string first, string second)
     {
         var a = Luminance(first);
