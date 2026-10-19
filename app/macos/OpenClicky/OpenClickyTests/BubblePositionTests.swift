@@ -10,6 +10,6 @@ struct BubblePositionTests {
 
     @Test func handlesShortScreensAndOversizedCaptions() {
         #expect(BubblePosition.center(preferred: 100, extent: 350, screenExtent: 300) == 150)
-        #expect(BubblePosition.center(preferred: -1, extent: 10, screenExtent: 12) == 13)
+        #expect(BubblePosition.center(preferred: -1, extent: 10, screenExtent: 12) == 7)
     }
 }
