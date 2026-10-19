@@ -155,3 +155,19 @@ DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 \
 An earlier cross-build and self-contained publish preceded the latest source
 repairs; that publish folder is stale and does not verify this source. No Windows
 hardware, capture, audio or input test has run.
+
+## 19 October PR #8/#9 checks on macOS
+
+The PR #8 theme branch at `30d552f` and the integrated PR #8/#9 branch at
+`946ca50` were checked on the macOS development host. The WPF cross-build passed.
+The portable core suite reported **1,076 passed, 5 failed, 0 skipped (1,081
+total)**. All five failures exercise Windows-specific drive paths, path
+separators, `PATHEXT` or npm-shim behavior while executing on macOS. The failures
+are retained in the test report; no production code or tests were weakened to
+hide host differences. This result is neither a native Windows test pass nor a
+reason to claim the five tests pass on Windows.
+
+The user had no Windows machine available for this pass. Native WPF colour
+dialog, settings persistence, companion rendering, mixed-DPI monitors, screen
+reader, keyboard, capture, audio and input acceptance remain pending. Reports
+for this run are under ignored `.local/evidence/acceptance-2026-10-19/`.
