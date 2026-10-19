@@ -1,6 +1,6 @@
 # Navy UI and app icon refresh — 19 October 2026
 
-This addendum records the user-requested GitHub-inspired navy UI and icon work. The implementation is on `codex/navy-ui-icon-refresh`, based on integrated PR #9 head `497bba1` (which includes PR #8's custom theme controls). It is not merged into `main`; PRs #8 and #9 remain drafts pending their own platform acceptance.
+This addendum records the user-requested GitHub-inspired navy UI and icon work. Commit `210ec8e` is pushed to PR #9's branch, `ui/refined-companion-motion-and-bubbles-2026-10-19`, stacked on PR #8's custom theme controls. The pull request remains a draft and is not merged into `main` while platform acceptance is pending.
 
 ## What changed
 
@@ -17,12 +17,11 @@ KStack was run from `.local/tools/kstack-20261019` with the `native-desktop` pro
 
 ## Verification
 
-- macOS native build and tests: **717 passed, 0 failed, 0 skipped**, macOS 26.5 arm64. Result bundle: `/Users/korrah/Library/Caches/clicky-bro/DerivedData-local/Logs/Test/Test-OpenClicky-2026.10.19_20-45-57-+1100.xcresult`.
+- macOS native build and tests: **717 passed, 0 failed, 0 skipped**, macOS 26.5 arm64. Result bundle: `/Users/korrah/Library/Caches/clicky-bro/DerivedData-local/Logs/Test/Test-OpenClicky-2026.10.19_20-55-10-+1100.xcresult`.
 - WPF cross-build on macOS: passed, 0 errors and one existing `WFAC010` high-DPI manifest warning.
-- Windows core tests executed on macOS: **1,079 passed, 5 failed, 0 skipped (1,084 total)**. The five failures are the known Windows drive/path, `PATH`/`PATHEXT` and npm-shim assumptions under macOS. Report: ignored `.local/evidence/navy-icon-refresh/navy-icon-final-core-after-sidebar.trx`. This is not a Windows test pass.
+- Focused Windows accent palette tests executed on macOS: **7 passed, 0 failed, 0 skipped**. Full Windows core tests executed on macOS: **1,079 passed, 5 failed, 0 skipped (1,084 total)**. The five failures are the known Windows drive/path, `PATH`/`PATHEXT` and npm-shim assumptions under macOS. Report: ignored `.local/evidence/navy-icon-refresh/navy-icon-current-core.trx`. This is not a Windows test pass.
 - Root Python suite: **39 passed**. Swift syntax parse, XAML XML parse and `git diff --check` passed. The PNG manifest and all ten Windows ICO dimensions were validated; the icon preview was inspected at 16 px and 32 px against light and dark surfaces.
-- The icon preview was inspected at 16 px and 32 px against light and dark surfaces. It remains legible at both sizes.
 
 ## Still needed
 
-There was no Windows machine for native WPF appearance, colour-dialog, persistence, mixed-DPI, keyboard or Narrator acceptance. `pwsh` was also unavailable, so the Windows PowerShell icon generator was source-reviewed but not executed; the checked-in ICO was generated from the shared master with Pillow and its ten dimensions were validated. The macOS app opens to an OS system dialog in the current desktop session, so the settings window, custom picker and restart persistence could not be inspected safely; a same-state native screenshot was not captured. Keep the feature PRs in draft and do not merge them to `main` until these platform checks are completed.
+There was no Windows machine for native WPF appearance, colour-dialog, persistence, mixed-DPI, keyboard or Narrator acceptance. `pwsh` was also unavailable, so the Windows PowerShell icon generator was source-reviewed but not executed; the checked-in ICO was generated from the shared master with Pillow and its ten dimensions were validated. The macOS app opens to an OS system dialog in the current desktop session, so the settings window, custom picker and restart persistence could not be inspected safely; a same-state native screenshot was not captured. GitHub reports no checks for the updated PR branch. Keep the feature PRs in draft and do not merge them to `main` until these platform checks are completed.

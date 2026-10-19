@@ -6,7 +6,7 @@ remain drafts until their platform acceptance gates pass. No desktop release or
 full HeyClicky parity is claimed.
 
 The later [Navy UI and icon refresh](IMPLEMENTATION_2026-10-19.md) is on
-`codex/navy-ui-icon-refresh`, based on the integrated PR #9 source. Its macOS
+`codex/navy-ui-icon-refresh`, pushed to draft PR #9 as `210ec8e`. Its macOS
 build/tests and Windows cross-build pass; native Windows, custom-colour
 persistence and full visual acceptance remain next.
 
@@ -24,12 +24,13 @@ persistence and full visual acceptance remain next.
   Settings window and its appearance controls were inspected without changing
   preferences. Its Windows core run on macOS was 1,070/1,075. Custom colour
   entry, restart persistence and native Windows acceptance remain open.
-- PR #9 is updated to `946ca50` and stacked on #8. The same integrated native
-  suite passed **714/714**. WPF cross-builds passed on macOS. The portable
-  Windows core suite reports **1,076 passed, 5 failed, 0 skipped** on the
-  combined tree; the #8 theme-head run was **1,070 passed, 5 failed, 0 skipped**.
-  The same five failures assume Windows path separators, drive paths or npm
-  shims while running on macOS. These are reported failures, not Windows passes.
+- PR #9 now includes the navy UI/icon refresh at `210ec8e` and remains stacked
+  on #8. The latest macOS native suite passed **717/717**; the WPF cross-build
+  passed with 0 errors; focused palette tests passed **7/7**. The full portable
+  Windows core suite reports **1,079 passed, 5 failed, 0 skipped (1,084 total)**
+  on macOS. The same five failures assume Windows path separators, drive paths
+  or npm shims while running on macOS. These are reported failures, not Windows
+  passes. GitHub reports no checks for the updated PR branch.
 - There was no Windows PC available. The macOS Screen Recording permission was
   not granted or changed. The 18 October helper/runtime persistence check used
   two live Gemini GUI requests, as recorded in [TESTING_MACOS.md](TESTING_MACOS.md).
