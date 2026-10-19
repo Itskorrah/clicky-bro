@@ -121,6 +121,8 @@ struct BlueCursorView: View {
     let screenFrame: CGRect
     let isFirstAppearance: Bool
     @ObservedObject var companionManager: CompanionManager
+    // Refresh the cursor's dynamically chosen colour when Settings changes.
+    @ObservedObject private var themeSettings = DictationSettings.shared
 
     @State private var cursorPosition: CGPoint
     @State private var isCursorOnThisScreen: Bool
