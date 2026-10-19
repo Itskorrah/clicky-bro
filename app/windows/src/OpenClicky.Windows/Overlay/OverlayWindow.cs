@@ -209,7 +209,7 @@ public sealed class OverlayWindow : Window
             FontFamily = DS.Fonts.Ui,
             FontSize = 11,
             FontWeight = DS.Fonts.Medium,
-            Foreground = Brushes.White,
+            Foreground = DS.Colors.OverlayCursorTextBrush,
             TextWrapping = wraps ? TextWrapping.Wrap : TextWrapping.NoWrap,
             TextAlignment = TextAlignment.Left,
         };
@@ -402,6 +402,10 @@ public sealed class OverlayWindow : Window
         triangle.SetAccentColor(accent);
         waveform.SetAccentColor(accent);
         spinner.SetAccentColor(accent);
+        var foreground = DS.Colors.OverlayCursorTextBrush;
+        welcomeTextBlock.Foreground = foreground;
+        captionTextBlock.Foreground = foreground;
+        navigationTextBlock.Foreground = foreground;
         clickRipple.Stroke = brush;
         foreach (var bubble in new[] { welcomeBubble, captionBubble, navigationBubble })
         {
