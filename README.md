@@ -168,7 +168,7 @@ The [dated development status](docs/BUILD_STATUS.md) reports historical 18 Octob
 | **Useful intelligence** | Document context and grounded teaching, safe file approvals, durable tasks and search |
 | **Distribution** | Physical Windows parity, stable macOS identity, signed installers and tested updates |
 
-See the detailed [product roadmap](docs/PRODUCT_ROADMAP.md), [feature audit](docs/FEATURE_AUDIT.md) and [competitive crosswalk](docs/FULL_SPEC_CROSSWALK.md).
+See the detailed [product roadmap](docs/PRODUCT_ROADMAP.md), [feature audit](docs/FEATURE_AUDIT.md) and [competitive crosswalk](docs/FULL_SPEC_CROSSWALK.md). The [current native development checkpoint](docs/DEVELOPMENT_CHECKPOINT_2026-10-19.md) distinguishes merged branding from unmerged theme, cursor and safety work and lists the exact Mac/Windows test gates.
 
 ## Contributors, licensing and acknowledgements
 
