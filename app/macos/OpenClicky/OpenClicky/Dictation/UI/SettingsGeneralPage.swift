@@ -139,9 +139,9 @@ private struct ThemeColoursRow: View {
             set: { value in
                 let rgba = NSColor(value).usingColorSpace(.sRGB) ?? .systemOrange
                 settings[keyPath: keyPath] = String(format: "#%02X%02X%02X",
-                    Int((rgba.redComponent * 255).rounded()),
-                    Int((rgba.greenComponent * 255).rounded()),
-                    Int((rgba.blueComponent * 255).rounded()))
+                    max(0, min(255, Int((rgba.redComponent * 255).rounded()))),
+                    max(0, min(255, Int((rgba.greenComponent * 255).rounded()))),
+                    max(0, min(255, Int((rgba.blueComponent * 255).rounded()))))
             })
     }
 
