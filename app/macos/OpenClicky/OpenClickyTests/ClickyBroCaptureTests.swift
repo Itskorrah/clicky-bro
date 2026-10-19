@@ -25,8 +25,8 @@ struct ClickyBroCaptureTests {
         let before = CGRect(x: 20, y: -100, width: 800, height: 600)
         let moved = CGRect(x: 21, y: -100, width: 800, height: 600)
         let resized = CGRect(x: 20, y: -100, width: 801, height: 600)
-        let infiniteOrigin = CGRect(x: .infinity, y: -100, width: 800, height: 600)
-        let infiniteExtent = CGRect(x: 20, y: -100, width: .infinity, height: 600)
+        let infiniteOrigin = CGRect(x: CGFloat.infinity, y: -100, width: 800, height: 600)
+        let infiniteExtent = CGRect(x: 20, y: -100, width: CGFloat.infinity, height: 600)
         #expect(CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: before))
         #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: moved))
         #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: resized))
@@ -37,8 +37,8 @@ struct ClickyBroCaptureTests {
 
     @Test func captureSizingRejectsNonFiniteGeometryBeforeIntegerConversion() {
         let valid = CGRect(x: 0, y: 0, width: 1600, height: 900)
-        let infiniteOrigin = CGRect(x: .infinity, y: 0, width: 1600, height: 900)
-        let infiniteExtent = CGRect(x: 0, y: 0, width: .infinity, height: 900)
+        let infiniteOrigin = CGRect(x: CGFloat.infinity, y: 0, width: 1600, height: 900)
+        let infiniteExtent = CGRect(x: 0, y: 0, width: CGFloat.infinity, height: 900)
         #expect(CompanionScreenCaptureUtility.captureDimensions(for: valid)?.width == 1280)
         #expect(CompanionScreenCaptureUtility.captureDimensions(for: valid)?.height == 720)
         #expect(CompanionScreenCaptureUtility.captureDimensions(for: infiniteOrigin)?.width == nil)
