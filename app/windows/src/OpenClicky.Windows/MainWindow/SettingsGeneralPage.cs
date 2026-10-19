@@ -42,6 +42,8 @@ internal sealed partial class SettingsRowFactory
                     Ui.Picker(Enum.GetValues<AppRegion>().Select(region => (region, region.Title())), Settings.Region, region => Settings.Region = region, 180)));
             case "general.appearance":
                 return LiveSettingsCard(() => AppearanceRow(item, query));
+            case "general.colourScheme":
+                return LiveSettingsCard(() => ColourSchemeRow(item, query));
             case "general.hudPlacement":
                 return new LiveContent(() => Ui.Card(Ui.Row(item.Title, HudPlacementDetail(companion.HudPlacement), query,
                     Ui.Picker(HUDPlacements.AllCases.Select(placement => (placement, HudPlacementTitle(placement))), companion.HudPlacement,
@@ -104,6 +106,98 @@ internal sealed partial class SettingsRowFactory
             tiles.Children.Add(AppearanceTile(appearance, Settings.Appearance == appearance, () => Settings.Appearance = appearance));
         }
         return Ui.Row(item.Title, item.Detail, query, tiles);
+    }
+
+    /// <summary>Preserves the existing settings row and native WPF-UI controls.</summary>
+    private Grid ColourSchemeRow(SettingsItem item, string query)
+    {
+        var controls = new StackPanel { Width = 240 };
+        var preset = Ui.Picker(ClickyAccentPalette.Presets.Select(choice => (choice.Id, choice.Name)),
+                               Settings.AccentPreset, id => Settings.AccentPreset = id, minWidth: 190);
+        Ui.AutomationProperties(preset, "App accent colour");
+        controls.Children.Add(preset);
+
+        if (Settings.AccentPreset == "custom")
+        {
+            var editor = HexColourEditor("Custom accent", Settings.CustomAccentHex, value => Settings.CustomAccentHex = value);
+            editor.Margin = new Thickness(0, 7, 0, 0);
+            controls.Children.Add(editor);
+        }
+
+        var followRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 9, 0, 0) };
+        var followLabel = Ui.Text("Companion follows accent", SettingsLook.CaptionSize, SettingsLook.TextPrimary, wrap: false);
+        followLabel.VerticalAlignment = VerticalAlignment.Center;
+        followRow.Children.Add(followLabel);
+        var followToggle = Ui.Toggle(Settings.CompanionFollowsAccent, value => Settings.CompanionFollowsAccent = value);
+        followToggle.Margin = new Thickness(10, 0, 0, 0);
+        Ui.AutomationProperties(followToggle, "Companion follows accent");
+        followRow.Children.Add(followToggle);
+        controls.Children.Add(followRow);
+
+        if (!Settings.CompanionFollowsAccent)
+        {
+            var editor = HexColourEditor("Companion colour", Settings.CustomCompanionHex,
+                value => Settings.CustomCompanionHex = value);
+            editor.Margin = new Thickness(0, 7, 0, 0);
+            controls.Children.Add(editor);
+        }
+
+        var reset = Ui.LinkButton("Reset colours", () =>
+        {
+            Settings.AccentPreset = "coral";
+            Settings.CompanionFollowsAccent = true;
+        });
+        reset.Margin = new Thickness(0, 9, 0, 0);
+        Ui.AutomationProperties(reset, "Reset colours to Classic Coral");
+        controls.Children.Add(reset);
+        return Ui.Row(item.Title, item.Detail, query, controls);
+    }
+
+    /// <summary>A genuine Windows colour picker plus validated hex input. Invalid text never reaches settings.</summary>
+    private static StackPanel HexColourEditor(string label, string initialHex, Action<string> change)
+    {
+        var group = new StackPanel();
+        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        var input = new TextBox { Text = initialHex, Width = 108, MaxLength = 7, VerticalContentAlignment = VerticalAlignment.Center };
+        Ui.AutomationProperties(input, label + " RGB hex", "Enter #RRGGBB");
+        row.Children.Add(input);
+        var error = Ui.Text("", SettingsLook.MicroSize, SettingsLook.Danger);
+        void Apply()
+        {
+            var normal = ClickyAccentPalette.NormalizeHex(input.Text);
+            if (normal is null)
+            {
+                error.Text = "Enter a six-digit colour, e.g. #E8653F.";
+                return;
+            }
+            error.Text = "";
+            input.Text = normal;
+            change(normal);
+        }
+        var apply = Ui.Button("Apply", Apply);
+        apply.Margin = new Thickness(6, 0, 0, 0);
+        row.Children.Add(apply);
+        var choose = Ui.Button("Choose…", () =>
+        {
+            using var picker = new System.Windows.Forms.ColorDialog
+            {
+                FullOpen = true, AnyColor = true,
+                Color = System.Drawing.ColorTranslator.FromHtml(
+                    ClickyAccentPalette.NormalizeHex(input.Text) ?? initialHex),
+            };
+            if (picker.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+            input.Text = $"#{picker.Color.R:X2}{picker.Color.G:X2}{picker.Color.B:X2}";
+            Apply();
+        });
+        choose.Margin = new Thickness(6, 0, 0, 0);
+        row.Children.Add(choose);
+        input.KeyDown += (_, args) =>
+        {
+            if (args.Key == Key.Enter) { Apply(); args.Handled = true; }
+        };
+        group.Children.Add(row);
+        group.Children.Add(error);
+        return group;
     }
 
     private static Button AppearanceTile(DictationAppearance appearance, bool isSelected, Action choose)
