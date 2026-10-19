@@ -78,18 +78,22 @@ final class OpenClickyAgentClient {
     }
 
     private var runningProcess: Process?
-    private let cliCommand: [String]
-    private let processEnvironment: [String: String]
-    private let workspacePath: String
+    private let cliCommandOverride: [String]?
+    private let processEnvironmentOverride: [String: String]?
+    private let workspacePathOverride: String?
+
+    private var cliCommand: [String] { cliCommandOverride ?? OpenClickyConfiguration.cliCommand }
+    private var processEnvironment: [String: String] { processEnvironmentOverride ?? OpenClickyConfiguration.cliProcessEnvironment }
+    private var workspacePath: String { workspacePathOverride ?? OpenClickyConfiguration.workspacePath }
 
     init(
-        cliCommand: [String] = OpenClickyConfiguration.cliCommand,
-        processEnvironment: [String: String] = OpenClickyConfiguration.cliProcessEnvironment,
-        workspacePath: String = OpenClickyConfiguration.workspacePath
+        cliCommand: [String]? = nil,
+        processEnvironment: [String: String]? = nil,
+        workspacePath: String? = nil
     ) {
-        self.cliCommand = cliCommand
-        self.processEnvironment = processEnvironment
-        self.workspacePath = workspacePath
+        self.cliCommandOverride = cliCommand
+        self.processEnvironmentOverride = processEnvironment
+        self.workspacePathOverride = workspacePath
     }
 
     /// Ask the gate which lane this request belongs to. Falls back to "agent" only if the CLI itself
