@@ -19,18 +19,6 @@ Windows core tests on macOS reported **1,070 passed, 5 failed, 0 skipped of 1,07
 
 The current isolated macOS app's General Settings window and theme controls were inspected through accessibility. The accent menu and Reduce Motion control were visible; no theme preference changed. The custom colour picker and visual companion comparisons were not exercised. The isolated app was quit after inspection.
 
-## 19 October 2026 change note (branch pending review)
-
-The focused [implementation record](IMPLEMENTATION_2026-10-19.md) adds whole-frame
-position/size revalidation, an explicit local-only capture diagnostic in Privacy,
-strictly per-action Gemini file approvals, Stop while a native approval hook is
-pending, and three read-only workspace starter drafts. Regression tests were added
-but **not executed in the Linux/GitHub-only environment**; none of the historical
-test totals below includes these commits. Native capture permission, UI, dictation
-and Windows desktop acceptance remain open. See the root [PRODUCT_STATUS.md](../PRODUCT_STATUS.md).
-No new real-device screenshots, fresh build, deployment or release evidence was
-produced on this branch.
-
 ## Implemented in this checkout
 
 | Area | Current behavior | Acceptance still needed |
