@@ -6,8 +6,10 @@ theme and companion PRs. This is a development checkpoint, not a release claim.
 ## Git and pull requests
 
 The code baseline for this acceptance pass was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`,
-the merge commit for PR #12. PR #11 later merged the refreshed documentation as
-`13990561f820b3c6e6ad248410693853b4d0b732`. The implementation PRs remain drafts:
+the merge commit for PR #12. PR #11 merged the refreshed documentation as
+`13990561f820b3c6e6ad248410693853b4d0b732`, then PR #13 merged the current
+checkpoint correction as `e942ac243b4a41282d95b61217831e0cda8661d1`. The
+implementation PRs remain drafts:
 
 | PR | Tested source revision and base | Verified here | Acceptance still open |
 | --- | --- | --- | --- |
@@ -37,9 +39,11 @@ acceptance is incomplete.
   **1,076 passed, 5 failed, 0 skipped (1,081 total)**. The failures are tests
   using Windows drive/path separators or npm-shim assumptions on a macOS host.
   They remain failures and do not establish Windows runtime behavior.
-- No Windows computer was available. No TCC permission was granted or changed,
-  no live provider request was made, no paid fallback was enabled, and no
-  GitHub Actions workflow was run. Evidence is stored under ignored
+- No Windows computer was available. No TCC permission was granted or changed.
+  The 19 October native acceptance checks made no provider requests; the
+  earlier 18 October helper/restart acceptance used two live Gemini GUI requests
+  (see [TESTING_MACOS.md](TESTING_MACOS.md)). No paid fallback was enabled and
+  no GitHub Actions workflow was run. Evidence is stored under ignored
   `.local/evidence/acceptance-2026-10-19/` and is not committed.
 - The test-only `import CoreGraphics` fix was compiled and tested as part of the
   714-test source tree, then committed unchanged as `946ca50`.

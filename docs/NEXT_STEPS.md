@@ -8,8 +8,8 @@ full HeyClicky parity is claimed.
 ## Current position
 
 - The tested code baseline was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`,
-  including PR #12. PR #11 later merged the documentation reconciliation as
-  `1399056`.
+  including PR #12. PR #11 and PR #13 later merged documentation updates as
+  `1399056` and `e942ac2`.
 - PR #1 is updated to `6b5de4a`: **710 macOS native tests passed**, 0 failed and
   0 skipped; seven offline checks passed. The code and unit suite are ready for
   review, while live selected-window capture, TCC denial/revocation and a real
@@ -26,8 +26,10 @@ full HeyClicky parity is claimed.
   The same five failures assume Windows path separators, drive paths or npm
   shims while running on macOS. These are reported failures, not Windows passes.
 - There was no Windows PC available. The macOS Screen Recording permission was
-  not granted or changed. No provider call, paid fallback, Actions run or
-  deployment occurred during this pass.
+  not granted or changed. The 18 October helper/runtime persistence check used
+  two live Gemini GUI requests, as recorded in [TESTING_MACOS.md](TESTING_MACOS.md).
+  The 19 October native acceptance checks used no provider requests or paid
+  fallback, Actions runs or deployments.
 
 See [BUILD_STATUS.md](BUILD_STATUS.md) for evidence and boundaries and the
 [19 October checkpoint](DEVELOPMENT_CHECKPOINT_2026-10-19.md) for the exact PR
