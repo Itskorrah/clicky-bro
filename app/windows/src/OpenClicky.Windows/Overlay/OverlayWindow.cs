@@ -49,7 +49,7 @@ internal enum BuddyNavigationMode
 
 public sealed class OverlayWindow : Window
 {
-    private const string FullWelcomeMessage = "Hi, I'm clicky-bro.";
+    private const string FullWelcomeMessage = "Hi, I'm Clicky Bro.";
     private static readonly string[] NavigationPointerPhrases = { "right here!", "this one!", "over here!", "click this!", "here it is!", "found it!" };
     private static readonly Random PhraseRandom = new();
 
