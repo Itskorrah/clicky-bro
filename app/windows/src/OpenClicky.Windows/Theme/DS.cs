@@ -10,6 +10,8 @@
 
 using System.Windows;
 using System.Windows.Media;
+using OpenClicky.Core.Dictation;
+using OpenClicky.Windows.AppWindow;
 
 namespace OpenClicky.Windows.Theme;
 
@@ -58,9 +60,20 @@ public static class DS
         /// <summary>The agent result card's status dot while the companion is still working (Radix Amber 9).</summary>
         public static readonly Color Warning = Hex("#FFB224");
         /// <summary>The pointer and its bubbles: red-orange like the current HeyClicky cursor.</summary>
-        public static readonly Color OverlayCursor = Hex("#3B82F6");
+        public static Color OverlayCursor
+        {
+            get
+            {
+                var settings = DictationSettings.Shared;
+                var dark = settings.Appearance == DictationAppearance.Dark
+                    || (settings.Appearance == DictationAppearance.System && MainWindowTheme.SystemUsesDarkTheme());
+                return Hex(ClickyAccentPalette.ResolveCompanion(
+                    settings.AccentPreset, settings.CustomAccentHex,
+                    settings.CompanionFollowsAccent, settings.CustomCompanionHex, dark));
+            }
+        }
 
-        public static readonly SolidColorBrush OverlayCursorBrush = Brush(OverlayCursor);
+        public static SolidColorBrush OverlayCursorBrush => Brush(OverlayCursor);
     }
 
     /// <summary>The island, always dark: it is part of the top of the screen, not the app's appearance.</summary>
