@@ -25,6 +25,15 @@ adopted the pinned native OpenClicky source under `app/`. See
 research below remains useful as a dated comparison; its recommendation to make
 foundation choice the next product decision is superseded.
 
+**Implementation follow-up — 19 October 2026:** PR #12's native branding compile
+fix is merged to `main` (`2a82bdb`). PR #1, #8 and #9 were updated and locally
+verified as recorded in [BUILD_STATUS.md](BUILD_STATUS.md). Their unit/build
+results do not establish full capture/TCC, custom-picker, companion-performance
+or Windows-native acceptance; those gates remain explicit. The development
+pass used KStack's `native-desktop` route and verification guidance with the
+project's Evolve build/verify skills. KStack is kept as an ignored local CLI and
+skill checkout; it was not globally installed and is not a runtime agent swarm.
+
 ## Position at the time of this research pass
 
 The goal and most product requirements remain consistent with [BUILD_PLAN.md](BUILD_PLAN.md). The important change is the availability of two substantive candidate foundations. We should put a **reuse/adoption gate before creating a fresh product scaffold**:

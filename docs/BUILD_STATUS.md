@@ -1,4 +1,4 @@
-> **19 October 2026 update:** `main` is at `16b81f05`. PRs #2–#7 and #10 are merged. The Azure design foundation, speech benchmark, explicit Parakeet Download actions and public branding are in `main`; they still lack fresh current-source native app and device acceptance. PR #8 (themes) and #9 (cursor/bubbles) remain drafts awaiting native verification. PR #1 (capture/Stop safety) remains a separate, unverified draft based on `e77b4b59`, two commits behind current `main`. No current-source native app build or device acceptance has been recorded for these drafts. See the [19 October development checkpoint](DEVELOPMENT_CHECKPOINT_2026-10-19.md); the historical checks below do not verify the draft branches.
+> **19 October 2026 acceptance update:** Source `main` was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4` after PR #12. PR #1 is updated to `6b5de4a`, PR #8 to `30d552f`, and PR #9 to `946ca50` (stacked on #8); all remain drafts. Current macOS native test suites pass on the updated safety and combined theme/companion source. The WPF cross-build passes on macOS, while the portable Windows core suite has five host-specific path failures. No Windows host was available, and full capture/TCC acceptance remains pending. See the [current development checkpoint](DEVELOPMENT_CHECKPOINT_2026-10-19.md).
 
 # clicky-bro development status
 
@@ -6,6 +6,18 @@ Updated 19 October 2026. This is a local development build based on the pinned
 MIT native OpenClicky source, not a completed commercial HeyClicky replacement.
 The historical runtime checks below were recorded on earlier source revisions;
 the source and tests distinguish implementation from runtime acceptance.
+
+## Current PR and acceptance state
+
+| PR | Updated source | Current evidence | Still pending |
+| --- | --- | --- | --- |
+| [#1 — capture diagnostics and Stop safety](https://github.com/Itskorrah/clicky-bro/pull/1) | `6b5de4a`; based on current `main`; draft | macOS native suite 710 passed, 0 failed, 0 skipped; seven offline checks passed | Real ScreenCaptureKit/TCC workflow, permission denial/revocation, and native Stop during a live pending request |
+| [#8 — native theme customisation](https://github.com/Itskorrah/clicky-bro/pull/8) | `30d552f`; based on `main`; draft | Native Settings route builds; combined #8+#9 macOS suite 714 passed; theme-head portable core suite 1,070 passed/5 failed; real Settings controls/presets inspected without changing preferences | macOS custom picker and restart persistence; native Windows colour dialog, persistence, mixed DPI and accessibility |
+| [#9 — companion geometry and motion](https://github.com/Itskorrah/clicky-bro/pull/9) | `946ca50`; based on #8; draft | Combined macOS suite 714 passed; WPF cross-build passed | Native overlay screenshots, measured frame-time/CPU/GPU, mixed-DPI Windows, accessibility and click-through acceptance |
+
+Windows core tests on macOS reported **1,070 passed, 5 failed, 0 skipped of 1,075** on the #8 theme head and **1,076 passed, 5 failed, 0 skipped of 1,081** on the integrated #8+#9 head. The same five failures cover Windows drive/path separators and npm shim assumptions on the macOS host; they remain failures in the reports and are not Windows passes. No GitHub Actions runs were used. Test reports and raw logs stay in ignored `.local/evidence/`.
+
+The current isolated macOS app's General Settings window and theme controls were inspected through accessibility. The accent menu and Reduce Motion control were visible; no theme preference changed. The custom colour picker and visual companion comparisons were not exercised. The isolated app was quit after inspection.
 
 ## Implemented in this checkout
 
@@ -29,7 +41,11 @@ separate from personal documents. Desktop automation uses a different native
 approval path. Unsupported general voice actions fail closed instead of executing
 through the older realtime callback.
 
-## Verification
+## Earlier base-application verification
+
+The following table documents the previously merged base application, before the
+current PR #1/#8/#9 heads. It is historical context and does not replace the
+current branch results above.
 
 The following checks ran locally with synthetic fixtures and isolated data.
 Raw logs are ignored under `.local/evidence/`; credentials and user runtime state
@@ -61,8 +77,8 @@ below.
 
 | Windows check | Result / boundary |
 | --- | --- |
-| Windows core suite on macOS | .NET SDK 8.0.426; 1,066 passed, 5 failed, 0 skipped / 1,071 total. The five failures exactly match the untouched upstream baseline. All nine new cancellation, identity and clipboard-restoration regression cases passed. This is portable core-test evidence, not Windows OS acceptance. See `docs/TESTING_WINDOWS.md` and ignored `.local/evidence/windows-agent/windows-final-core.trx`. |
-| Windows WPF cross-build | Passed against the latest source with .NET SDK 8.0.426 after restore used absolute paths to the existing isolated NuGet cache and `EnableWindowsTargeting=true`: 0 errors, 1 inherited `WFAC010` high-DPI manifest warning. The earlier `NETSDK1064` was caused by relative NuGet paths in generated assets; the stale publish folder remains unverified. This cross-build is not Windows OS acceptance. Exact commands are in `docs/TESTING_WINDOWS.md`. |
+| Windows core suite on macOS | Earlier base source: .NET SDK 8.0.426; 1,066 passed, 5 failed, 0 skipped / 1,071 total. The five failures matched the untouched upstream baseline; all nine base-source cancellation, identity and clipboard-restoration regressions passed. This is portable core-test evidence, not Windows OS acceptance. See `docs/TESTING_WINDOWS.md`. |
+| Windows WPF cross-build | Earlier base source: cross-build passed with .NET SDK 8.0.426, 0 errors and 1 inherited `WFAC010` high-DPI manifest warning. This is not Windows OS acceptance. Exact commands are in `docs/TESTING_WINDOWS.md`. |
 
 ## Material limits
 
@@ -106,10 +122,9 @@ below.
 ## Continue
 
 Use the root README and [TESTING_MACOS.md](TESTING_MACOS.md) for Mac acceptance,
-and [TESTING_WINDOWS.md](TESTING_WINDOWS.md) for the deferred PC test.
+and [TESTING_WINDOWS.md](TESTING_WINDOWS.md) when a Windows PC is available.
 [NEXT_STEPS.md](NEXT_STEPS.md) prioritizes acceptance and remaining feature work
-against the research crosswalk. Root task metadata was
-verified as GPT-6.1 Sol High; this Windows worker ran as GPT-6 Luna Max. These
-were task assignments, with no host/global model setting changed. Keep source
-orchestration short with at most two workers and serialize heavy builds on the
-8 GiB Mac.
+against the research crosswalk. This pass used KStack's native-desktop routing
+and verification guidance with the project's Evolve implementation/verification
+skills. KStack remains a local ignored checkout, not a global install or a
+runtime agent swarm. Keep native builds sequential on this 8 GiB Mac.

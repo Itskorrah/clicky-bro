@@ -153,3 +153,16 @@ adoption/feasibility comparison of Prasanth OpenClicky and ClickyX. That decisio
 was completed on 17 October 2026; subsequent implementation and acceptance work
 is tracked in `NEXT_STEPS.md` and `BUILD_STATUS.md`. No model or environment
 setting was changed here.
+
+## Current acceptance boundary — 19 October 2026
+
+The current implementation PRs have fresh local evidence, but none of that
+closes the 22 mapped product acceptance scenarios as a whole. PR #1 has passing
+macOS unit/offline checks but still needs native capture permission and live Stop
+acceptance. PR #8 has a passing macOS build and is included in the 714-test
+integrated #8+#9 run; custom-colour persistence and Windows UI acceptance remain
+open. PR #9 has passing integrated Swift tests and a WPF cross-build, but no
+Windows host, real overlay comparison or measured performance result was
+available. Keep these distinctions when translating the competitor crosswalk
+into release claims; current heads and exact counts are in
+[BUILD_STATUS.md](BUILD_STATUS.md).
