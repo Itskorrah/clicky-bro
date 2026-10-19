@@ -1,79 +1,82 @@
 # clicky-bro: current position and next acceptance work
 
-Updated 18 October 2026. The six authorized workstreams have progressed into a
-native development build. They are not all accepted product milestones. See
-[BUILD_STATUS.md](BUILD_STATUS.md) for exact checks and remaining limits.
+Updated 19 October 2026 after the native acceptance pass. The project has a
+working macOS and Windows source tree, but the safety, theme and companion PRs
+remain drafts until their platform acceptance gates pass. No desktop release or
+full HeyClicky parity is claimed.
 
-## What has progressed
+## Current position
 
-1. **Foundation comparison:** built/tested both candidates and adopted the pinned
-   native OpenClicky source. Decision and licenses are recorded.
-2. **Local development:** isolated identity, data and credentials; direct Gemini
-   runtime; repeatable build/test/launch commands; Evolve and independent review.
-3. **Ask/Teach:** chosen-window macOS capture, visible stop-sharing control,
-   streaming Gemini answers and observation-based teaching verification. The
-   authoritative native unit suite passed 705/705 with no skips for the
-   functional, privacy and Stop-observer changes. The final standalone app build
-   passed after the accessibility-row follow-up, but the focused helper-button
-   UI test timed out enabling automation before its body ran. Native
-   permission/focus/capture and UI acceptance remain outstanding.
-4. **Voice/actions:** native system speech passed a real smoke check. Adopted
-   dictation remains subject to microphone/focus/insertion tests. Action loops are
-   bounded, confirm actions and reject unsuccessful terminal model responses.
-5. **Windows:** the final-source core suite ran on this Mac with 1,066 passing
-   cases and five failures identical to the untouched upstream baseline. The
-   latest WPF cross-build passed after restoring from the existing isolated
-   NuGet cache with absolute paths. The user has explicitly deferred Windows
-   desktop testing.
-6. **Persistent work:** macOS Helpers, explicit Memory, session-enabled Routines
-   and saved Runs/text artifacts. The direct Gemini agent supports bounded
-   workspace file tools. A live text-only helper run and restart persistence
-   passed on 18 October: its exact result and inline artifact remained visible
-   after relaunch, and migration preserved the prior completed run. General
-   connectors/MCP and Windows workspace UI parity are still open; inherited
-   source presence is not end-to-end acceptance.
+- `main` was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`, including merged PR #12.
+- PR #1 is updated to `6b5de4a`: **710 macOS native tests passed**, 0 failed and
+  0 skipped; seven offline checks passed. The code and unit suite are ready for
+  review, while live selected-window capture, TCC denial/revocation and a real
+  pending-request Stop interaction remain open.
+- PR #8 is updated to `30d552f`: the macOS Settings route builds and the native
+  Swift suite on the integrated #8+#9 source passed **714/714**. The actual
+  Settings window and its appearance controls were inspected without changing
+  preferences. Its Windows core run on macOS was 1,070/1,075. Custom colour
+  entry, restart persistence and native Windows acceptance remain open.
+- PR #9 is updated to `946ca50` and stacked on #8. The same integrated native
+  suite passed **714/714**. WPF cross-builds passed on macOS. The portable
+  Windows core suite reports **1,076 passed, 5 failed, 0 skipped** on the
+  combined tree; the #8 theme-head run was **1,070 passed, 5 failed, 0 skipped**.
+  The same five failures assume Windows path separators, drive paths or npm
+  shims while running on macOS. These are reported failures, not Windows passes.
+- There was no Windows PC available. The macOS Screen Recording permission was
+  not granted or changed. No provider call, paid fallback, Actions run or
+  deployment occurred during this pass.
 
-## Test the useful slice first
+See [BUILD_STATUS.md](BUILD_STATUS.md) for evidence and boundaries and the
+[19 October checkpoint](DEVELOPMENT_CHECKPOINT_2026-10-19.md) for the exact PR
+heads and integration status.
 
-The live text-only helper run and restart persistence flow passed; the exact
-result, `CLICKY_BRO_HELPER_OK`, and its inline artifact remained visible after
-relaunch. The launcher stages the agent in the clicky-bro cache and uses its
-private Application Support runtime; existing `.local` settings/workspace are
-migrated once and preserved. The canonical Gemini key stays in
-`.local/credentials` and is mirrored privately at launch. Next test a single
-disposable workspace file with write permission explicitly enabled.
+## Remaining acceptance, in order
 
-For native window questions, grant Screen Recording in macOS settings when ready,
-share a disposable window, ask a question and stop sharing. Verify capture never
-switches to another window or display after the shared window closes. Teach must
-wait for the user and verify the result; Agent mode needs a distinct action
-confirmation. Test Stop while a model/tool request is pending. At the final
-launcher check, Accessibility, Screen Recording and microphone diagnostics were
-false and `screenContent` was false; permission/capture acceptance still needs
-the explicit current-bundle check in [TESTING_MACOS.md](TESTING_MACOS.md).
+1. **Capture and Stop (PR #1, keep separate).** On the exact current macOS app
+   bundle, test Screen Recording granted, denied and revoked; capture only a
+   disposable selected window; move or close it during capture and verify a
+   clear failure with no display fallback. Stop while a request/action is
+   pending and confirm no later effects. Exercise cancellation and refusal in
+   the native helper flow. Do not include personal window contents in evidence.
+2. **Themes (PR #8).** On macOS, exercise all presets and custom colour input in
+   Light/Dark/Auto, companion-follow and custom tint, Reset, Reduce Motion,
+   contrast, restart persistence and settings search. On Windows, exercise the
+   native colour dialog, invalid hex, saved values, pointer repaint, mixed-DPI
+   monitors, keyboard use and Narrator.
+3. **Companion (PR #9).** Capture actual native screenshots of welcome,
+   caption and navigation bubbles near every edge, on a small display and with
+   oversized text. Verify click-through, cancellation, keyboard/screen-reader
+   behavior and Reduce Motion. Measure CPU/GPU and frame times before and after
+   on 60/120/144 Hz screens; do not claim a performance improvement until the
+   measurements support it. Repeat WPF overlay and mixed-DPI checks on Windows.
+4. **Integrate only after the corresponding gates.** Keep #1 independent. Merge
+   #8 after its Mac and Windows acceptance; then merge #9 against #8 after its
+   own native acceptance. Re-run the relevant current-head checks after any
+   changed source or base. Keep PRs draft while a gate is pending.
+5. **Merge the documentation reconciliation** after its link and diff checks,
+   then return the primary checkout to `main` without discarding the active
+   feature worktrees.
 
-Then test dictation into a disposable editor, changing focus during capture and
-before insertion. Confirm voice cancellation, permission denial and error recovery.
-These native observations cannot be inferred from provider or state-machine tests.
+## Product work after these PRs
 
-## Next engineering slices
+- Bring Helpers, Memory and Routines UI/persistence to Windows and accept them on
+  the actual Windows client.
+- Add one connector at a time with scoped authentication, explicit denial and
+  revocation behavior, and real action receipts. General MCP and multi-account
+  support are not implied by the adopted source.
+- Add safe artifact previews, provenance, helper follow-up and deliberately
+  designed restart/resume behavior.
+- Complete the mapped feature crosswalk through observed workflows. Accounts,
+  plans, teams, billing, signed installers, notarisation and trusted updates
+  require separate implementation and acceptance; none is shipped by these PRs.
 
-- Close native macOS capture, focus, hotkey, dictation and teaching acceptance;
-  repair any observed failures before expanding autonomous capabilities.
-- Bring the Helpers/Memory/Routines UI and persistence contracts to Windows;
-  then use [TESTING_WINDOWS.md](TESTING_WINDOWS.md) on the user's PC when ready.
-- Add one useful connector through the Gemini runtime with scoped authentication,
-  denial/revocation tests and real action receipts. General MCP and multi-account
-  integrations remain separate work, not automatically supported by adoption.
-- Extend artifacts beyond saved text with safe previews and correct provenance.
-  Add helper follow-up/steering and explicitly designed restart/resume semantics.
-- Close the feature crosswalk one verified workflow at a time. Suggestions,
-  accounts/plans/teams/referrals, signed installers and trusted updates follow
-  working core workflows and remain unimplemented commercial work.
+## Development workflow used
 
-Use GPT-6.1 Sol High for the root task and GPT-6 Luna Max for the delegated
-Windows lane, as verified from task metadata. These assignments did not change
-host/global settings. Keep the main orchestration short, at no more than two
-workers, and serialize expensive builds on this Mac. Use an independent reviewer
-for native authority/persistence changes and keep bounded free-provider checks
-separate from offline verification.
+KStack's `native-desktop` route identified native platform acceptance as a
+required verification step and selected focused routing/verification guidance.
+The project Evolve build and verify skills scoped implementation and independent
+review. One Luna Max reviewer checked the updated PR branches against the local
+evidence. KStack is a local ignored checkout and CLI/skill pack; it did not
+install globally or create a runtime agent swarm. Native builds were serialized
+on the 8 GiB Mac. No global model or authentication settings were changed.
