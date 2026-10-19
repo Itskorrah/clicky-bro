@@ -8,6 +8,7 @@
 // App.xaml's resources as well, so context menus and popups outside a window's tree are styled too.
 
 using System.Windows;
+using System.ComponentModel;
 using System.Windows.Media;
 using Microsoft.Win32;
 using OpenClicky.Core.Dictation;
@@ -53,6 +54,7 @@ public static class SettingsLook
 public sealed class MainWindowTheme : IDisposable
 {
     private readonly Window window;
+    private readonly DictationSettings settings;
     private readonly IDisposable appearanceSubscription;
     /// <summary>
     /// Where the theme is loaded: the window, and any part of it that does not inherit the window's
@@ -70,6 +72,8 @@ public sealed class MainWindowTheme : IDisposable
     private MainWindowTheme(Window window, DictationSettings settings)
     {
         this.window = window;
+        this.settings = settings;
+        settings.PropertyChanged += OnSettingsChanged;
         AddScope(window.Resources);
         appearanceSubscription = WindowAppearance.Follow(settings, newAppearance =>
         {
@@ -116,6 +120,19 @@ public sealed class MainWindowTheme : IDisposable
             window.Dispatcher.BeginInvoke(Apply);
     }
 
+    /// Update live resources when a colour preference changes, without reopening the window.
+    private void OnSettingsChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName is nameof(DictationSettings.AccentPreset)
+            or nameof(DictationSettings.CustomAccentHex)
+            or nameof(DictationSettings.CompanionFollowsAccent)
+            or nameof(DictationSettings.CustomCompanionHex))
+        {
+            if (window.Dispatcher.CheckAccess()) Apply();
+            else window.Dispatcher.BeginInvoke(Apply);
+        }
+    }
+
     private void Apply()
     {
         var isDark = WindowAppearance.IsDark(appearance, SystemUsesDarkTheme());
@@ -142,10 +159,11 @@ public sealed class MainWindowTheme : IDisposable
         Changed?.Invoke();
     }
 
-    /// <summary>The orange accent in place of the system's, in this window only.</summary>
-    private static void ApplyAccent(ResourceDictionary resources, bool isDark)
+    /// <summary>Current user-selected colour, pushed into WPF-UI's real dynamic resources.</summary>
+    private void ApplyAccent(ResourceDictionary resources, bool isDark)
     {
-        var accent = isDark ? SettingsLook.AccentDark : SettingsLook.AccentLight;
+        var hex = ClickyAccentPalette.Resolve(settings.AccentPreset, settings.CustomAccentHex, isDark);
+        var accent = (Color)ColorConverter.ConvertFromString(hex);
         var lighter = Blend(accent, Colors.White, 0.25);
         var darker = Blend(accent, Colors.Black, 0.2);
         resources["SystemAccentColor"] = accent;
@@ -184,6 +202,7 @@ public sealed class MainWindowTheme : IDisposable
     public void Dispose()
     {
         appearanceSubscription.Dispose();
+        settings.PropertyChanged -= OnSettingsChanged;
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
     }
 }
