@@ -50,7 +50,7 @@ private struct AboutAppRow: View {
                 .frame(width: 44, height: 44)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Clicky Bro".font(.system(size: 15, weight: .semibold))
+                Text("Clicky Bro").font(.system(size: 15, weight: .semibold))
                 Text("Version \(AppVersion.shortVersion) (\(AppVersion.buildNumber)) · Open source, MIT")
                     .font(.system(size: 12)).foregroundStyle(.secondary)
                     .textSelection(.enabled)
