@@ -71,7 +71,7 @@ The [feature crosswalk](docs/FULL_SPEC_CROSSWALK.md), [feature audit](docs/FEATU
 
 ## Current engineering status
 
-As of **19 October 2026**, the UI and icon work is on [draft PR #9](https://github.com/Itskorrah/clicky-bro/pull/9), stacked on [draft PR #8](https://github.com/Itskorrah/clicky-bro/pull/8). [Draft PR #1](https://github.com/Itskorrah/clicky-bro/pull/1) remains separate for capture diagnostics and Stop safety. None should merge until its platform gates pass.
+As of **19 October 2026**, the theme, navy UI, companion and icon stack from [PR #8](https://github.com/Itskorrah/clicky-bro/pull/8) and [PR #9](https://github.com/Itskorrah/clicky-bro/pull/9) is integrated into `main` at source commit `5d2bcfee3639c58daca873a43ca76404c68f57d8`, at the user's request and before all platform acceptance gates passed. PR #8 was marked merged; PR #9 remains an open draft against its former theme branch, although its source is present in `main`. [PR #1](https://github.com/Itskorrah/clicky-bro/pull/1) remains separate for capture diagnostics and Stop safety. Integration does not count as native acceptance or release approval.
 
 The latest local verification for the navy/icon source reported:
 
@@ -79,7 +79,7 @@ The latest local verification for the navy/icon source reported:
 - Python suite: **39 passed**; focused palette checks: **7 passed**.
 - Windows WPF cross-build on macOS: **0 errors**, with one inherited high-DPI manifest warning.
 - Windows portable core tests run on macOS: **1,079 passed, 5 failed**. The five failures depend on Windows paths or npm-shim behavior on a macOS host; they remain failures and are **not** a Windows pass.
-- GitHub reported no checks for PR #9 at the time of the update. No physical Windows acceptance or release approval is claimed.
+- GitHub reported zero check-runs for source commit `5d2bcfe` after integration. No physical Windows acceptance or release approval is claimed.
 
 See [build evidence](docs/BUILD_STATUS.md), [the current checkpoint](docs/DEVELOPMENT_CHECKPOINT_2026-10-19.md) and the [remaining acceptance sequence](docs/NEXT_STEPS.md). The exact continuation instructions for a Windows PC are in [CODEX_WINDOWS.md](CODEX_WINDOWS.md).
 

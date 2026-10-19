@@ -3,6 +3,12 @@
 **Purpose:** Record the state after updating and checking the capture/Stop,
 theme and companion PRs. This is a development checkpoint, not a release claim.
 
+**Snapshot boundary:** This checkpoint describes the state before the later
+user-requested fast-forward of the #8/#9 theme and UI stack to `main` at
+`5d2bcfe`. Its statements that those PRs were drafts are historical. For the
+current branch and handoff instructions, see [NEXT_STEPS.md](NEXT_STEPS.md),
+[BUILD_STATUS.md](BUILD_STATUS.md) and [CODEX_WINDOWS.md](../CODEX_WINDOWS.md).
+
 ## Git and pull requests
 
 The code baseline for this acceptance pass was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`,

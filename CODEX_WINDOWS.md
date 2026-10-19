@@ -1,14 +1,14 @@
 # Windows Codex handoff
 
-Use this file to continue the Clicky Bro work on a real Windows PC. The code and visual refresh are already on GitHub; this session's main job is native Windows build, regression and acceptance evidence. Read this with [AGENTS.md](AGENTS.md), [the Windows test guide](docs/TESTING_WINDOWS.md), [the next-steps record](docs/NEXT_STEPS.md) and [the current build status](docs/BUILD_STATUS.md).
+Use this file to continue the Clicky Bro work on a real Windows PC. The theme, navy UI, companion and icon stack is now on `main`; this session's main job is native Windows build, regression and acceptance evidence. The source was integrated before all platform gates passed, at the user's direction. That is not a Windows acceptance pass or release approval. Read this with [AGENTS.md](AGENTS.md), [the Windows test guide](docs/TESTING_WINDOWS.md), [the next-steps record](docs/NEXT_STEPS.md) and [the current build status](docs/BUILD_STATUS.md).
 
 ## Where to continue
 
 - Repository: [Itskorrah/clicky-bro](https://github.com/Itskorrah/clicky-bro)
-- Start from open draft [PR #9](https://github.com/Itskorrah/clicky-bro/pull/9), branch **ui/refined-companion-motion-and-bubbles-2026-10-19**.
-- PR #9 contains the navy palette, new icon, companion refinements and this documentation. It is stacked on draft [PR #8](https://github.com/Itskorrah/clicky-bro/pull/8), which contains the native theme controls.
+- Start from `main`. It contains the theme controls and the navy UI, companion and icon work. The UI source landed at `5d2bcfee3639c58daca873a43ca76404c68f57d8`; later handoff documentation may advance `main` beyond that source revision.
+- [PR #8](https://github.com/Itskorrah/clicky-bro/pull/8) was marked merged by GitHub when its head reached `main`. [PR #9](https://github.com/Itskorrah/clicky-bro/pull/9) remains an open draft stacked on the theme branch, although its code is already present on `main`; do not check it out to continue the Windows acceptance work.
 - PR #1 is independent and covers capture diagnostics and Stop safety.
-- Fetch the PR's latest head before testing. Do not use main as the source for these changes, and do not merge any PR while its platform acceptance remains open.
+- Fetch `main` before testing. Keep working on `main` and record the exact tested commit. Do not treat direct integration as completed platform acceptance.
 
 ## Start the Windows session
 
@@ -17,7 +17,7 @@ In an existing clone, first preserve any local work. If the working tree is dirt
 ~~~powershell
 git status --short --branch
 git fetch origin
-gh pr checkout 9
+git switch main
 git pull --ff-only
 git rev-parse HEAD
 ~~~
@@ -27,20 +27,21 @@ If the repository is not on the Windows PC yet:
 ~~~powershell
 git clone https://github.com/Itskorrah/clicky-bro.git
 cd clicky-bro
-gh pr checkout 9
+git switch main
+git pull --ff-only
 git rev-parse HEAD
 ~~~
 
 If GitHub CLI is unavailable, fetch the branch directly:
 
 ~~~powershell
-git fetch origin ui/refined-companion-motion-and-bubbles-2026-10-19
-git switch --track origin/ui/refined-companion-motion-and-bubbles-2026-10-19
+git fetch origin
+git switch main
 git pull --ff-only
 git rev-parse HEAD
 ~~~
 
-Record the actual commit hash and Windows version in the results. Before making changes, read the current [project rules](AGENTS.md), [theme contract](docs/THEME_CUSTOMISATION.md) and [implementation record](docs/IMPLEMENTATION_2026-10-19.md).
+Record the actual commit hash and Windows version in the results. Before making changes, read the current [project rules](AGENTS.md), [theme contract](docs/THEME_CUSTOMISATION.md), [implementation record](docs/IMPLEMENTATION_2026-10-19.md) and [current position](docs/NEXT_STEPS.md). The user has authorized continuing work and pushing verified changes to `main`; preserve unrelated local work and report every changed commit.
 
 ## Development workflow and model budget
 

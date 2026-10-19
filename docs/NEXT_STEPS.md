@@ -1,31 +1,38 @@
 # clicky-bro: current position and next acceptance work
 
-Updated 19 October 2026 after the native acceptance pass. The project has a
-working macOS and Windows source tree, but the safety, theme and companion PRs
-remain drafts until their platform acceptance gates pass. No desktop release or
-full HeyClicky parity is claimed.
+Updated 19 October 2026 after the user's request to continue on `main`. The
+theme, navy UI, companion and icon stack is now integrated into `main` ahead of
+its remaining native acceptance gates. This integration does not count as
+platform acceptance or release approval. Capture and Stop safety PR #1 remains
+separate. No desktop release or full HeyClicky parity is claimed.
 
-The later [Navy UI and icon refresh](IMPLEMENTATION_2026-10-19.md) is on
-`codex/navy-ui-icon-refresh`, pushed to draft PR #9 as `210ec8e`. Its macOS
-build/tests and Windows cross-build pass; native Windows, custom-colour
-persistence and full visual acceptance remain next.
+The [Navy UI and icon refresh](IMPLEMENTATION_2026-10-19.md) and theme controls
+are on `main` at source commit `5d2bcfee3639c58daca873a43ca76404c68f57d8`.
+GitHub marked PR #8 merged when its head reached `main`; PR #9 remains an open
+draft against the earlier theme branch even though its source is already in
+`main`. Native Windows, custom-colour persistence and full visual acceptance
+remain next.
 
 ## Current position
 
-- The tested code baseline was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`,
-  including PR #12. PR #11 and PR #13 later merged documentation updates as
-  `1399056` and `e942ac2`.
+- The theme and companion stack was fast-forwarded to `main` at
+  `5d2bcfee3639c58daca873a43ca76404c68f57d8` at the user's request, before
+  native acceptance was complete. This documentation follow-up advances the
+  main revision; use `git rev-parse HEAD` on the Windows PC to
+  record the exact checkout.
 - PR #1 is updated to `6b5de4a`: **710 macOS native tests passed**, 0 failed and
   0 skipped; seven offline checks passed. The code and unit suite are ready for
   review, while live selected-window capture, TCC denial/revocation and a real
   pending-request Stop interaction remain open.
-- PR #8 is updated to `30d552f`: the macOS Settings route builds and the native
+- PR #8's theme controls are now included in `main` (the final UI stack source
+  is `5d2bcfe`; GitHub marked PR #8 merged). The macOS Settings route builds and the native
   Swift suite on the integrated #8+#9 source passed **714/714**. The actual
   Settings window and its appearance controls were inspected without changing
   preferences. Its Windows core run on macOS was 1,070/1,075. Custom colour
   entry, restart persistence and native Windows acceptance remain open.
-- PR #9 now includes the navy UI/icon refresh at `210ec8e` and remains stacked
-  on #8. The latest macOS native suite passed **717/717**; the WPF cross-build
+- The PR #9 source, including the navy UI/icon refresh, is included in `main`
+  at `5d2bcfe`; PR #9 still appears as an open draft against the prior theme
+  branch. The latest macOS native suite passed **717/717**; the WPF cross-build
   passed with 0 errors; focused palette tests passed **7/7**. The full portable
   Windows core suite reports **1,079 passed, 5 failed, 0 skipped (1,084 total)**
   on macOS. The same five failures assume Windows path separators, drive paths
@@ -60,13 +67,12 @@ heads and integration status.
    behavior and Reduce Motion. Measure CPU/GPU and frame times before and after
    on 60/120/144 Hz screens; do not claim a performance improvement until the
    measurements support it. Repeat WPF overlay and mixed-DPI checks on Windows.
-4. **Integrate only after the corresponding gates.** Keep #1 independent. Merge
-   #8 after its Mac and Windows acceptance; then merge #9 against #8 after its
-   own native acceptance. Re-run the relevant current-head checks after any
-   changed source or base. Keep PRs draft while a gate is pending.
-5. **Keep the primary checkout on `main`** after this pass. The documentation
-   reconciliation has merged; continue the remaining platform acceptance in the
-   attached feature worktrees.
+4. **Complete the remaining gates on `main`.** PRs #8/#9 are integrated before
+   their native acceptance gates pass. Keep PR #1 separate. Re-run checks after
+   source changes; report actual results and label host-only or skipped checks.
+5. **Continue from `main` on Windows.** Follow [CODEX_WINDOWS.md](../CODEX_WINDOWS.md)
+   using `git pull --ff-only`; record the tested commit, OS build and actual
+   acceptance evidence. Push verified follow-up commits to `main` as authorized.
 
 ## Product work after these PRs
 
