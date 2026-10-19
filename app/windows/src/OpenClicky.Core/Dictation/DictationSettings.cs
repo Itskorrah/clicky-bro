@@ -339,6 +339,10 @@ public sealed class DictationSettings : ObservableObject
         public const string Haptics = "dictation.haptics";
         public const string ReduceAnimation = "dictation.reduceAnimation";
         public const string Appearance = "dictation.appearance";
+        public const string AccentPreset = "appearance.accentPreset";
+        public const string CustomAccentHex = "appearance.customAccentHex";
+        public const string CompanionFollowsAccent = "appearance.companionFollowsAccent";
+        public const string CustomCompanionHex = "appearance.customCompanionHex";
         public const string InactivityTimeoutMinutes = "dictation.inactivityTimeoutMinutes";
         public const string ClipboardHistoryEnabled = "dictation.clipboardHistoryEnabled";
         public const string Incognito = "dictation.incognito";
@@ -386,6 +390,11 @@ public sealed class DictationSettings : ObservableObject
         haptics = defaults.GetBool(Keys.Haptics, defaultValue: true);
         reduceAnimation = defaults.GetBool(Keys.ReduceAnimation);
         appearance = defaults.GetEnum(Keys.Appearance, DictationAppearance.System);
+        var storedPreset = defaults.GetString(Keys.AccentPreset) ?? "coral";
+        accentPreset = ClickyAccentPalette.Presets.Any(item => item.Id == storedPreset) ? storedPreset : "coral";
+        customAccentHex = ClickyAccentPalette.NormalizeHex(defaults.GetString(Keys.CustomAccentHex)) ?? "#D24E2A";
+        companionFollowsAccent = defaults.GetBool(Keys.CompanionFollowsAccent, defaultValue: true);
+        customCompanionHex = ClickyAccentPalette.NormalizeHex(defaults.GetString(Keys.CustomCompanionHex)) ?? "#E8653F";
         inactivityTimeoutMinutes = defaults.Contains(Keys.InactivityTimeoutMinutes) ? defaults.GetInt(Keys.InactivityTimeoutMinutes) : 3;
         clipboardHistoryEnabled = defaults.GetBool(Keys.ClipboardHistoryEnabled);
         incognito = defaults.GetBool(Keys.Incognito);
@@ -629,6 +638,48 @@ public sealed class DictationSettings : ObservableObject
     {
         get => appearance;
         set => Store(ref appearance, value, () => defaults.SetEnum(Keys.Appearance, value), nameof(Appearance));
+    }
+
+
+    // Classic Coral is the default. Existing light/dark/auto and orb preferences stay untouched.
+    private string accentPreset;
+    public string AccentPreset
+    {
+        get => accentPreset;
+        set => Store(ref accentPreset,
+            ClickyAccentPalette.Presets.Any(item => item.Id == value) ? value : "coral",
+            () => defaults.Set(Keys.AccentPreset, accentPreset), nameof(AccentPreset));
+    }
+
+    private string customAccentHex;
+    public string CustomAccentHex
+    {
+        get => customAccentHex;
+        set
+        {
+            var valid = ClickyAccentPalette.NormalizeHex(value);
+            if (valid is null) return;
+            Store(ref customAccentHex, valid, () => defaults.Set(Keys.CustomAccentHex, valid), nameof(CustomAccentHex));
+        }
+    }
+
+    private bool companionFollowsAccent;
+    public bool CompanionFollowsAccent
+    {
+        get => companionFollowsAccent;
+        set => Store(ref companionFollowsAccent, value, () => defaults.Set(Keys.CompanionFollowsAccent, value), nameof(CompanionFollowsAccent));
+    }
+
+    private string customCompanionHex;
+    public string CustomCompanionHex
+    {
+        get => customCompanionHex;
+        set
+        {
+            var valid = ClickyAccentPalette.NormalizeHex(value);
+            if (valid is null) return;
+            Store(ref customCompanionHex, valid, () => defaults.Set(Keys.CustomCompanionHex, valid), nameof(CustomCompanionHex));
+        }
     }
 
     private int inactivityTimeoutMinutes;
