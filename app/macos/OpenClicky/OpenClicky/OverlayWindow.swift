@@ -121,6 +121,8 @@ struct BlueCursorView: View {
     let screenFrame: CGRect
     let isFirstAppearance: Bool
     @ObservedObject var companionManager: CompanionManager
+    // Refresh the cursor's dynamically chosen colour when Settings changes.
+    @ObservedObject private var themeSettings = DictationSettings.shared
 
     @State private var cursorPosition: CGPoint
     @State private var isCursorOnThisScreen: Bool
@@ -209,7 +211,7 @@ struct BlueCursorView: View {
             if isCursorOnThisScreen && showWelcome && !welcomeText.isEmpty {
                 Text(welcomeText)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(DS.Colors.overlayCursorText)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(
@@ -244,7 +246,7 @@ struct BlueCursorView: View {
                 let fitsToTheRight = cursorPosition.x + 10 + captionBubbleSize.width <= screenFrame.width - 12
                 Text(companionManager.cursorCaptionText)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(DS.Colors.overlayCursorText)
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
@@ -309,7 +311,7 @@ struct BlueCursorView: View {
             if buddyNavigationMode == .pointingAtTarget && !navigationBubbleText.isEmpty {
                 Text(navigationBubbleText)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(DS.Colors.overlayCursorText)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(

@@ -10,6 +10,8 @@
 
 using System.Windows;
 using System.Windows.Media;
+using OpenClicky.Core.Dictation;
+using OpenClicky.Windows.AppWindow;
 
 namespace OpenClicky.Windows.Theme;
 
@@ -31,8 +33,20 @@ public static class DS
 
     public static class Colors
     {
-        /// <summary>The agent result card's status dot once the agent has answered (Tailwind Blue 600).</summary>
-        public static readonly Color Accent = Hex("#2563EB");
+        /// <summary>The agent result card's status dot after an answer, using the chosen app accent.</summary>
+        public static Color Accent
+        {
+            get
+            {
+                var settings = DictationSettings.Shared;
+                return Hex(ClickyAccentPalette.Resolve(
+                    settings.AccentPreset, settings.CustomAccentHex, IsDarkAppearance(settings)));
+            }
+        }
+
+        private static bool IsDarkAppearance(DictationSettings settings) =>
+            settings.Appearance == DictationAppearance.Dark
+            || (settings.Appearance == DictationAppearance.System && MainWindowTheme.SystemUsesDarkTheme());
         /// Semantic Azure palette, mirrored in SwiftUI and XAML.
         public static class AzureLight
         {
@@ -58,9 +72,27 @@ public static class DS
         /// <summary>The agent result card's status dot while the companion is still working (Radix Amber 9).</summary>
         public static readonly Color Warning = Hex("#FFB224");
         /// <summary>The pointer and its bubbles: red-orange like the current HeyClicky cursor.</summary>
-        public static readonly Color OverlayCursor = Hex("#3B82F6");
+        public static Color OverlayCursor
+        {
+            get
+            {
+                var settings = DictationSettings.Shared;
+                return Hex(ClickyAccentPalette.ResolveCompanion(
+                    settings.AccentPreset, settings.CustomAccentHex,
+                    settings.CompanionFollowsAccent, settings.CustomCompanionHex, IsDarkAppearance(settings)));
+            }
+        }
 
-        public static readonly SolidColorBrush OverlayCursorBrush = Brush(OverlayCursor);
+        public static SolidColorBrush OverlayCursorBrush => Brush(OverlayCursor);
+        public static Color OverlayCursorText
+        {
+            get
+            {
+                var colour = OverlayCursor;
+                return Hex(ClickyAccentPalette.TextOnAccent($"#{colour.R:X2}{colour.G:X2}{colour.B:X2}"));
+            }
+        }
+        public static SolidColorBrush OverlayCursorTextBrush => Brush(OverlayCursorText);
     }
 
     /// <summary>The island, always dark: it is part of the top of the screen, not the app's appearance.</summary>
