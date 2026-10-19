@@ -226,9 +226,9 @@ struct BlueCursorView: View {
                     )
                     .opacity(bubbleOpacity)
                     .position(
-                        x: boundedBubbleCentre(cursorPosition.x + 10 + bubbleSize.width / 2,
+                        x: BubblePosition.center(preferred:cursorPosition.x + 10 + bubbleSize.width / 2,
                                                extent: bubbleSize.width, screenExtent: screenFrame.width),
-                        y: boundedBubbleCentre(cursorPosition.y + 18,
+                        y: BubblePosition.center(preferred:cursorPosition.y + 18,
                                                extent: bubbleSize.height, screenExtent: screenFrame.height))
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
                     .animation(.easeOut(duration: 0.5), value: bubbleOpacity)
@@ -263,9 +263,9 @@ struct BlueCursorView: View {
                     .frame(width: 300, alignment: fitsToTheRight ? .leading : .trailing)
                     .opacity(companionManager.cursorCaptionOpacity)
                     .position(
-                        x: boundedBubbleCentre(fitsToTheRight ? cursorPosition.x + 160 : cursorPosition.x - 160,
+                        x: BubblePosition.center(preferred:fitsToTheRight ? cursorPosition.x + 160 : cursorPosition.x - 160,
                                                extent: 300, screenExtent: screenFrame.width),
-                        y: boundedBubbleCentre(cursorPosition.y + 12 + captionBubbleSize.height / 2,
+                        y: BubblePosition.center(preferred:cursorPosition.y + 12 + captionBubbleSize.height / 2,
                                                extent: captionBubbleSize.height, screenExtent: screenFrame.height)
                     )
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
@@ -331,9 +331,9 @@ struct BlueCursorView: View {
                     .scaleEffect(navigationBubbleScale)
                     .opacity(navigationBubbleOpacity)
                     .position(
-                        x: boundedBubbleCentre(cursorPosition.x + 10 + navigationBubbleSize.width / 2,
+                        x: BubblePosition.center(preferred:cursorPosition.x + 10 + navigationBubbleSize.width / 2,
                                                extent: navigationBubbleSize.width, screenExtent: screenFrame.width),
-                        y: boundedBubbleCentre(cursorPosition.y + 18,
+                        y: BubblePosition.center(preferred:cursorPosition.y + 18,
                                                extent: navigationBubbleSize.height, screenExtent: screenFrame.height))
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: navigationBubbleScale)
@@ -513,15 +513,6 @@ struct BlueCursorView: View {
         case .navigatingToTarget, .pointingAtTarget, .flyingToDock:
             return true
         }
-    }
-
-    /// Keep small speech/teaching bubbles inside the active monitor's visible bounds.
-    /// Clamping is applied to the rendered centre because SwiftUI .position uses centre coordinates.
-    private func boundedBubbleCentre(_ preferred: CGFloat, extent: CGFloat, screenExtent: CGFloat) -> CGFloat {
-        let half = max(0, extent / 2)
-        let lower = half + 8
-        let upper = max(lower, screenExtent - half - 8)
-        return min(max(preferred, lower), upper)
     }
 
     // MARK: - Cursor Tracking
