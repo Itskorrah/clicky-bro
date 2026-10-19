@@ -7,7 +7,9 @@ full HeyClicky parity is claimed.
 
 ## Current position
 
-- `main` was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`, including merged PR #12.
+- The tested code baseline was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`,
+  including PR #12. PR #11 later merged the documentation reconciliation as
+  `1399056`.
 - PR #1 is updated to `6b5de4a`: **710 macOS native tests passed**, 0 failed and
   0 skipped; seven offline checks passed. The code and unit suite are ready for
   review, while live selected-window capture, TCC denial/revocation and a real
@@ -54,9 +56,9 @@ heads and integration status.
    #8 after its Mac and Windows acceptance; then merge #9 against #8 after its
    own native acceptance. Re-run the relevant current-head checks after any
    changed source or base. Keep PRs draft while a gate is pending.
-5. **Merge the documentation reconciliation** after its link and diff checks,
-   then return the primary checkout to `main` without discarding the active
-   feature worktrees.
+5. **Keep the primary checkout on `main`** after this pass. The documentation
+   reconciliation has merged; continue the remaining platform acceptance in the
+   attached feature worktrees.
 
 ## Product work after these PRs
 

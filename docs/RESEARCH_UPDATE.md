@@ -33,6 +33,7 @@ or Windows-native acceptance; those gates remain explicit. The development
 pass used KStack's `native-desktop` route and verification guidance with the
 project's Evolve build/verify skills. KStack is kept as an ignored local CLI and
 skill checkout; it was not globally installed and is not a runtime agent swarm.
+PR #11 subsequently merged the documentation reconciliation as `1399056`.
 
 ## Position at the time of this research pass
 
