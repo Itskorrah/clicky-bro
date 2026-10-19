@@ -33,6 +33,12 @@ extension SettingsCatalog {
                 keywords: ["permission", "offline", "apple", "grant", "siri"],
                 view: AnyView(PermissionRow(permission: .speechRecognition))),
             SettingsItem(
+                id: "privacy.captureDiagnostics", page: .privacy, section: "Permissions",
+                title: "Selected-window capture test",
+                detail: "Check Screen Recording and confirm a real frame from the selected window, without sending it.",
+                keywords: ["screen recording", "capture", "window", "diagnostics", "permission", "test frame"],
+                view: AnyView(SelectedWindowCaptureDiagnosticRow())),
+            SettingsItem(
                 id: "privacy.readNearbyText", page: .privacy, section: "Permissions",
                 title: "Read nearby text", detail: "Helps spell names and terms on screen right.",
                 keywords: ["context", "screen", "spelling", "names", "accessibility"],
@@ -101,6 +107,40 @@ extension SettingsCatalog {
                 chrome: .footer,
                 view: AnyView(PrivacySummaryNote())),
         ]
+    }
+}
+
+/// Explicit local-only diagnostic: never triggers a new window-selection prompt.
+private struct SelectedWindowCaptureDiagnosticRow: View {
+    @State private var isChecking = false
+    @State private var diagnosis: CompanionCaptureDiagnosis?
+
+    var body: some View {
+        SettingsRow(
+            title: "Selected-window capture test",
+            detail: "Tests this running app's Screen Recording signal and a frame from the window you already shared. No image is uploaded or saved."
+        ) {
+            VStack(alignment: .trailing, spacing: 6) {
+                Button(isChecking ? "Testing…" : "Test frame") {
+                    isChecking = true
+                    Task { @MainActor in
+                        diagnosis = await CompanionScreenCaptureUtility.diagnoseSelectedWindow()
+                        isChecking = false
+                    }
+                }
+                .disabled(isChecking)
+                .pointerCursor()
+                .accessibilityIdentifier("privacy.capture.test")
+                Text(diagnosis?.summary ?? "Not tested in this session.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
+                    .accessibilityIdentifier("privacy.capture.result")
+            }
+            .frame(maxWidth: 350, alignment: .trailing)
+        }
     }
 }
 

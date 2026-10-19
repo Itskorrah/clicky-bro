@@ -620,11 +620,12 @@ final class CompanionManager: ObservableObject {
     private var activeAnswerSpeaker: StreamingAnswerSpeaker?
     private var activeAnswerPlayback: Task<Void, Error>?
 
-    /// The island's stop button: silence whatever Clicky is saying. Agent work keeps going.
+    /// Stop means stop the active turn, including any pending agent effects.
+    /// A voice-only mute is not authorisation for an agent to keep working.
     func stopSpeaking() {
-        guard voiceState == .responding else { return }
-        AppLog.append("ask: stopped speaking from the island")
-        interruptCurrentAnswer(includingAgentWork: false)
+        guard voiceState != .idle || agentActivityText != nil else { return }
+        AppLog.append("ask: stopped active turn from the island")
+        interruptCurrentAnswer(includingAgentWork: true)
         realtimeVoiceClient.stopSpeaking()
         // A cancelled answer skips its own reset to idle.
         voiceState = .idle
@@ -633,10 +634,10 @@ final class CompanionManager: ObservableObject {
 
     /// Silences everything this manager is saying and abandons the answer in progress: the queued
     /// pieces of a spoken answer, the response task, the answer voice, and a system-voice or
-    /// recorded notice. `includingAgentWork` also ends a running agent turn: a new question
-    /// replaces it, while the island's stop button only silences the voice and leaves the agent
-    /// working. The realtime session is left alone: its next turn cancels its own reply, and only
-    /// the stop button silences it outright.
+    /// recorded notice. `includingAgentWork` ends a running agent turn: a new question,
+    /// the island's Stop control or shutdown replaces/cancels pending agent work.
+    /// Already completed effects cannot be undone. The realtime session is left alone:
+    /// its next turn cancels its own reply, while Stop silences it outright.
     private func interruptCurrentAnswer(includingAgentWork: Bool) {
         CompanionScreenCaptureUtility.cancelPendingWindowSelection()
         if let alert = activeQuickActionAlert {
@@ -941,7 +942,7 @@ final class CompanionManager: ObservableObject {
         overlayWindowManager.hideOverlay()
         transientHideTask?.cancel()
 
-        interruptCurrentAnswer(includingAgentWork: false)
+        interruptCurrentAnswer(includingAgentWork: true)
         currentResponseTask = nil
         shortcutTransitionCancellable?.cancel()
         companionShortcutCancellable?.cancel()
@@ -1616,7 +1617,8 @@ final class CompanionManager: ObservableObject {
     /// Claude's response may include a [POINT:x,y:label] tag which triggers
     /// the buddy to fly to that element on screen.
     private func sendTranscriptToClaudeWithScreenshot(transcript: String, isGuidedStepContinuation: Bool = false) {
-        interruptCurrentAnswer(includingAgentWork: false)
+        // A new question replaces the previous turn; it must not leave old effects running.
+        interruptCurrentAnswer(includingAgentWork: true)
         // Anything the person asks starts afresh; only OpenClicky's own "what's next?" continues a guide.
         if !isGuidedStepContinuation {
             guidedStepsGivenSoFar = 0

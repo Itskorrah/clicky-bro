@@ -105,15 +105,92 @@ export class GeminiAgent {
             }
             if (typeof args.content !== "string" || Buffer.byteLength(args.content) > 65536)
                 throw new Error("Content must be text of at most 64 KiB");
-            const decision = await this.hooks.onApproval?.({ kind: "fileChange", method: "gemini/write_file", summary: `Write ${target}`, params: { path: target, content: args.content } });
-            this.controller.signal.throwIfAborted();
-            if (decision !== "accept" && decision !== "acceptForSession")
-                return { error: "User approval required; file was not written" };
+            // Bind the approval to the file object that was shown to the user.
+            // A hard link can name an outside file while still resolving to a path
+            // beneath the workspace, so path checks alone are not enough.
+            let approvedTargetIdentity: { dev: number; ino: number } | undefined;
+            try {
+                const targetInfo = fs.lstatSync(target);
+                if (!targetInfo.isFile())
+                    throw new Error("Write target must be a regular file");
+                if (targetInfo.nlink !== 1)
+                    throw new Error("Refusing to modify a file with multiple hard links");
+                approvedTargetIdentity = { dev: targetInfo.dev, ino: targetInfo.ino };
+            } catch (error) {
+                if ((error as NodeJS.ErrnoException).code !== "ENOENT")
+                    throw error;
+            }
+            // A stop must release a run waiting on a native approval dialog, even
+            // if that UI never settles its own promise. The losing promise cannot
+            // write: the only side effect remains below the cancellation check.
+            const signal = this.controller.signal;
+            let onAbort = () => {};
+            const stopped = new Promise<never>((_resolve, reject) => {
+                onAbort = () => reject(new Error("Approval cancelled by Stop"));
+                signal.addEventListener("abort", onAbort, { once: true });
+            });
+            let decision: Awaited<ReturnType<NonNullable<CodexAgentHooks["onApproval"]>>> | undefined;
+            try {
+                decision = await Promise.race([
+                    Promise.resolve(this.hooks.onApproval?.({ kind: "fileChange", method: "gemini/write_file", summary: `Write ${target}`, params: { path: target, content: args.content } })),
+                    stopped,
+                ]);
+            } finally {
+                signal.removeEventListener("abort", onAbort);
+            }
+            signal.throwIfAborted();
+            // Never promote session-wide grants to authority to modify a file.
+            if (decision !== "accept")
+                return { error: "Per-action user approval required; file was not written" };
             // Revalidate after waiting for approval so symlink replacement cannot widen access.
             const rechecked = this.workspacePath(args.path, true);
             if (rechecked !== target)
                 throw new Error("Target changed while awaiting approval");
-            fs.writeFileSync(target, args.content, { flag: fs.existsSync(target) ? "w" : "wx" });
+            let currentTargetInfo: fs.Stats | undefined;
+            try {
+                currentTargetInfo = fs.lstatSync(rechecked);
+            } catch (error) {
+                if ((error as NodeJS.ErrnoException).code !== "ENOENT")
+                    throw error;
+            }
+            if (approvedTargetIdentity) {
+                if (!currentTargetInfo?.isFile() || currentTargetInfo.nlink !== 1 ||
+                    currentTargetInfo.dev !== approvedTargetIdentity.dev || currentTargetInfo.ino !== approvedTargetIdentity.ino)
+                    throw new Error("Write target changed while awaiting approval");
+            } else if (currentTargetInfo) {
+                throw new Error("Write target appeared while awaiting approval");
+            }
+
+            // Open the approved inode without following a replacement symlink on
+            // POSIX. On Windows, compare the opened inode and resolved path before
+            // writing; Node does not expose O_NOFOLLOW there. Creating a new file
+            // is always exclusive, so a file that appears during approval is kept.
+            // A different same-user process can still rename an open file after
+            // these checks; Node cannot lock workspace ancestry portably.
+            let descriptor: number | undefined;
+            try {
+                const noFollow = fs.constants.O_NOFOLLOW ?? 0;
+                const flags = fs.constants.O_WRONLY | noFollow;
+                if (approvedTargetIdentity) {
+                    descriptor = fs.openSync(target, flags);
+                    const openedTargetInfo = fs.fstatSync(descriptor);
+                    if (!openedTargetInfo.isFile() || openedTargetInfo.nlink !== 1 ||
+                        openedTargetInfo.dev !== approvedTargetIdentity.dev || openedTargetInfo.ino !== approvedTargetIdentity.ino ||
+                        fs.realpathSync(target) !== target)
+                        throw new Error("Write target changed while awaiting approval");
+                    fs.ftruncateSync(descriptor, 0);
+                } else {
+                    descriptor = fs.openSync(target,
+                        flags | fs.constants.O_CREAT | fs.constants.O_EXCL, 0o600);
+                    const createdTargetInfo = fs.fstatSync(descriptor);
+                    if (!createdTargetInfo.isFile() || createdTargetInfo.nlink !== 1)
+                        throw new Error("Created write target is not a private regular file");
+                }
+                fs.writeFileSync(descriptor, args.content, "utf8");
+            } finally {
+                if (descriptor !== undefined)
+                    fs.closeSync(descriptor);
+            }
             return { written: target, bytes: Buffer.byteLength(args.content) };
         }
         catch (error) {
@@ -182,7 +259,20 @@ export class GeminiAgent {
                 }
                 const responses: Part[] = [];
                 for (const call of calls) {
-                    const outcome = actions >= 2 ? { error: "Action limit reached; no action executed" } : await this.execute(call);
+                    let outcome: Record<string, unknown>;
+                    if (actions >= 2) {
+                        outcome = { error: "Action limit reached; no action executed" };
+                    } else {
+                        try {
+                            outcome = await this.execute(call);
+                        } catch (error) {
+                            if (!this.controller.signal.aborted)
+                                throw error;
+                            // Keep the model's tool turn well formed for a later
+                            // resume, while making every remaining call a no-op.
+                            outcome = { error: "Tool execution cancelled by Stop; no further effect was run" };
+                        }
+                    }
                     actions++;
                     this.hooks.onEvent?.(`tool ${call.name}: ${"error" in outcome ? "failed or denied" : "completed"}`);
                     if (typeof outcome.written === "string")

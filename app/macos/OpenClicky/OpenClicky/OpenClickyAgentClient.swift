@@ -78,6 +78,23 @@ final class OpenClickyAgentClient {
     }
 
     private var runningProcess: Process?
+    private let cliCommandOverride: [String]?
+    private let processEnvironmentOverride: [String: String]?
+    private let workspacePathOverride: String?
+
+    private var cliCommand: [String] { cliCommandOverride ?? OpenClickyConfiguration.cliCommand }
+    private var processEnvironment: [String: String] { processEnvironmentOverride ?? OpenClickyConfiguration.cliProcessEnvironment }
+    private var workspacePath: String { workspacePathOverride ?? OpenClickyConfiguration.workspacePath }
+
+    init(
+        cliCommand: [String]? = nil,
+        processEnvironment: [String: String]? = nil,
+        workspacePath: String? = nil
+    ) {
+        self.cliCommandOverride = cliCommand
+        self.processEnvironmentOverride = processEnvironment
+        self.workspacePathOverride = workspacePath
+    }
 
     /// Ask the gate which lane this request belongs to. Falls back to "agent" only if the CLI itself
     /// cannot run; the CLI already falls back to a local heuristic when the gate model is unavailable.
@@ -99,7 +116,7 @@ final class OpenClickyAgentClient {
         allowWorkspaceWrites: Bool = false,
         onEvent: @escaping @MainActor (String) -> Void
     ) async throws -> OpenClickyAgentRunResult {
-        var arguments = ["run", task, "--events", "--cwd", OpenClickyConfiguration.workspacePath]
+        var arguments = ["run", task, "--events", "--cwd", workspacePath]
         if allowWorkspaceWrites { arguments += ["--allow-workspace-writes"] }
         if let screenshotPath { arguments += ["--image", screenshotPath] }
         if let threadId { arguments += ["--thread", threadId] }
@@ -133,12 +150,12 @@ final class OpenClickyAgentClient {
 
     /// Runs a CLI command that prints a single JSON document and returns its stdout.
     private func captureStandardOutput(arguments: [String]) async throws -> Data {
-        let cliCommand = OpenClickyConfiguration.cliCommand
+        let cliCommand = self.cliCommand
         guard let executableName = cliCommand.first, !executableName.isEmpty else {
             throw OpenClickyAgentError(message: "cliCommand is empty in \(OpenClickyConfiguration.settingsFileURL.path)")
         }
-        let environment = OpenClickyConfiguration.cliProcessEnvironment
-        let workingDirectory = OpenClickyConfiguration.workspacePath
+        let environment = processEnvironment
+        let workingDirectory = workspacePath
         guard OpenClickyAgentError.toolResolves(executableName, path: environment["PATH"]) else {
             throw OpenClickyAgentError(message: OpenClickyAgentError.toolMissingMessage)
         }
@@ -181,20 +198,20 @@ final class OpenClickyAgentClient {
         arguments: [String],
         onEvent: @escaping @MainActor (String) -> Void
     ) async throws -> OpenClickyAgentRunResult {
-        let cliCommand = OpenClickyConfiguration.cliCommand
+        let cliCommand = self.cliCommand
         guard let executableName = cliCommand.first, !executableName.isEmpty else {
             throw OpenClickyAgentError(message: "cliCommand is empty in \(OpenClickyConfiguration.settingsFileURL.path)")
         }
-        guard OpenClickyAgentError.toolResolves(executableName, path: OpenClickyConfiguration.cliProcessEnvironment["PATH"]) else {
+        guard OpenClickyAgentError.toolResolves(executableName, path: processEnvironment["PATH"]) else {
             throw OpenClickyAgentError(message: OpenClickyAgentError.toolMissingMessage)
         }
-        try? FileManager.default.createDirectory(atPath: OpenClickyConfiguration.workspacePath, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(atPath: workspacePath, withIntermediateDirectories: true)
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
         process.arguments = [executableName] + Array(cliCommand.dropFirst()) + arguments
-        process.environment = OpenClickyConfiguration.cliProcessEnvironment
-        process.currentDirectoryURL = URL(fileURLWithPath: OpenClickyConfiguration.workspacePath)
+        process.environment = processEnvironment
+        process.currentDirectoryURL = URL(fileURLWithPath: workspacePath)
 
         let standardOutputPipe = Pipe()
         let standardErrorPipe = Pipe()
@@ -225,7 +242,9 @@ final class OpenClickyAgentClient {
                     if !remainingStdout.isEmpty { collector.consumeStdout(remainingStdout) }
                     if !remainingStderr.isEmpty { collector.consumeStderr(remainingStderr) }
                     collector.flush()
-                    self.runningProcess = nil
+                    // A previous cancelled invocation can terminate after a newer one
+                    // has started. Only its own handler may clear the tracked process.
+                    if self.runningProcess === finishedProcess { self.runningProcess = nil }
                     var result = collector.result
                     if terminationStatus != 0 && result.errorMessage == nil {
                         result.errorMessage = collector.lastStderrLine ?? "openclicky exited with status \(terminationStatus)"

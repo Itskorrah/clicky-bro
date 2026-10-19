@@ -203,6 +203,20 @@ struct ClickyBroWorkspaceTests {
         #expect(store.state.runs.last?.message.contains("Stopped by you") == true)
     }
 
+    @Test func starterWorkflowsAreStrictlyReadOnlyAndExplicitAboutTheirInput() {
+        #expect(WorkspaceStarterTemplate.allCases.count == 3)
+        for template in WorkspaceStarterTemplate.allCases {
+            let helper = template.helper
+            #expect(!helper.allowsWorkspaceWrites)
+            #expect(!helper.usesMemory)
+            #expect(helper.instruction.contains(template.requiredFile))
+            #expect(helper.scope.contains(template.requiredFile))
+            #expect(helper.scope.contains("Do not take desktop actions"))
+            #expect(!helper.name.isEmpty)
+        }
+        #expect(Set(WorkspaceStarterTemplate.allCases.map(\.requiredFile)).count == 3)
+    }
+
     @Test func olderHelpersDecodeWithoutFilePermissionAndMemberwiseInitStaysAvailable() throws {
         let helper = WorkspaceHelper(name: "Legacy", instruction: "Summarize.", scope: "Read only.")
         var encoded = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(helper)) as? [String: Any])
