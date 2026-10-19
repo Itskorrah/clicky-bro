@@ -1,6 +1,6 @@
-# Clicky Bro Classic — native design contract
+# Clicky Bro Navy — native design contract
 
-**State:** native design-token foundation and a proposed customisable Classic theme implementation, 19 October 2026. The native customisation feature is not accepted until compiled and tested on both operating systems. No replacement of the existing settings layout is authorised.
+**State:** Navy/Primer-inspired surface and token refresh implemented on `codex/navy-ui-icon-refresh`, 19 October 2026. The macOS app builds and its native suite passes; the WPF app cross-builds on macOS. Native Windows and full native screenshot/accessibility acceptance remain open. No replacement of the existing settings layout was introduced.
 
 ## Product principle
 
@@ -10,24 +10,25 @@ This work is **inspired by the simplicity of HeyClicky**, not an asset/branding/
 
 ## Tokens
 
-The Azure preset reference is [Azure tokens](../design/tokens.json), with matching declarations in the original code. The new adjustable accent uses native persisted preference keys and separate palette resolvers, detailed in [THEME_CUSTOMISATION.md](THEME_CUSTOMISATION.md):
+The Navy/Primer-inspired reference is [design tokens](../design/tokens.json), with matching declarations in the native code. The adjustable accent uses native persisted preference keys and separate palette resolvers, detailed in [THEME_CUSTOMISATION.md](THEME_CUSTOMISATION.md):
 
 - macOS: [DesignSystem.swift](../app/macos/OpenClicky/OpenClicky/DesignSystem.swift), DS.Colors (adaptive to the active NSAppearance)
-- Windows C#: [Theme/DS.cs](../app/windows/src/OpenClicky.Windows/Theme/DS.cs), AzureLight and AzureDark
-- Windows XAML: [OpenClickyTheme.xaml](../app/windows/src/OpenClicky.Windows/Theme/OpenClickyTheme.xaml), ClickyBro.Azure.Light/Dark named resources
+- Windows C#: [Theme/DS.cs](../app/windows/src/OpenClicky.Windows/Theme/DS.cs), PrimerLight and PrimerDark
+- Windows XAML: [OpenClickyTheme.xaml](../app/windows/src/OpenClicky.Windows/Theme/OpenClickyTheme.xaml), ClickyBro.Primer.Light/Dark named resources
 
-The token-parity and contrast checks are in [test_azure_palette.py](../tests/test_azure_palette.py). These tests are **static design-contract checks**, not native app screenshot or compiled-WPF evidence.
+The token-parity and contrast checks are in [test_primer_palette.py](../tests/test_primer_palette.py). These are **static design-contract checks**, not native Windows or screenshot/accessibility acceptance.
 
 | Role | Light | Dark | Guidance |
 | --- | --- | --- | --- |
-| Canvas | #F7FAFF | #0B1220 | Window/app canvas; macOS may retain vibrancy |
-| Surface | #FFFFFF | #172338 | Panels, cards, app composer |
-| Raised | #EFF6FF | #1D2B44 | Selection and elevated surfaces |
-| Primary text | #0F172A | #F8FAFC | Essential labels, headings |
-| Secondary text | #64748B | #A8B6CA | Explanatory copy, captions |
-| Border | #DEE7F3 | #334155 | Dividers, controls, subtle separation |
-| Accent | #2563EB | #60A5FA | Primary action, keyboard focus, selected navigation |
-| Pointer | #3B82F6 | #3B82F6 | Distinct overlay target indicator |
+| Canvas | #F6F8FA | #0D1117 | Window/app canvas; macOS may retain vibrancy |
+| Surface | #FFFFFF | #161B22 | Panels, cards, app composer |
+| Raised | #F6F8FA | #21262D | Selection and elevated surfaces |
+| Primary text | #1F2328 | #E6EDF3 | Essential labels, headings |
+| Secondary text | #59636E | #A1AAB4 | Explanatory copy, captions |
+| Tertiary text | #66707A | #8B949E | Lower-priority labels and metadata |
+| Border | #D0D7DE | #30363D | Dividers, controls, subtle separation |
+| Navy accent | #2B547B | #80A9D4 | New/unset preference, keyboard focus and selected navigation |
+| Pointer default | #2B547B | #80A9D4 | Default overlay target tint; valid saved custom tint stays selected |
 
 Do not use accent blue as the only indicator of permission/approval, success or failure. Danger and warning states retain distinct semantic colours and text labels.
 

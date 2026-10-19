@@ -170,9 +170,28 @@ internal static class Ui
         presenter.SetValue(FrameworkElement.HorizontalAlignmentProperty, new TemplateBindingExtension(Control.HorizontalContentAlignmentProperty));
         presenter.SetValue(FrameworkElement.VerticalAlignmentProperty, new TemplateBindingExtension(Control.VerticalContentAlignmentProperty));
         var border = new FrameworkElementFactory(typeof(Border));
+        border.Name = "ButtonBorder";
         border.SetValue(Border.BackgroundProperty, Brushes.Transparent);
+        border.SetValue(Border.BorderBrushProperty, Brushes.Transparent);
+        border.SetValue(Border.BorderThicknessProperty, new Thickness(0));
+        border.SetValue(Border.CornerRadiusProperty, new CornerRadius(4));
         border.AppendChild(presenter);
-        transparentButtonTemplate = new ControlTemplate(typeof(ButtonBase)) { VisualTree = border };
+        var template = new ControlTemplate(typeof(ButtonBase)) { VisualTree = border };
+
+        var hover = new Trigger { Property = UIElement.IsMouseOverProperty, Value = true };
+        hover.Setters.Add(new Setter(Border.BackgroundProperty, new DynamicResourceExtension(SettingsLook.SubtleFill), "ButtonBorder"));
+        template.Triggers.Add(hover);
+
+        var pressed = new Trigger { Property = ButtonBase.IsPressedProperty, Value = true };
+        pressed.Setters.Add(new Setter(Border.BackgroundProperty, new DynamicResourceExtension(SettingsLook.Selection), "ButtonBorder"));
+        template.Triggers.Add(pressed);
+
+        var focused = new Trigger { Property = UIElement.IsKeyboardFocusedProperty, Value = true };
+        focused.Setters.Add(new Setter(Border.BorderBrushProperty, new DynamicResourceExtension(SettingsLook.FocusRing), "ButtonBorder"));
+        focused.Setters.Add(new Setter(Border.BorderThicknessProperty, new Thickness(2), "ButtonBorder"));
+        template.Triggers.Add(focused);
+
+        transparentButtonTemplate = template;
         transparentButtonTemplate.Seal();
         return transparentButtonTemplate;
     }
@@ -248,7 +267,12 @@ internal static class Ui
             outer.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, SettingsLook.TextSecondary);
         }
         grid.Children.Add(outer);
-        if (isSelected) grid.Children.Add(new System.Windows.Shapes.Ellipse { Width = 7, Height = 7, Fill = Brushes.White });
+        if (isSelected)
+        {
+            var selectedInk = new System.Windows.Shapes.Ellipse { Width = 7, Height = 7 };
+            selectedInk.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, SettingsLook.AccentText);
+            grid.Children.Add(selectedInk);
+        }
         return grid;
     }
 

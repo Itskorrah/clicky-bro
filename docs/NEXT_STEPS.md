@@ -5,6 +5,11 @@ working macOS and Windows source tree, but the safety, theme and companion PRs
 remain drafts until their platform acceptance gates pass. No desktop release or
 full HeyClicky parity is claimed.
 
+The later [Navy UI and icon refresh](IMPLEMENTATION_2026-10-19.md) is on
+`codex/navy-ui-icon-refresh`, based on the integrated PR #9 source. Its macOS
+build/tests and Windows cross-build pass; native Windows, custom-colour
+persistence and full visual acceptance remain next.
+
 ## Current position
 
 - The tested code baseline was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4`,

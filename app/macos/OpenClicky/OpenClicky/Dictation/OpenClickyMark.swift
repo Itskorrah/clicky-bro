@@ -2,53 +2,75 @@
 //  OpenClickyMark.swift
 //  OpenClicky
 //
-//  The mark: a ring whose top-right corner is drawn square, like a pin turned on its side, with
-//  the pointer inside it aiming up and to the left. One path, filled even-odd so the ring stays
-//  open. Drawn by the menu bar and the window, and the same proportions are in the app icon
-//  (scripts/make-app-icon.py) so they agree.
+//  The small, full-colour Clicky Bro companion mark used by the macOS status item. Its normalized
+//  shapes match make-app-icon.py and OpenClickyMarkDrawing in the Windows client.
 //
 
 import AppKit
-import SwiftUI
 
 enum OpenClickyMark {
-    // Proportions in a unit square, y down, measured off the icon artwork.
-    static let innerRadius: CGFloat = 0.4125
-    static let arrowTip = CGPoint(x: 0.3125, y: 0.3125)
-    static let arrowRight = CGPoint(x: 0.7475, y: 0.475)
-    static let arrowNotch = CGPoint(x: 0.505, y: 0.52)
-    static let arrowBottom = CGPoint(x: 0.4775, y: 0.7525)
+    private static let ink = NSColor(srgbRed: 19.0 / 255.0, green: 35.0 / 255.0, blue: 59.0 / 255.0, alpha: 1)
+    private static let cobalt = NSColor(srgbRed: 47.0 / 255.0, green: 129.0 / 255.0, blue: 247.0 / 255.0, alpha: 1)
+    private static let paleCyan = NSColor(srgbRed: 165.0 / 255.0, green: 214.0 / 255.0, blue: 255.0 / 255.0, alpha: 1)
+    private static let paper = NSColor(srgbRed: 240.0 / 255.0, green: 246.0 / 255.0, blue: 252.0 / 255.0, alpha: 1)
 
-    /// The mark in `rect` for a flipped (y down) context. Fill with the even-odd rule.
-    static func bezierPath(in rect: CGRect) -> NSBezierPath {
-        let path = NSBezierPath()
-        path.windingRule = .evenOdd
-        path.append(NSBezierPath(cgPath: OpenClickyMarkShape().path(in: rect).cgPath))
-        return path
-    }
-}
-
-struct OpenClickyMarkShape: Shape {
-    func path(in rect: CGRect) -> Path {
+    /// Draw the navy app tile, companion face and attached four-point spark into a flipped (y-down) rect.
+    @discardableResult
+    static func draw(in rect: CGRect) -> Bool {
         let side = min(rect.width, rect.height)
-        let x0 = rect.midX - side / 2, y0 = rect.midY - side / 2
-        func p(_ point: CGPoint) -> CGPoint { CGPoint(x: x0 + point.x * side, y: y0 + point.y * side) }
-        let center = CGPoint(x: x0 + side / 2, y: y0 + side / 2)
-        var path = Path()
-        // The outer edge: three quarters of a circle, then the square top-right corner.
-        path.move(to: CGPoint(x: center.x + side / 2, y: center.y))
-        path.addArc(center: center, radius: side / 2, startAngle: .degrees(0), endAngle: .degrees(270), clockwise: false)
-        path.addLine(to: CGPoint(x: x0 + side, y: y0))
-        path.closeSubpath()
-        // The hole.
-        let inner = OpenClickyMark.innerRadius * side
-        path.addEllipse(in: CGRect(x: center.x - inner, y: center.y - inner, width: inner * 2, height: inner * 2))
-        // The pointer.
-        path.move(to: p(OpenClickyMark.arrowTip))
-        path.addLine(to: p(OpenClickyMark.arrowRight))
-        path.addLine(to: p(OpenClickyMark.arrowNotch))
-        path.addLine(to: p(OpenClickyMark.arrowBottom))
-        path.closeSubpath()
+        let tile = CGRect(x: rect.midX - side / 2, y: rect.midY - side / 2, width: side, height: side)
+        func box(_ x0: CGFloat, _ y0: CGFloat, _ x1: CGFloat, _ y1: CGFloat) -> CGRect {
+            CGRect(
+                x: tile.minX + x0 * side,
+                y: tile.minY + y0 * side,
+                width: (x1 - x0) * side,
+                height: (y1 - y0) * side
+            )
+        }
+        func rounded(_ x0: CGFloat, _ y0: CGFloat, _ x1: CGFloat, _ y1: CGFloat, _ radius: CGFloat) -> NSBezierPath {
+            NSBezierPath(roundedRect: box(x0, y0, x1, y1), xRadius: radius * side, yRadius: radius * side)
+        }
+
+        ink.setFill()
+        rounded(0, 0, 1, 1, 0.22).fill()
+
+        cobalt.setFill()
+        rounded(0.31, 0.66, 0.445, 0.79, 0.055).fill()
+        rounded(0.555, 0.66, 0.69, 0.79, 0.055).fill()
+        rounded(0.21, 0.27, 0.79, 0.73, 0.15).fill()
+
+        paper.setFill()
+        rounded(0.285, 0.36, 0.715, 0.63, 0.105).fill()
+
+        ink.setFill()
+        NSBezierPath(ovalIn: box(0.385, 0.455, 0.455, 0.545)).fill()
+        NSBezierPath(ovalIn: box(0.545, 0.455, 0.615, 0.545)).fill()
+
+        paleCyan.setFill()
+        sparkPath(in: tile).fill()
+        return true
+    }
+
+    private static func sparkPath(in rect: CGRect) -> NSBezierPath {
+        let side = min(rect.width, rect.height)
+        let cx = rect.midX + (0.755 - 0.5) * side
+        let cy = rect.minY + 0.30 * side
+        let radius = 0.13 * side
+        let shoulder = 0.033 * side
+        let points = [
+            CGPoint(x: cx, y: cy - radius),
+            CGPoint(x: cx + shoulder, y: cy - shoulder),
+            CGPoint(x: cx + radius, y: cy),
+            CGPoint(x: cx + shoulder, y: cy + shoulder),
+            CGPoint(x: cx, y: cy + radius),
+            CGPoint(x: cx - shoulder, y: cy + shoulder),
+            CGPoint(x: cx - radius, y: cy),
+            CGPoint(x: cx - shoulder, y: cy - shoulder),
+        ]
+        let path = NSBezierPath()
+        path.move(to: points[0])
+        for point in points.dropFirst() { path.line(to: point) }
+        path.close()
         return path
     }
 }

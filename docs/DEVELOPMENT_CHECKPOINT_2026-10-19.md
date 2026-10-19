@@ -48,6 +48,17 @@ acceptance is incomplete.
 - The test-only `import CoreGraphics` fix was compiled and tested as part of the
   714-test source tree, then committed unchanged as `946ca50`.
 
+## Navy UI and icon refresh follow-up
+
+After the checkpoint above, `codex/navy-ui-icon-refresh` was implemented from
+PR #9 head `497bba1`. The addendum in [IMPLEMENTATION_2026-10-19.md](IMPLEMENTATION_2026-10-19.md)
+records the new Primer-inspired Navy palette, preserved saved themes, regenerated
+cross-platform icon, and current evidence: macOS build passed, 717 native tests
+passed, WPF cross-build passed, Python suite passed 39 tests, and the Windows
+core suite on macOS reported 1,079 passes plus the same five host-specific
+failures. It remains a branch candidate; no native Windows or screenshot
+acceptance is claimed, and it is not merged into `main`.
+
 ## Development workflow
 
 KStack's `native-desktop` route marked the task substantial and required native

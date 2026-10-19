@@ -36,18 +36,13 @@ public static class DictationSections
         _ => "How it writes",
     };
 
-    /// <summary>The sidebar icon: a Segoe Fluent Icons glyph, white on <see cref="TintHex"/>.</summary>
+    /// <summary>The sidebar icon: a Segoe Fluent Icons glyph.</summary>
     public static string Glyph(this DictationSection section) => section switch
     {
         DictationSection.Words => "",
         _ => "",
     };
 
-    public static string TintHex(this DictationSection section) => section switch
-    {
-        DictationSection.Words => "#D24E2A",
-        _ => "#AF52DE",
-    };
 }
 
 /// <summary>
@@ -114,7 +109,7 @@ public static class DictationSettingsPages
         _ => "About",
     };
 
-    /// <summary>The sidebar icon: a Segoe Fluent Icons glyph (empty: the window draws the orb's capsule), white on <see cref="TintHex"/>.</summary>
+    /// <summary>The sidebar icon: a Segoe Fluent Icons glyph (empty: the window draws the orb's capsule).</summary>
     public static string Glyph(this DictationSettingsPage page) => page switch
     {
         DictationSettingsPage.General => "",
@@ -127,21 +122,6 @@ public static class DictationSettingsPages
         DictationSettingsPage.Account => "",
         DictationSettingsPage.Privacy => "",
         _ => "",
-    };
-
-    /// <summary>The Mac's sidebar tints, as hex.</summary>
-    public static string TintHex(this DictationSettingsPage page) => page switch
-    {
-        DictationSettingsPage.General => "#8E8E93",
-        DictationSettingsPage.Dictation => "#FF3B30",
-        DictationSettingsPage.Clicky => "#FF9500",
-        DictationSettingsPage.Voice => "#FE2D55",
-        DictationSettingsPage.Orb => "#1C1C1E",
-        DictationSettingsPage.Keyboard => "#636366",
-        DictationSettingsPage.Keys => "#8B6B00",
-        DictationSettingsPage.Account => "#34C759",
-        DictationSettingsPage.Privacy => "#007AFF",
-        _ => "#AEAEB2",
     };
 
     public static DictationSettingsPage? FromRawValue(string? raw) =>

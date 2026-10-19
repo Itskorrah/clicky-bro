@@ -45,7 +45,6 @@ final class MenuBarPanelManager: NSObject {
         guard let button = statusItem?.button else { return }
 
         button.image = makeClickyMenuBarIcon()
-        button.image?.isTemplate = true
         button.action = #selector(statusItemClicked)
         button.target = self
         // Either click opens the menu.
@@ -106,16 +105,13 @@ final class MenuBarPanelManager: NSObject {
     @objc private func replayWelcome() { companionManager.firstRunTour.replay() }
     @objc private func quit() { companionManager.quitWithFarewell() }
 
-    /// The mark, as a template image: the ring and its pointer, matching the app icon.
+    /// The full-colour assistant mark, matching the generated app icon.
     private func makeClickyMenuBarIcon() -> NSImage {
         let iconSize: CGFloat = 18
         let image = NSImage(size: NSSize(width: iconSize, height: iconSize), flipped: true) { rect in
-            let path = OpenClickyMark.bezierPath(in: rect.insetBy(dx: 1.5, dy: 1.5))
-            NSColor.black.setFill()
-            path.fill()
-            return true
+            OpenClickyMark.draw(in: rect.insetBy(dx: 1.5, dy: 1.5))
         }
-        image.isTemplate = true
+        image.isTemplate = false
         return image
     }
 

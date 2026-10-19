@@ -64,6 +64,7 @@ public sealed class DictationWindow : WpfUi.FluentWindow, IMainWindowActions
         theme = MainWindowTheme.Install(this, services.Settings);
         // The page sits in NavigationView's Frame, which does not inherit the window's resources.
         theme.AddScope(contentHost);
+        theme.Changed += RefreshSidebarIcons;
         RestoreFrame();
 
         var titleBar = new WpfUi.TitleBar
@@ -122,6 +123,7 @@ public sealed class DictationWindow : WpfUi.FluentWindow, IMainWindowActions
         services.History.HistoryChanged += () => Dispatcher.BeginInvoke(UpdateTakeCount);
         Closed += (_, _) =>
         {
+            theme.Changed -= RefreshSidebarIcons;
             OpenClickyConfiguration.SettingsChanged -= OnShellChanged;
             ShellSettingsRevision.Changed -= OnShellChanged;
         };
@@ -242,11 +244,11 @@ public sealed class DictationWindow : WpfUi.FluentWindow, IMainWindowActions
 
     private WpfUi.NavigationViewItem SidebarItem(DictationDestination destination)
     {
-        var (glyph, tint) = destination.Page is { } page ? (page.Glyph(), page.TintHex()) : (destination.Section!.Value.Glyph(), destination.Section!.Value.TintHex());
+        var glyph = SidebarGlyph(destination);
         var item = new WpfUi.NavigationViewItem
         {
             Content = destination.Title,
-            Icon = new WpfUi.ImageIcon { Source = SidebarIcon(glyph, tint), Width = 20, Height = 20 },
+            Icon = new WpfUi.ImageIcon { Source = SidebarIcon(glyph, AccentHex()), Width = 20, Height = 20 },
             Cursor = Cursors.Hand,
         };
         Ui.AutomationProperties(item, destination.Title);
@@ -255,14 +257,34 @@ public sealed class DictationWindow : WpfUi.FluentWindow, IMainWindowActions
         return item;
     }
 
-    /// <summary>A sidebar icon like System Settings': a white glyph in a coloured rounded square (the orb's own capsule for The Orb).</summary>
+    private static string SidebarGlyph(DictationDestination destination) => destination.Page is { } page
+        ? page.Glyph()
+        : destination.Section!.Value.Glyph();
+
+    private string AccentHex()
+    {
+        return ClickyAccentPalette.Resolve(services.Settings.AccentPreset, services.Settings.CustomAccentHex, theme.IsDark);
+    }
+
+    private void RefreshSidebarIcons()
+    {
+        var accent = AccentHex();
+        foreach (var (destination, item) in sidebarItems)
+            item.Icon = new WpfUi.ImageIcon { Source = SidebarIcon(SidebarGlyph(destination), accent), Width = 20, Height = 20 };
+    }
+
+    /// <summary>A sidebar icon like System Settings': a contrasting glyph in an accent-coloured rounded square (the orb's own capsule for The Orb).</summary>
     public static ImageSource SidebarIcon(string glyph, string tintHex)
     {
         var tint = (Color)ColorConverter.ConvertFromString(tintHex);
-        var lighter = Color.FromRgb((byte)Math.Min(255, tint.R + 28), (byte)Math.Min(255, tint.G + 28), (byte)Math.Min(255, tint.B + 28));
+        var foregroundHex = ClickyAccentPalette.TextOnAccent(tintHex);
+        var foreground = (Color)ColorConverter.ConvertFromString(foregroundHex);
+        var foregroundBrush = new SolidColorBrush(foreground);
+        foregroundBrush.Freeze();
+        var backgroundBrush = new SolidColorBrush(tint);
+        backgroundBrush.Freeze();
         var group = new DrawingGroup();
-        var gradient = new LinearGradientBrush(lighter, tint, 90);
-        group.Children.Add(new GeometryDrawing(gradient, null, new RectangleGeometry(new Rect(0, 0, 20, 20), 5, 5)));
+        group.Children.Add(new GeometryDrawing(backgroundBrush, null, new RectangleGeometry(new Rect(0, 0, 20, 20), 5, 5)));
         Geometry symbol;
         if (glyph.Length == 0)
         {
@@ -272,13 +294,13 @@ public sealed class DictationWindow : WpfUi.FluentWindow, IMainWindowActions
         {
             var text = new FormattedText(glyph, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                 new Typeface(new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
-                11.5, Brushes.White, 2.0);
+                11.5, foregroundBrush, 2.0);
             var geometry = text.BuildGeometry(new Point(0, 0));
             var bounds = geometry.Bounds;
             geometry.Transform = new TranslateTransform(10 - bounds.X - bounds.Width / 2, 10 - bounds.Y - bounds.Height / 2);
             symbol = geometry;
         }
-        group.Children.Add(new GeometryDrawing(Brushes.White, null, symbol));
+        group.Children.Add(new GeometryDrawing(foregroundBrush, null, symbol));
         var image = new DrawingImage(group);
         image.Freeze();
         return image;

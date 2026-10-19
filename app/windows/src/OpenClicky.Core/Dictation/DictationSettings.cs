@@ -390,11 +390,11 @@ public sealed class DictationSettings : ObservableObject
         haptics = defaults.GetBool(Keys.Haptics, defaultValue: true);
         reduceAnimation = defaults.GetBool(Keys.ReduceAnimation);
         appearance = defaults.GetEnum(Keys.Appearance, DictationAppearance.System);
-        var storedPreset = defaults.GetString(Keys.AccentPreset) ?? "coral";
-        accentPreset = ClickyAccentPalette.Presets.Any(item => item.Id == storedPreset) ? storedPreset : "coral";
-        customAccentHex = ClickyAccentPalette.NormalizeHex(defaults.GetString(Keys.CustomAccentHex)) ?? "#D24E2A";
+        var storedPreset = defaults.GetString(Keys.AccentPreset) ?? ClickyAccentPalette.DefaultPresetId;
+        accentPreset = ClickyAccentPalette.Presets.Any(item => item.Id == storedPreset) ? storedPreset : ClickyAccentPalette.DefaultPresetId;
+        customAccentHex = ClickyAccentPalette.NormalizeHex(defaults.GetString(Keys.CustomAccentHex)) ?? ClickyAccentPalette.DefaultAccentHex;
         companionFollowsAccent = defaults.GetBool(Keys.CompanionFollowsAccent, defaultValue: true);
-        customCompanionHex = ClickyAccentPalette.NormalizeHex(defaults.GetString(Keys.CustomCompanionHex)) ?? "#E8653F";
+        customCompanionHex = ClickyAccentPalette.NormalizeHex(defaults.GetString(Keys.CustomCompanionHex)) ?? ClickyAccentPalette.DefaultAccentHex;
         inactivityTimeoutMinutes = defaults.Contains(Keys.InactivityTimeoutMinutes) ? defaults.GetInt(Keys.InactivityTimeoutMinutes) : 3;
         clipboardHistoryEnabled = defaults.GetBool(Keys.ClipboardHistoryEnabled);
         incognito = defaults.GetBool(Keys.Incognito);
@@ -641,13 +641,13 @@ public sealed class DictationSettings : ObservableObject
     }
 
 
-    // Classic Coral is the default. Existing light/dark/auto and orb preferences stay untouched.
+    // Navy Slate is the default. Existing light/dark/auto and orb preferences stay untouched.
     private string accentPreset;
     public string AccentPreset
     {
         get => accentPreset;
         set => Store(ref accentPreset,
-            ClickyAccentPalette.Presets.Any(item => item.Id == value) ? value : "coral",
+            ClickyAccentPalette.Presets.Any(item => item.Id == value) ? value : ClickyAccentPalette.DefaultPresetId,
             () => defaults.Set(Keys.AccentPreset, accentPreset), nameof(AccentPreset));
     }
 
@@ -680,6 +680,13 @@ public sealed class DictationSettings : ObservableObject
             if (valid is null) return;
             Store(ref customCompanionHex, valid, () => defaults.Set(Keys.CustomCompanionHex, valid), nameof(CustomCompanionHex));
         }
+    }
+
+    /// <summary>Reset only the active palette and companion-follow choice; preserve custom values and appearance.</summary>
+    public void ResetColours()
+    {
+        AccentPreset = ClickyAccentPalette.DefaultPresetId;
+        CompanionFollowsAccent = true;
     }
 
     private int inactivityTimeoutMinutes;

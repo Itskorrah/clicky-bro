@@ -21,9 +21,24 @@ enum DS {
     enum Colors {
 
         /// The agent result card's status dot once the agent has answered.
-        /// Adaptive user-selected accent; defaults to the original Classic Coral.
+        /// Adaptive user-selected accent; new installs and missing choices default to Navy Slate.
         /// A computed value matters: settings views redraw on @Published changes.
         static var accent: Color { userColour(companion: false) }
+
+        /// Ink chosen to maintain readable contrast over the selected accent fill.
+        static var accentText: Color {
+            Color(nsColor: NSColor(name: nil) { appearance in
+                let accent = preferredHex(companion: false, appearance: appearance)
+                return NSColor(hex: ClickyThemePalette.textOnAccent(accent))
+            })
+        }
+
+        static let lightCanvas = Color(hex: "#F6F8FA")
+        static let darkCanvas = Color(hex: "#0D1117")
+        static let lightSurface = Color(hex: "#FFFFFF")
+        static let darkSurface = Color(hex: "#161B22")
+        static let lightBorder = Color(hex: "#D0D7DE")
+        static let darkBorder = Color(hex: "#30363D")
 
         private static func preferredHex(companion: Bool, appearance: NSAppearance) -> String {
             let preferences = UserDefaults.standard
@@ -31,11 +46,11 @@ enum DS {
                 rawValue: preferences.string(forKey: "dictation.appearance") ?? "") ?? .system
             let systemIsDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
             let dark = ClickyThemePalette.isDarkAppearance(selectedAppearance, systemIsDark: systemIsDark)
-            let preset = preferences.string(forKey: "appearance.accentPreset") ?? "coral"
-            let customAccent = preferences.string(forKey: "appearance.customAccentHex") ?? "#D24E2A"
+            let preset = preferences.string(forKey: "appearance.accentPreset") ?? ClickyThemePalette.defaultPresetID
+            let customAccent = preferences.string(forKey: "appearance.customAccentHex") ?? ClickyThemePalette.defaultAccentHex
             let follow = preferences.object(forKey: "appearance.companionFollowsAccent") == nil
                 ? true : preferences.bool(forKey: "appearance.companionFollowsAccent")
-            let customCompanion = preferences.string(forKey: "appearance.customCompanionHex") ?? "#E8653F"
+            let customCompanion = preferences.string(forKey: "appearance.customCompanionHex") ?? ClickyThemePalette.defaultAccentHex
             return companion
                 ? ClickyThemePalette.resolveCompanion(
                     preset: preset, customAccentHex: customAccent,
@@ -48,12 +63,13 @@ enum DS {
                 NSColor(hex: preferredHex(companion: companion, appearance: appearance))
             })
         }
-        static let canvas = adaptive(light: 0xF7FAFF, dark: 0x0B1220)
-        static let surface = adaptive(light: 0xFFFFFF, dark: 0x172338)
-        static let surfaceRaised = adaptive(light: 0xEFF6FF, dark: 0x1D2B44)
-        static let primaryText = adaptive(light: 0x0F172A, dark: 0xF8FAFC)
-        static let secondaryText = adaptive(light: 0x64748B, dark: 0xA8B6CA)
-        static let border = adaptive(light: 0xDEE7F3, dark: 0x334155)
+        static let canvas = adaptive(light: 0xF6F8FA, dark: 0x0D1117)
+        static let surface = adaptive(light: 0xFFFFFF, dark: 0x161B22)
+        static let surfaceRaised = adaptive(light: 0xF6F8FA, dark: 0x21262D)
+        static let primaryText = adaptive(light: 0x1F2328, dark: 0xE6EDF3)
+        static let secondaryText = adaptive(light: 0x59636E, dark: 0xA1AAB4)
+        static let tertiaryText = adaptive(light: 0x66707A, dark: 0x8B949E)
+        static let border = adaptive(light: 0xD0D7DE, dark: 0x30363D)
 
         /// Semantic colours follow this window's effective NSAppearance, including system dark mode.
         private static func adaptive(light: UInt32, dark: UInt32) -> Color {
@@ -89,18 +105,18 @@ enum DS {
     /// The refinement sheet's "HUD · always dark" palette and control sizes. The island does not
     /// follow the system appearance: it is part of the notch.
     enum HUD {
-        static let island = Color(hex: "#0B1220")
+        static let island = Color(hex: "#0D1117")
         /// Pills and the gear in the band, a step lighter than the island.
-        static let bandControl = Color(hex: "#172338")
-        static let surfaceRaised = Color(hex: "#22324A")
+        static let bandControl = Color(hex: "#161B22")
+        static let surfaceRaised = Color(hex: "#21262D")
         /// The (i) button and other secondary squares on a surface.
-        static let surfaceRaisedSoft = Color(hex: "#293C56")
+        static let surfaceRaisedSoft = Color(hex: "#30363D")
         static let text = Color(hex: "#FFFFFF")
-        static let text2 = Color(hex: "#B8C8E0")
-        static let text3 = Color(hex: "#9BAFCB")
-        static let pointer = Color(hex: "#60A5FA")
+        static let text2 = Color(hex: "#C9D1D9")
+        static let text3 = Color(hex: "#A1AAB4")
+        static let pointer = Color(hex: "#80A9D4")
         /// The "!" disc behind a permission card's mark.
-        static let pointerTint = Color(hex: "#193454")
+        static let pointerTint = Color(hex: "#1C2C3D")
         static let live = Color(hex: "#34C77B")
 
         static let pillHeight: CGFloat = 24
@@ -117,7 +133,7 @@ enum DS {
 /// Convert a validated six-digit RGB hex into a native dynamic appearance colour.
 private extension NSColor {
     convenience init(hex: String) {
-        let raw = Int(hex.dropFirst(), radix: 16) ?? 0xD24E2A
+        let raw = Int(hex.dropFirst(), radix: 16) ?? 0x2B547B
         self.init(srgbRed: CGFloat((raw >> 16) & 255) / 255,
                   green: CGFloat((raw >> 8) & 255) / 255,
                   blue: CGFloat(raw & 255) / 255, alpha: 1)

@@ -1,7 +1,7 @@
 // Ports SettingsLook (Dictation/UI/SettingsPages.swift) and NSWindow.followAppearanceSetting
 // (DictationWindow.swift): the window's colours and type, and the Fluent theme each of its windows
 // installs. The Mac used the system's own tokens; here they are WPF-UI's Windows 11 tokens, with
-// the proposal's orange accent (#D24E2A light, #E8653F dark) in place of the system accent.
+// Primer-inspired surfaces and the user-selected accent in place of the system accent.
 //
 // The theme dictionaries are loaded into each window's own Resources, so these windows look right
 // without App.xaml. Integration: merge <ui:ThemesDictionary/> and <ui:ControlsDictionary/> into
@@ -16,13 +16,14 @@ using OpenClicky.Core.Settings;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Markup;
+using OpenClicky.Windows.Theme;
 
 namespace OpenClicky.Windows.AppWindow;
 
 public static class SettingsLook
 {
-    public static readonly Color AccentLight = Color.FromRgb(0xD2, 0x4E, 0x2A);
-    public static readonly Color AccentDark = Color.FromRgb(0xE8, 0x65, 0x3F);
+    public static readonly Color AccentLight = Color.FromRgb(0x2B, 0x54, 0x7B);
+    public static readonly Color AccentDark = Color.FromRgb(0x80, 0xA9, 0xD4);
     public static readonly Color Highlighter = Color.FromArgb(0x5A, 0xFF, 0xD6, 0x0A);
 
     public const double RowTitleSize = 14;
@@ -36,6 +37,7 @@ public static class SettingsLook
     public const string TextSecondary = "TextFillColorSecondaryBrush";
     public const string TextTertiary = "TextFillColorTertiaryBrush";
     public const string CardBackground = "CardBackgroundFillColorDefaultBrush";
+    public const string CardBackgroundSecondary = "CardBackgroundFillColorSecondaryBrush";
     public const string CardStroke = "CardStrokeColorDefaultBrush";
     public const string Divider = "DividerStrokeColorDefaultBrush";
     public const string ControlFill = "ControlFillColorDefaultBrush";
@@ -44,10 +46,14 @@ public static class SettingsLook
     public const string Danger = "SystemFillColorCriticalBrush";
     public const string Success = "SystemFillColorSuccessBrush";
     public const string Caution = "SystemFillColorCautionBrush";
-    /// <summary>Our own key: the orange accent for the current theme.</summary>
+    /// <summary>Our own key: the user's current app accent.</summary>
     public const string Accent = "OpenClickyAccentBrush";
+    /// <summary>Our own key: readable ink for the selected accent.</summary>
+    public const string AccentText = "OpenClickyAccentTextBrush";
     /// <summary>Our own key: the accent at 12 % (a selected take).</summary>
     public const string Selection = "OpenClickySelectionBrush";
+    /// <summary>Our own key: visible keyboard focus ring from the selected accent.</summary>
+    public const string FocusRing = "OpenClickyFocusRingBrush";
 }
 
 /// <summary>Installs and follows the Fluent theme for one window (light, dark, or Windows' own).</summary>
@@ -164,8 +170,16 @@ public sealed class MainWindowTheme : IDisposable
     {
         var hex = ClickyAccentPalette.Resolve(settings.AccentPreset, settings.CustomAccentHex, isDark);
         var accent = (Color)ColorConverter.ConvertFromString(hex);
+        var accentText = (Color)ColorConverter.ConvertFromString(ClickyAccentPalette.TextOnAccent(hex));
         var lighter = Blend(accent, Colors.White, 0.25);
         var darker = Blend(accent, Colors.Black, 0.2);
+        var canvas = isDark ? DS.Colors.PrimerDark.Canvas : DS.Colors.PrimerLight.Canvas;
+        var surface = isDark ? DS.Colors.PrimerDark.Surface : DS.Colors.PrimerLight.Surface;
+        var surfaceRaised = isDark ? DS.Colors.PrimerDark.SurfaceRaised : DS.Colors.PrimerLight.SurfaceRaised;
+        var primaryText = isDark ? DS.Colors.PrimerDark.PrimaryText : DS.Colors.PrimerLight.PrimaryText;
+        var secondaryText = isDark ? DS.Colors.PrimerDark.SecondaryText : DS.Colors.PrimerLight.SecondaryText;
+        var tertiaryText = isDark ? DS.Colors.PrimerDark.TertiaryText : DS.Colors.PrimerLight.TertiaryText;
+        var border = isDark ? DS.Colors.PrimerDark.Border : DS.Colors.PrimerLight.Border;
         resources["SystemAccentColor"] = accent;
         resources["SystemAccentColorPrimary"] = isDark ? lighter : accent;
         resources["SystemAccentColorSecondary"] = accent;
@@ -181,12 +195,28 @@ public sealed class MainWindowTheme : IDisposable
         }
         resources["AccentFillColorSecondaryBrush"] = Frozen(Color.FromArgb(0xE6, accent.R, accent.G, accent.B));
         resources["AccentFillColorTertiaryBrush"] = Frozen(Color.FromArgb(0xCC, accent.R, accent.G, accent.B));
-        resources["AccentTextFillColorPrimaryBrush"] = Frozen(isDark ? lighter : darker);
-        resources["AccentTextFillColorSecondaryBrush"] = Frozen(isDark ? lighter : darker);
-        resources["AccentTextFillColorTertiaryBrush"] = accentBrush;
+        resources["AccentTextFillColorPrimaryBrush"] = Frozen(accentText);
+        resources["AccentTextFillColorSecondaryBrush"] = Frozen(accentText);
+        resources["AccentTextFillColorTertiaryBrush"] = Frozen(accentText);
         resources["AccentFillColorSelectedTextBackgroundBrush"] = accentBrush;
         resources[SettingsLook.Accent] = accentBrush;
+        resources[SettingsLook.AccentText] = Frozen(accentText);
         resources[SettingsLook.Selection] = Frozen(Color.FromArgb(0x1F, accent.R, accent.G, accent.B));
+        resources[SettingsLook.FocusRing] = accentBrush;
+
+        // Give WPF-UI's dynamic resources the same light/dark surface tokens as the SwiftUI client.
+        resources[SettingsLook.TextPrimary] = Frozen(primaryText);
+        resources[SettingsLook.TextSecondary] = Frozen(secondaryText);
+        resources[SettingsLook.TextTertiary] = Frozen(tertiaryText);
+        resources[SettingsLook.CardBackground] = Frozen(surface);
+        resources[SettingsLook.CardBackgroundSecondary] = Frozen(surfaceRaised);
+        resources[SettingsLook.CardStroke] = Frozen(border);
+        resources[SettingsLook.Divider] = Frozen(border);
+        resources[SettingsLook.ControlFill] = Frozen(surfaceRaised);
+        resources[SettingsLook.ControlStroke] = Frozen(border);
+        resources[SettingsLook.SubtleFill] = Frozen(surfaceRaised);
+        resources["ApplicationPageBackgroundThemeBrush"] = Frozen(canvas);
+        resources["LayerFillColorDefaultBrush"] = Frozen(surface);
     }
 
     private static SolidColorBrush Frozen(Color color)

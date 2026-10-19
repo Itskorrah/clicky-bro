@@ -264,12 +264,12 @@ final class DictationSettings: ObservableObject {
         haptics = defaults.object(forKey: Keys.haptics) == nil ? true : defaults.bool(forKey: Keys.haptics)
         reduceAnimation = defaults.bool(forKey: Keys.reduceAnimation)
         appearance = DictationAppearance(rawValue: defaults.string(forKey: Keys.appearance) ?? "") ?? .system
-        let chosenPreset = defaults.string(forKey: Keys.accentPreset) ?? "coral"
-        accentPreset = ClickyThemePalette.presets.contains(where: { $0.id == chosenPreset }) ? chosenPreset : "coral"
-        customAccentHex = ClickyThemePalette.normalizedHex(defaults.string(forKey: Keys.customAccentHex)) ?? "#D24E2A"
+        let chosenPreset = defaults.string(forKey: Keys.accentPreset) ?? ClickyThemePalette.defaultPresetID
+        accentPreset = ClickyThemePalette.presets.contains(where: { $0.id == chosenPreset }) ? chosenPreset : ClickyThemePalette.defaultPresetID
+        customAccentHex = ClickyThemePalette.normalizedHex(defaults.string(forKey: Keys.customAccentHex)) ?? ClickyThemePalette.defaultAccentHex
         companionFollowsAccent = defaults.object(forKey: Keys.companionFollowsAccent) == nil
             ? true : defaults.bool(forKey: Keys.companionFollowsAccent)
-        customCompanionHex = ClickyThemePalette.normalizedHex(defaults.string(forKey: Keys.customCompanionHex)) ?? "#E8653F"
+        customCompanionHex = ClickyThemePalette.normalizedHex(defaults.string(forKey: Keys.customCompanionHex)) ?? ClickyThemePalette.defaultAccentHex
         inactivityTimeoutMinutes = defaults.object(forKey: Keys.inactivityTimeoutMinutes) == nil ? 3 : defaults.integer(forKey: Keys.inactivityTimeoutMinutes)
         clipboardHistoryEnabled = defaults.bool(forKey: Keys.clipboardHistoryEnabled)
         incognito = defaults.bool(forKey: Keys.incognito)
@@ -405,7 +405,7 @@ final class DictationSettings: ObservableObject {
     /// Added preferences are opt-in and never rewrite an existing orb, appearance or hotkey.
     @Published var accentPreset: String {
         didSet {
-            if !ClickyThemePalette.presets.contains(where: { $0.id == accentPreset }) { accentPreset = "coral" }
+            if !ClickyThemePalette.presets.contains(where: { $0.id == accentPreset }) { accentPreset = ClickyThemePalette.defaultPresetID }
             defaults.set(accentPreset, forKey: Keys.accentPreset)
         }
     }
@@ -426,6 +426,13 @@ final class DictationSettings: ObservableObject {
             }
         }
     }
+
+    /// Reset only the active palette and companion-follow choice; preserve custom values and mode.
+    func resetColours() {
+        accentPreset = ClickyThemePalette.defaultPresetID
+        companionFollowsAccent = true
+    }
+
     /// A take with this long of silence ends on its own. 0 = never.
     @Published var inactivityTimeoutMinutes: Int { didSet { defaults.set(inactivityTimeoutMinutes, forKey: Keys.inactivityTimeoutMinutes) } }
     @Published var preferredMicrophoneUID: String? {

@@ -6,9 +6,11 @@ namespace OpenClicky.Core.Dictation;
 /// Pure and dependency-free so arbitrary user input cannot crash native drawing.</summary>
 public static class ClickyAccentPalette
 {
+    public const string DefaultPresetId = "navy";
+    public const string DefaultAccentHex = "#2B547B";
     public static IReadOnlyList<(string Id, string Name)> Presets { get; } =
     [
-        ("coral", "Classic Coral"), ("azure", "Azure Blue"), ("emerald", "Emerald"),
+        ("navy", "Navy Slate"), ("coral", "Classic Coral"), ("azure", "Azure Blue"), ("emerald", "Emerald"),
         ("violet", "Violet"), ("graphite", "Graphite"), ("custom", "Custom")
     ];
 
@@ -22,25 +24,27 @@ public static class ClickyAccentPalette
 
     public static string Resolve(string? preset, string? customHex, bool dark)
     {
-        var baseColour = (preset ?? "coral").ToLowerInvariant() switch
+        var baseColour = (preset ?? DefaultPresetId).ToLowerInvariant() switch
         {
+            "navy" => dark ? "#80A9D4" : DefaultAccentHex,
+            "coral" => dark ? "#E8653F" : "#D24E2A",
             "azure" => dark ? "#60A5FA" : "#2563EB",
             "emerald" => dark ? "#34D399" : "#047857",
             "violet" => dark ? "#A78BFA" : "#6D28D9",
             "graphite" => dark ? "#CBD5E1" : "#475569",
-            "custom" => NormalizeHex(customHex) ?? (dark ? "#E8653F" : "#D24E2A"),
-            _ => dark ? "#E8653F" : "#D24E2A",
+            "custom" => NormalizeHex(customHex) ?? (dark ? "#80A9D4" : DefaultAccentHex),
+            _ => dark ? "#80A9D4" : DefaultAccentHex,
         };
-        // Accent labels on plain surfaces need 4.5:1 contrast. Preserve hue while
-        // moving custom and preset colours towards a suitable luminance.
-        return EnsureContrast(baseColour, dark ? "#202329" : "#FFFFFF", dark);
+        // Accent labels and focus rings need 4.5:1 on the light canvas and highest dark surface.
+        // Preserve hue while moving custom and preset colours as little as possible.
+        return EnsureContrast(baseColour, dark ? "#21262D" : "#F6F8FA", dark);
     }
 
     public static string ResolveCompanion(string preset, string? customAccentHex,
                                            bool followAccent, string? customCompanionHex, bool dark) =>
         followAccent ? Resolve(preset, customAccentHex, dark)
-                     : EnsureContrast(NormalizeHex(customCompanionHex) ?? "#E8653F",
-                                      dark ? "#202329" : "#FFFFFF", dark);
+                     : EnsureContrast(NormalizeHex(customCompanionHex) ?? DefaultAccentHex,
+                                      dark ? "#21262D" : "#F6F8FA", dark);
 
     /// <summary>Choose readable bubble copy regardless of a user-chosen background tint.</summary>
     public static string TextOnAccent(string accent) =>

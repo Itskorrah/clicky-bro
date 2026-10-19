@@ -13,7 +13,7 @@ Evolve method: investigate real workflow → small testable implementation slice
 | Rank | Workstream | Why it matters | Minimum acceptable evidence |
 | --- | --- | --- | --- |
 | P0 | Native selected-window permissions/Stop and real dictation acceptance | Users cannot trust other features until capture and input are safe | Actual current-build Mac TCC, microphone, focus, Stop and failure/recovery recordings on synthetic data |
-| P0 | Azure native visual system | Fragmented accent colours and inconsistent hierarchy harm daily use | Tokens + semantic components + Home/companion/dictation/workspace/settings in light/dark, real screenshots and keyboard/VoiceOver tests |
+| P0 | Navy/Primer-inspired native visual system | Fragmented accent colours and inconsistent hierarchy harm daily use | Tokens + semantic components + Home/companion/dictation/workspace/settings in light/dark, real screenshots and keyboard/VoiceOver tests |
 | P0 | Offline speech model experience | No subscription required for local transcription; multilingual gaps | Explicit per-model download, pinned validated model, genuine local ASR from microphone, benchmark against Parakeet, no data leaves app |
 | P0 | Dictation correctness | Lost focus or bad edits waste user trust | App-specific paste/focus/undo, long takes, changing selection, audio loss, raw vs cleaned transcript |
 | P1 | Document context and grounded teaching | A screenshot misses documents outside the visible page | Real PDF/selection with page citations; no unselected source captured; target move/close before pointing |
@@ -39,7 +39,7 @@ Sources: [sherpa-onnx offline C API](https://github.com/k2-fsa/sherpa-onnx/blob/
 
 ## Visual redesign slices
 
-The native code now has an Azure semantic token foundation; [design spec](DESIGN_SYSTEM.md). The rest should land as separate PRs: (1) reusable native controls and selected states; (2) Home with Ask/Dictate/Work and real recent runs; (3) compact companion/audio/permission cards; (4) Workspaces and history/artifact previews; (5) model management and settings; (6) Windows parity. Never claim new UI quality solely because colour constants changed.
+The native code now has a Navy/Primer-inspired semantic token foundation and refined settings controls; see the [design spec](DESIGN_SYSTEM.md). The rest should land as separate slices: (1) reusable native controls and selected states; (2) Home with Ask/Dictate/Work and real recent runs; (3) compact companion/audio/permission cards; (4) Workspaces and history/artifact previews; (5) model management and settings; (6) Windows parity. Never claim new UI quality solely because colour constants changed.
 
 For each slice test system/light/dark, reduced motion, magnification, keyboard navigation, high contrast, screen-reader labels, compact widths, two monitors, and real error states. No browser mock-up should be labelled native acceptance.
 

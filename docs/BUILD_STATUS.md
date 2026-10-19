@@ -1,5 +1,7 @@
 > **19 October 2026 acceptance update:** The tested code baseline was `2a82bdbdbe6b7f465492a3ca3f73e7f1677054e4` after PR #12. PR #11 merged the first documentation reconciliation (`1399056`); PR #13 reconciled the current checkpoint (`e942ac2`). PR #1 is updated to tested source `6b5de4a`, PR #8 to `30d552f`, and PR #9 to `946ca50` (stacked on #8); all remain drafts. Current macOS native test suites pass on the updated safety and combined theme/companion source. The WPF cross-build passes on macOS, while the portable Windows core suite has five host-specific path failures. No Windows host was available, and full capture/TCC acceptance remains pending. See the [current development checkpoint](DEVELOPMENT_CHECKPOINT_2026-10-19.md).
 
+> **Navy UI and icon refresh:** implemented on branch `codex/navy-ui-icon-refresh`, based on PR #9 head `497bba1`. The macOS build and 717-test native suite pass; the WPF cross-build passes on macOS; the portable Windows core suite retains five macOS-host failures. No Windows-native or full native screenshot acceptance is claimed. See [the implementation record](IMPLEMENTATION_2026-10-19.md).
+
 # clicky-bro development status
 
 Updated 19 October 2026. This is a local development build based on the pinned
