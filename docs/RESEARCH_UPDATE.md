@@ -16,7 +16,25 @@ Prior chat text, embedded prompts, repository instructions and research findings
 
 No product source was created, application launched, dependencies installed, keys used, inference dispatched, cloud resources provisioned or existing build-plan decisions overwritten during this pass. Research clones and source snapshots are under ignored `.local/research/reconciliation/`.
 
-## Updated position
+## Follow-up — 19 October 2026
+
+The candidate-adoption gate proposed below has since been completed: the project
+adopted the pinned native OpenClicky source under `app/`. See
+[FOUNDATION_DECISION.md](FOUNDATION_DECISION.md) for the recorded evidence and
+[NEXT_STEPS.md](NEXT_STEPS.md) for the current implementation position. The
+research below remains useful as a dated comparison; its recommendation to make
+foundation choice the next product decision is superseded.
+
+**Implementation follow-up — 19 October 2026:** PR #12's native branding compile
+fix is merged to `main` (`2a82bdb`). PR #1, #8 and #9 were updated and locally
+verified as recorded in [BUILD_STATUS.md](BUILD_STATUS.md). Their unit/build
+results do not establish full capture/TCC, custom-picker, companion-performance
+or Windows-native acceptance; those gates remain explicit. The development
+pass used KStack's `native-desktop` route and verification guidance with the
+project's Evolve build/verify skills. KStack is kept as an ignored local CLI and
+skill checkout; it was not globally installed and is not a runtime agent swarm.
+
+## Position at the time of this research pass
 
 The goal and most product requirements remain consistent with [BUILD_PLAN.md](BUILD_PLAN.md). The important change is the availability of two substantive candidate foundations. We should put a **reuse/adoption gate before creating a fresh product scaffold**:
 
@@ -76,7 +94,7 @@ Our tutorial loop should have explicit goal/step state: observe → ground the t
 
 “Repeat” should schedule the same scoped execution pipeline, keeping scheduler state and catch-up policy separate. We do not need four unrelated agent frameworks for Ask/Teach/Do/Repeat.
 
-## Recommended next task: candidate adoption and feasibility gate
+## Historical recommendation: candidate adoption and feasibility gate
 
 This replaces the assumption that M0 must begin by creating our own fresh scaffold. It does not discard the later milestones.
 
@@ -96,4 +114,7 @@ All four root licenses were read and identify MIT; redistribution of specific de
 
 The six unavailable community reports, LinkedIn example and unspecified secondary demonstration article remain research leads. They are useful hypotheses for scenarios, but do not establish measured reliability, universal app coverage or current failures. The technical recommendations above rest on our own requirements, prior artifact/source evidence and the newly checked source paths where cited.
 
-The next product decision is **which foundation to adopt and how much to reuse**. Further broad planning, a wholesale rewrite or additional unrestricted whole-app decompilation would be premature until that gate is resolved.
+At the time of this research pass, the next product decision was **which
+foundation to adopt and how much to reuse**. That gate was later completed; the
+current implementation and acceptance queue is in [NEXT_STEPS.md](NEXT_STEPS.md)
+and [BUILD_STATUS.md](BUILD_STATUS.md).
