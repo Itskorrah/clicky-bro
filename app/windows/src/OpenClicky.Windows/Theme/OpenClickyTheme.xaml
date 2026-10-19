@@ -7,39 +7,41 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <!-- DS.Colors -->
-    <Color x:Key="OpenClicky.AccentColor">#FF2563EB</Color>
+    <Color x:Key="OpenClicky.AccentColor">#FF2B547B</Color>
     <Color x:Key="OpenClicky.WarningColor">#FFFFB224</Color>
-    <Color x:Key="OpenClicky.OverlayCursorColor">#FF3B82F6</Color>
+    <Color x:Key="OpenClicky.OverlayCursorColor">#FF2B547B</Color>
     <SolidColorBrush x:Key="OpenClicky.AccentBrush" Color="{StaticResource OpenClicky.AccentColor}" />
     <SolidColorBrush x:Key="OpenClicky.WarningBrush" Color="{StaticResource OpenClicky.WarningColor}" />
     <SolidColorBrush x:Key="OpenClicky.OverlayCursorBrush" Color="{StaticResource OpenClicky.OverlayCursorColor}" />
 
-    <!-- Azure semantic colours for system/light/dark window templates. -->
-    <Color x:Key="ClickyBro.Azure.Light.CanvasColor">#FFF7FAFF</Color>
-    <Color x:Key="ClickyBro.Azure.Light.SurfaceColor">#FFFFFFFF</Color>
-    <Color x:Key="ClickyBro.Azure.Light.SurfaceRaisedColor">#FFEFF6FF</Color>
-    <Color x:Key="ClickyBro.Azure.Light.PrimaryTextColor">#FF0F172A</Color>
-    <Color x:Key="ClickyBro.Azure.Light.SecondaryTextColor">#FF64748B</Color>
-    <Color x:Key="ClickyBro.Azure.Light.BorderColor">#FFDEE7F3</Color>
-    <Color x:Key="ClickyBro.Azure.Light.AccentColor">#FF2563EB</Color>
-    <Color x:Key="ClickyBro.Azure.Dark.CanvasColor">#FF0B1220</Color>
-    <Color x:Key="ClickyBro.Azure.Dark.SurfaceColor">#FF172338</Color>
-    <Color x:Key="ClickyBro.Azure.Dark.SurfaceRaisedColor">#FF1D2B44</Color>
-    <Color x:Key="ClickyBro.Azure.Dark.PrimaryTextColor">#FFF8FAFC</Color>
-    <Color x:Key="ClickyBro.Azure.Dark.SecondaryTextColor">#FFA8B6CA</Color>
-    <Color x:Key="ClickyBro.Azure.Dark.BorderColor">#FF334155</Color>
-    <Color x:Key="ClickyBro.Azure.Dark.AccentColor">#FF60A5FA</Color>
+    <!-- Primer-inspired semantic colours for light and dark surfaces. -->
+    <Color x:Key="ClickyBro.Primer.Light.CanvasColor">#FFF6F8FA</Color>
+    <Color x:Key="ClickyBro.Primer.Light.SurfaceColor">#FFFFFFFF</Color>
+    <Color x:Key="ClickyBro.Primer.Light.SurfaceRaisedColor">#FFF6F8FA</Color>
+    <Color x:Key="ClickyBro.Primer.Light.PrimaryTextColor">#FF1F2328</Color>
+    <Color x:Key="ClickyBro.Primer.Light.SecondaryTextColor">#FF59636E</Color>
+    <Color x:Key="ClickyBro.Primer.Light.TertiaryTextColor">#FF66707A</Color>
+    <Color x:Key="ClickyBro.Primer.Light.BorderColor">#FFD0D7DE</Color>
+    <Color x:Key="ClickyBro.Primer.Light.AccentColor">#FF2B547B</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.CanvasColor">#FF0D1117</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.SurfaceColor">#FF161B22</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.SurfaceRaisedColor">#FF21262D</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.PrimaryTextColor">#FFE6EDF3</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.SecondaryTextColor">#FFA1AAB4</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.TertiaryTextColor">#FF8B949E</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.BorderColor">#FF30363D</Color>
+    <Color x:Key="ClickyBro.Primer.Dark.AccentColor">#FF80A9D4</Color>
 
     <!-- DS.HUD (the island, always dark) -->
-    <Color x:Key="OpenClicky.HUD.IslandColor">#FF0B1220</Color>
-    <Color x:Key="OpenClicky.HUD.BandControlColor">#FF172338</Color>
-    <Color x:Key="OpenClicky.HUD.SurfaceRaisedColor">#FF22324A</Color>
-    <Color x:Key="OpenClicky.HUD.SurfaceRaisedSoftColor">#FF293C56</Color>
+    <Color x:Key="OpenClicky.HUD.IslandColor">#FF0D1117</Color>
+    <Color x:Key="OpenClicky.HUD.BandControlColor">#FF161B22</Color>
+    <Color x:Key="OpenClicky.HUD.SurfaceRaisedColor">#FF21262D</Color>
+    <Color x:Key="OpenClicky.HUD.SurfaceRaisedSoftColor">#FF30363D</Color>
     <Color x:Key="OpenClicky.HUD.TextColor">#FFFFFFFF</Color>
-    <Color x:Key="OpenClicky.HUD.Text2Color">#FFB8C8E0</Color>
-    <Color x:Key="OpenClicky.HUD.Text3Color">#FF9BAFCB</Color>
-    <Color x:Key="OpenClicky.HUD.PointerColor">#FF60A5FA</Color>
-    <Color x:Key="OpenClicky.HUD.PointerTintColor">#FF193454</Color>
+    <Color x:Key="OpenClicky.HUD.Text2Color">#FFC9D1D9</Color>
+    <Color x:Key="OpenClicky.HUD.Text3Color">#FFA1AAB4</Color>
+    <Color x:Key="OpenClicky.HUD.PointerColor">#FF80A9D4</Color>
+    <Color x:Key="OpenClicky.HUD.PointerTintColor">#FF1C2C3D</Color>
     <Color x:Key="OpenClicky.HUD.LiveColor">#FF34C77B</Color>
     <SolidColorBrush x:Key="OpenClicky.HUD.IslandBrush" Color="{StaticResource OpenClicky.HUD.IslandColor}" />
     <SolidColorBrush x:Key="OpenClicky.HUD.BandControlBrush" Color="{StaticResource OpenClicky.HUD.BandControlColor}" />
@@ -67,7 +69,4 @@
     <FontFamily x:Key="OpenClicky.MonoFont">Cascadia Mono, Consolas</FontFamily>
     <FontFamily x:Key="OpenClicky.IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
-    <!-- The mark (OpenClickyMark.swift): a ring with a square top-right corner and the pointer, even-odd, unit square y down. -->
-    <PathGeometry x:Key="OpenClicky.MarkGeometry" FillRule="EvenOdd"
-                  Figures="M 1,0.5 A 0.5,0.5 0 1 1 0.5,0 L 1,0 Z M 0.9125,0.5 A 0.4125,0.4125 0 1 0 0.0875,0.5 A 0.4125,0.4125 0 1 0 0.9125,0.5 Z M 0.3125,0.3125 L 0.7475,0.475 L 0.505,0.52 L 0.4775,0.7525 Z" />
 </ResourceDictionary>

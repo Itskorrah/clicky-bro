@@ -28,8 +28,8 @@ extension SettingsCatalog {
                 view: AnyView(AppearancePicker(settings: settings))),
             SettingsItem(
                 id: "general.colourScheme", page: .general, section: "",
-                title: "Colour scheme", detail: "Keep the classic look or choose an accent and companion colour.",
-                keywords: ["theme", "colour", "color", "accent", "coral", "blue", "custom", "cursor"],
+                title: "Colour scheme", detail: "Navy Slate is the new-install default; saved choices and custom colours stay in place.",
+                keywords: ["theme", "colour", "color", "accent", "navy", "slate", "coral", "blue", "custom", "cursor"],
                 view: AnyView(ThemeColoursRow(settings: settings))),
             SettingsItem(
                 id: "general.hudPlacement", page: .general, section: "",
@@ -147,7 +147,7 @@ private struct ThemeColoursRow: View {
 
     var body: some View {
         SettingsRow(title: "Colour scheme",
-                    detail: "Classic Coral by default. Changes appear without restarting.") {
+                    detail: "Navy Slate is the new-install default. Changes appear without restarting.") {
             VStack(alignment: .leading, spacing: 9) {
                 Picker("App accent", selection: $settings.accentPreset) {
                     ForEach(ClickyThemePalette.presets, id: \.id) { preset in
@@ -167,11 +167,10 @@ private struct ThemeColoursRow: View {
                         .accessibilityLabel("Custom companion colour")
                 }
                 Button("Reset colours") {
-                    settings.accentPreset = "coral"
-                    settings.companionFollowsAccent = true
+                    settings.resetColours()
                 }
                 .buttonStyle(.link)
-                .accessibilityHint("Restores Classic Coral and makes the companion follow the accent")
+                .accessibilityHint("Restores Navy Slate and makes the companion follow the accent")
             }
             .frame(width: 210, alignment: .leading)
         }
@@ -196,18 +195,26 @@ private struct AppearanceTile: View {
             VStack(spacing: 6) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .fill(appearance == .dark ? Color(white: 0.17) : Color(white: 0.95))
+                        .fill(appearance == .dark ? DS.Colors.darkCanvas : DS.Colors.lightCanvas)
                     if appearance == .system {
                         Path { path in path.move(to: CGPoint(x: 68, y: 0)); path.addLine(to: CGPoint(x: 68, y: 46)); path.addLine(to: CGPoint(x: 0, y: 46)); path.closeSubpath() }
-                            .fill(Color(white: 0.17))
+                            .fill(DS.Colors.darkCanvas)
                             .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
                     }
-                    Capsule().fill(SettingsLook.accent).frame(width: 28, height: 18)
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(appearance == .dark ? DS.Colors.darkSurface : DS.Colors.lightSurface)
+                        .frame(width: 48, height: 26)
+                        .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .strokeBorder((appearance == .dark ? DS.Colors.darkBorder : DS.Colors.lightBorder).opacity(0.7), lineWidth: 0.5))
+                    Capsule().fill(SettingsLook.accent)
+                        .overlay(Capsule().strokeBorder(SettingsLook.accentText.opacity(0.45), lineWidth: 0.5))
+                        .frame(width: 28, height: 18)
                 }
                 .frame(width: 68, height: 46)
                 .overlay(
                     RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .strokeBorder(isSelected ? SettingsLook.accent : Color(nsColor: .separatorColor), lineWidth: isSelected ? 2 : 0.5)
+                        .strokeBorder(isSelected ? SettingsLook.accent : (appearance == .dark ? DS.Colors.darkBorder : DS.Colors.lightBorder),
+                                      lineWidth: isSelected ? 2 : 0.75)
                 )
                 Text(label)
                     .font(.system(size: 11, weight: isSelected ? .semibold : .regular))

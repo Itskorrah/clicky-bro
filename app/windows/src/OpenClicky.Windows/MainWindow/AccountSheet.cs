@@ -245,16 +245,16 @@ internal sealed class AccountProfileRow : ContentControl
     public static FrameworkElement Avatar(string initial, bool isSignedIn, double size)
     {
         var circle = new Border { Width = size, Height = size, CornerRadius = new CornerRadius(size / 2), VerticalAlignment = VerticalAlignment.Center };
-        circle.SetResourceReference(Border.BackgroundProperty, isSignedIn ? SettingsLook.Accent : "ControlStrongFillColorDisabledBrush");
+        circle.SetResourceReference(Border.BackgroundProperty, isSignedIn ? SettingsLook.Accent : SettingsLook.ControlFill);
         var letter = new TextBlock
         {
             Text = initial,
             FontSize = size * 0.42,
             FontWeight = FontWeights.SemiBold,
-            Foreground = Brushes.White,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        letter.SetResourceReference(TextBlock.ForegroundProperty, isSignedIn ? SettingsLook.AccentText : SettingsLook.TextPrimary);
         circle.Child = letter;
         return circle;
     }

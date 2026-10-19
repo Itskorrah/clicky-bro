@@ -39,10 +39,7 @@ enum DictationSection: String, CaseIterable, Identifiable {
     }
 
     var tint: Color {
-        switch self {
-        case .words: return Color(red: 0.824, green: 0.306, blue: 0.165)
-        case .writing: return Color(red: 0.686, green: 0.322, blue: 0.871)
-        }
+        SettingsLook.accent
     }
 }
 
@@ -213,6 +210,7 @@ struct DictationRootView: View {
             detail(query: query, matches: matches, relevantItems: relevantItems)
         }
         .frame(minWidth: DictationWindowController.minimumSize.width, minHeight: DictationWindowController.minimumSize.height)
+        .tint(SettingsLook.accent)
         .onAppear {
             fnKeyState.refresh()
             reloadHistoryCount()
@@ -285,7 +283,7 @@ struct DictationRootView: View {
     }
 }
 
-/// A sidebar row like System Settings': a white icon in a coloured rounded square, and the name.
+/// A sidebar row like System Settings': a contrasting icon in an accent-coloured rounded square, and the name.
 struct SidebarIconLabel: View {
     let title: String
     let symbol: String
@@ -297,9 +295,9 @@ struct SidebarIconLabel: View {
         } icon: {
             Image(systemName: symbol)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(SettingsLook.accentText)
                 .frame(width: 20, height: 20)
-                .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(tint.gradient))
+                .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(tint))
         }
     }
 }
@@ -326,8 +324,9 @@ private struct SidebarFooter: View {
             Button(action: { model.select(.settings(.account)) }) {
                 HStack(spacing: 10) {
                     ZStack {
-                        Circle().fill(authSession.accountEmail == nil ? Color(nsColor: .tertiaryLabelColor) : SettingsLook.accent)
-                        Text(accountInitial).font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                        Circle().fill(authSession.accountEmail == nil ? DS.Colors.surfaceRaised : SettingsLook.accent)
+                        Text(accountInitial).font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(authSession.accountEmail == nil ? DS.Colors.primaryText : SettingsLook.accentText)
                     }
                     .frame(width: 28, height: 28)
                     VStack(alignment: .leading, spacing: 1) {

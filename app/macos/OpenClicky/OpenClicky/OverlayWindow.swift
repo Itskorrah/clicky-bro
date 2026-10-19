@@ -227,7 +227,11 @@ struct BlueCursorView: View {
                         }
                     )
                     .opacity(bubbleOpacity)
-                    .position(x: cursorPosition.x + 10 + (bubbleSize.width / 2), y: cursorPosition.y + 18)
+                    .position(
+                        x: BubblePosition.center(preferred:cursorPosition.x + 10 + bubbleSize.width / 2,
+                                               extent: bubbleSize.width, screenExtent: screenFrame.width),
+                        y: BubblePosition.center(preferred:cursorPosition.y + 18,
+                                               extent: bubbleSize.height, screenExtent: screenFrame.height))
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
                     .animation(.easeOut(duration: 0.5), value: bubbleOpacity)
                     .onPreferenceChange(SizePreferenceKey.self) { newSize in
@@ -261,8 +265,10 @@ struct BlueCursorView: View {
                     .frame(width: 300, alignment: fitsToTheRight ? .leading : .trailing)
                     .opacity(companionManager.cursorCaptionOpacity)
                     .position(
-                        x: fitsToTheRight ? cursorPosition.x + 10 + 150 : cursorPosition.x - 10 - 150,
-                        y: cursorPosition.y + 12 + (captionBubbleSize.height / 2)
+                        x: BubblePosition.center(preferred:fitsToTheRight ? cursorPosition.x + 160 : cursorPosition.x - 160,
+                                               extent: 300, screenExtent: screenFrame.width),
+                        y: BubblePosition.center(preferred:cursorPosition.y + 12 + captionBubbleSize.height / 2,
+                                               extent: captionBubbleSize.height, screenExtent: screenFrame.height)
                     )
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
                     .animation(.easeOut(duration: 0.4), value: companionManager.cursorCaptionOpacity)
@@ -291,7 +297,18 @@ struct BlueCursorView: View {
                                 .preference(key: GuideStopHintSizePreferenceKey.self, value: geo.size)
                         }
                     )
-                    .position(x: cursorPosition.x - 12 - (guideStopHintSize.width / 2), y: cursorPosition.y + 14)
+                    .position(
+                        x: BubblePosition.center(
+                            preferred: cursorPosition.x - 12 - (guideStopHintSize.width / 2),
+                            extent: guideStopHintSize.width,
+                            screenExtent: screenFrame.width
+                        ),
+                        y: BubblePosition.center(
+                            preferred: cursorPosition.y + 14,
+                            extent: guideStopHintSize.height,
+                            screenExtent: screenFrame.height
+                        )
+                    )
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
                     .transition(.opacity)
                     .onPreferenceChange(GuideStopHintSizePreferenceKey.self) { newSize in
@@ -312,8 +329,8 @@ struct BlueCursorView: View {
                         RoundedRectangle(cornerRadius: 6, style: .continuous)
                             .fill(DS.Colors.overlayCursorColor)
                             .shadow(
-                                color: DS.Colors.overlayCursorColor.opacity(0.5 + (1.0 - navigationBubbleScale) * 1.0),
-                                radius: 6 + (1.0 - navigationBubbleScale) * 16,
+                                color: DS.Colors.overlayCursorColor.opacity(0.16 + (1.0 - navigationBubbleScale) * 0.15),
+                                radius: 4 + (1.0 - navigationBubbleScale) * 4,
                                 x: 0, y: 0
                             )
                     )
@@ -326,7 +343,11 @@ struct BlueCursorView: View {
                     )
                     .scaleEffect(navigationBubbleScale)
                     .opacity(navigationBubbleOpacity)
-                    .position(x: cursorPosition.x + 10 + (navigationBubbleSize.width / 2), y: cursorPosition.y + 18)
+                    .position(
+                        x: BubblePosition.center(preferred:cursorPosition.x + 10 + navigationBubbleSize.width / 2,
+                                               extent: navigationBubbleSize.width, screenExtent: screenFrame.width),
+                        y: BubblePosition.center(preferred:cursorPosition.y + 18,
+                                               extent: navigationBubbleSize.height, screenExtent: screenFrame.height))
                     .animation(.spring(response: 0.2, dampingFraction: 0.6, blendDuration: 0), value: cursorPosition)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: navigationBubbleScale)
                     .animation(.easeOut(duration: 0.5), value: navigationBubbleOpacity)
@@ -347,7 +368,8 @@ struct BlueCursorView: View {
                 .fill(DS.Colors.overlayCursorColor)
                 .frame(width: 16, height: 16)
                 .rotationEffect(.degrees(triangleRotationDegrees))
-                .shadow(color: DS.Colors.overlayCursorColor, radius: 8 + (buddyFlightScale - 1.0) * 20, x: 0, y: 0)
+                .shadow(color: DS.Colors.overlayCursorColor.opacity(0.22),
+                        radius: max(2, 3 + (buddyFlightScale - 1.0) * 6), x: 0, y: 0)
                 .scaleEffect(buddyFlightScale)
                 .opacity(buddyIsVisibleOnThisScreen && presenceAllowsPointer && (companionManager.voiceState == .idle || companionManager.voiceState == .responding) ? cursorOpacity : 0)
                 .position(cursorPosition)

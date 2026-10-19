@@ -11,6 +11,7 @@ using OpenClicky.Core.Configuration;
 using OpenClicky.Core.Dictation;
 using OpenClicky.Core.Pointing;
 using OpenClicky.Core.Settings;
+using OpenClicky.Windows.Theme;
 
 namespace OpenClicky.Windows.AppWindow;
 
@@ -142,13 +143,9 @@ internal sealed partial class SettingsRowFactory
             controls.Children.Add(editor);
         }
 
-        var reset = Ui.LinkButton("Reset colours", () =>
-        {
-            Settings.AccentPreset = "coral";
-            Settings.CompanionFollowsAccent = true;
-        });
+        var reset = Ui.LinkButton("Reset colours", Settings.ResetColours);
         reset.Margin = new Thickness(0, 9, 0, 0);
-        Ui.AutomationProperties(reset, "Reset colours to Classic Coral");
+        Ui.AutomationProperties(reset, "Reset colours to Navy Slate");
         controls.Children.Add(reset);
         return Ui.Row(item.Title, item.Detail, query, controls);
     }
@@ -167,7 +164,7 @@ internal sealed partial class SettingsRowFactory
             var normal = ClickyAccentPalette.NormalizeHex(input.Text);
             if (normal is null)
             {
-                error.Text = "Enter a six-digit colour, e.g. #E8653F.";
+                error.Text = "Enter a six-digit colour, e.g. #2B547B.";
                 return;
             }
             error.Text = "";
@@ -203,8 +200,10 @@ internal sealed partial class SettingsRowFactory
     private static Button AppearanceTile(DictationAppearance appearance, bool isSelected, Action choose)
     {
         var label = appearance switch { DictationAppearance.Light => "Light", DictationAppearance.Dark => "Dark", _ => "Auto" };
-        var light = new SolidColorBrush(Color.FromRgb(0xF2, 0xF2, 0xF2));
-        var dark = new SolidColorBrush(Color.FromRgb(0x2B, 0x2B, 0x2B));
+        var light = DS.Brush(DS.Colors.PrimerLight.Canvas);
+        var dark = DS.Brush(DS.Colors.PrimerDark.Canvas);
+        var lightSurface = DS.Brush(DS.Colors.PrimerLight.Surface);
+        var darkSurface = DS.Brush(DS.Colors.PrimerDark.Surface);
         var picture = new Grid { Width = 68, Height = 46, ClipToBounds = true };
         picture.Children.Add(new Border { Background = appearance == DictationAppearance.Dark ? dark : light, CornerRadius = new CornerRadius(7) });
         if (appearance == DictationAppearance.System)
@@ -217,6 +216,13 @@ internal sealed partial class SettingsRowFactory
             };
             picture.Children.Add(darkHalf);
         }
+        picture.Children.Add(new Border
+        {
+            Width = 48, Height = 26, CornerRadius = new CornerRadius(4),
+            Background = appearance == DictationAppearance.Dark ? darkSurface : lightSurface,
+            BorderBrush = DS.Brush(appearance == DictationAppearance.Dark ? DS.Colors.PrimerDark.Border : DS.Colors.PrimerLight.Border),
+            BorderThickness = new Thickness(0.5),
+        });
         var capsule = new Border { Width = 28, Height = 18, CornerRadius = new CornerRadius(9), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         capsule.SetResourceReference(Border.BackgroundProperty, SettingsLook.Accent);
         picture.Children.Add(capsule);

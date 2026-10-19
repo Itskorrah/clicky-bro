@@ -3,8 +3,10 @@ import Foundation
 /// Native, dependency-free theme calculations. User preferences store only small
 /// preset IDs and validated RGB hex strings; invalid saved values fail closed.
 enum ClickyThemePalette {
+    static let defaultPresetID = "navy"
+    static let defaultAccentHex = "#2B547B"
     static let presets: [(id: String, title: String)] = [
-        ("coral", "Classic Coral"), ("azure", "Azure Blue"),
+        ("navy", "Navy Slate"), ("coral", "Classic Coral"), ("azure", "Azure Blue"),
         ("emerald", "Emerald"), ("violet", "Violet"),
         ("graphite", "Graphite"), ("custom", "Custom")
     ]
@@ -30,22 +32,24 @@ enum ClickyThemePalette {
     static func resolve(preset: String, customHex: String, dark: Bool) -> String {
         let original: String
         switch preset {
+        case "navy": original = dark ? "#80A9D4" : defaultAccentHex
+        case "coral": original = dark ? "#E8653F" : "#D24E2A"
         case "azure": original = dark ? "#60A5FA" : "#2563EB"
         case "emerald": original = dark ? "#34D399" : "#047857"
         case "violet": original = dark ? "#A78BFA" : "#6D28D9"
         case "graphite": original = dark ? "#CBD5E1" : "#475569"
-        case "custom": original = normalizedHex(customHex) ?? (dark ? "#E8653F" : "#D24E2A")
-        default: original = dark ? "#E8653F" : "#D24E2A"
+        case "custom": original = normalizedHex(customHex) ?? (dark ? "#80A9D4" : defaultAccentHex)
+        default: original = dark ? "#80A9D4" : defaultAccentHex
         }
-        return ensureContrast(original, against: dark ? "#202329" : "#FFFFFF", dark: dark)
+        return ensureContrast(original, against: dark ? "#21262D" : "#F6F8FA", dark: dark)
     }
 
     static func resolveCompanion(preset: String, customAccentHex: String,
                                  followsAccent: Bool, customCompanionHex: String,
                                  dark: Bool) -> String {
         if followsAccent { return resolve(preset: preset, customHex: customAccentHex, dark: dark) }
-        let colour = normalizedHex(customCompanionHex) ?? "#E8653F"
-        return ensureContrast(colour, against: dark ? "#202329" : "#FFFFFF", dark: dark)
+        let colour = normalizedHex(customCompanionHex) ?? defaultAccentHex
+        return ensureContrast(colour, against: dark ? "#21262D" : "#F6F8FA", dark: dark)
     }
 
     /// Dynamic on-accent text; white on a pale blue pointer fails contrast in dark mode.

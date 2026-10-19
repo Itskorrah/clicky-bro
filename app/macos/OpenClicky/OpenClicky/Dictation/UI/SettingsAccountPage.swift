@@ -109,8 +109,9 @@ private struct AccountProfileRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             ZStack {
-                Circle().fill(authSession.accountEmail == nil ? Color(nsColor: .tertiaryLabelColor) : SettingsLook.accent)
-                Text(initial).font(.system(size: 18, weight: .semibold)).foregroundStyle(.white)
+                Circle().fill(authSession.accountEmail == nil ? DS.Colors.surfaceRaised : SettingsLook.accent)
+                Text(initial).font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(authSession.accountEmail == nil ? DS.Colors.primaryText : SettingsLook.accentText)
             }
             .frame(width: 44, height: 44)
             .accessibilityHidden(true)

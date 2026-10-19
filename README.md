@@ -1,74 +1,95 @@
 <div align="center">
 
-<img src="docs/assets/clicky-bro-mark.svg" width="140" height="140" alt="Original Clicky Bro application mark" />
+<img src="app/macos/OpenClicky/OpenClicky/Assets.xcassets/AppIcon.appiconset/1024-mac.png" width="132" alt="Clicky Bro navy assistant icon" />
 
-# Clicky Bro
+<h1>Clicky Bro</h1>
 
-### Your desktop, explained. Your words, written. Your work, moving.
+<p><strong>Your desktop, explained. Your words, written. Your work, moving.</strong></p>
 
-**A native, local-first AI companion for macOS and Windows.** Ask about a window you choose, dictate with on-device speech recognition, and delegate bounded tasks to persistent helpers.
+<p>A native desktop assistant for macOS and Windows: contextual help, on-device dictation, and carefully scoped helpers.</p>
 
 <p>
   <img alt="Development alpha" src="https://img.shields.io/badge/status-development%20alpha-D97706?style=flat-square" />
-  <img alt="macOS native SwiftUI" src="https://img.shields.io/badge/macOS-SwiftUI-2563EB?style=flat-square&logo=apple&logoColor=white" />
-  <img alt="Windows native WPF" src="https://img.shields.io/badge/Windows-WPF-334155?style=flat-square&logo=windows&logoColor=white" />
-  <img alt="Offline speech engines" src="https://img.shields.io/badge/speech-Apple%20%7C%20Parakeet-0F766E?style=flat-square" />
+  <img alt="macOS SwiftUI" src="https://img.shields.io/badge/macOS-SwiftUI-2563EB?style=flat-square&logo=apple&logoColor=white" />
+  <img alt="Windows WPF" src="https://img.shields.io/badge/Windows-WPF-334155?style=flat-square&logo=windows&logoColor=white" />
+  <img alt="TypeScript shared agent" src="https://img.shields.io/badge/agent-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
   <a href="app/LICENSE"><img alt="MIT-licensed adopted core" src="https://img.shields.io/badge/adopted%20core-MIT-64748B?style=flat-square" /></a>
 </p>
 
-[Get started](#get-started) · [Capabilities](#capabilities) · [Offline dictation](#offline-dictation) · [Security](#privacy-security-and-authority) · [Development](#development-and-verification) · [Roadmap](docs/PRODUCT_ROADMAP.md)
+<p>
+  <a href="#capabilities">Capabilities</a> ·
+  <a href="#get-started">Get started</a> ·
+  <a href="#privacy-security-and-authority">Privacy &amp; safety</a> ·
+  <a href="docs/PRODUCT_ROADMAP.md">Roadmap</a> ·
+  <a href="CODEX_WINDOWS.md">Windows handoff</a>
+</p>
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Development alpha, not an approved general release.** Clicky Bro builds on an existing native application and has source for many features, but the **current development bundle has not passed full Screen Recording, microphone, focus/insertion or physical Windows acceptance**. Historical tests do not prove the current commit works on real hardware. There are no signed/notarised public installers yet. See [build status](docs/BUILD_STATUS.md).
+> **Development alpha — not a general release.** Clicky Bro has native application source for macOS and Windows, but current-bundle capture, microphone, focus-safe insertion, accessibility and physical Windows acceptance are still open. There are no signed or notarised public installers. Read the [current build status](docs/BUILD_STATUS.md) before relying on any capability.
 
-## The idea
+## The product
 
-Most desktop assistants specialise in speech-to-text, visual question answering or AI task execution. Clicky Bro brings these together without obscuring **what is shared, what runs locally and which actions require approval**.
+Clicky Bro brings three desktop workflows together while making the data shared, the execution location and the required permissions visible.
 
-| **Ask & learn** | **Dictate & write** | **Work with helpers** |
-| :--- | :--- | :--- |
-| Select **one window** for contextual answers and pointer-based guidance. Observation is not permission to click. | Use native Apple Speech or a downloadable Parakeet model for local transcription. Cloud providers remain optional. | Create bounded helpers with explicit workspace write permission, opt-in memory, local interval routines and saved artifacts. |
-| Capture fails closed when the selected target disappears; no automatic full-desktop fallback is intended. | Formatting, keyboard shortcuts, history and insertion are present in the native foundation. | Direct Gemini supports scoped workspace file tools; general account integrations are **not** assumed to work. |
-| **Needs current-bundle permission and teaching acceptance.** | **Needs real audio and focus acceptance.** | **A historical text helper/restart-persistence slice passed.** |
+| Ask &amp; learn | Dictate &amp; write | Work with helpers |
+| --- | --- | --- |
+| Choose a window for contextual answers and pointer-based guidance. Observation does not grant permission to click. | Use Apple Speech or a downloadable Parakeet model for local transcription. Optional cloud providers remain separate. | Create bounded helpers with opt-in memory, local routines and saved text artifacts. |
+| A missing or stale capture target must fail clearly, without widening to the whole desktop. | Formatting, shortcuts, history and insertion exist in the native foundation; real-device acceptance remains open. | Direct Gemini supports scoped workspace file tools. Other account and connector integrations are not implied. |
 
-### Existing native interface
+## Navy identity and native interface
 
-<p align="center">
-  <img src="app/windows/docs/screenshots/window-general-light.png" width="430" alt="Historical Windows settings UI in light mode" />
-  <img src="app/windows/docs/screenshots/window-general-dark.png" width="430" alt="Historical Windows settings UI in dark mode" />
-</p>
-<p align="center"><sub>Historical Windows captures from the adopted foundation, before the Azure theme changes. These are neither fresh screenshots nor proof of a finished redesign. Fresh device screenshots are a release gate.</sub></p>
+The refreshed visual system uses a **Primer-inspired navy and slate palette** across the existing native macOS and Windows interfaces.
 
-**Approved visual direction:** Preserve the current native settings layout and calm light/dark styling. Classic Coral is the default; Azure Blue, additional colour presets and separate cursor colours are planned as optional personalisation. The logo above is a new repository-owned SVG; the existing native app icons remain separate and should not be represented as updated until their platform builds are verified. The [Azure token catalogue](design/tokens.json) remains an optional preset reference. The approved default is Classic Coral, with source changes for [native customisation](docs/THEME_CUSTOMISATION.md); [design specification](docs/DESIGN_SYSTEM.md). A completely new Home/conversation/workspace layout is still planned, not claimed as delivered.
+- **Navy Slate** is the default accent for new installs: **#2B547B** in light appearance and **#80A9D4** in dark appearance.
+- Surfaces use restrained GitHub-like neutrals: **#F6F8FA** and white in light mode; **#0D1117**, **#161B22** and **#21262D** in dark mode.
+- Classic Coral and other saved presets, valid custom colours, Light/Dark/Auto appearance and unrelated settings are preserved. Reset changes only the accent preset and companion-follow preference.
+- The new app mark is the navy tile with a cobalt assistant face and a small cyan spark. The same artwork is generated for macOS, Windows and the companion status/tray surfaces.
+- The existing native layout remains in place. The work improves colour, focus, hover and pressed states without replacing the settings app with a web dashboard.
+
+See the [theme controls and persistence contract](docs/THEME_CUSTOMISATION.md), [design system](docs/DESIGN_SYSTEM.md), [app icon guide](docs/APP_ICON.md) and [implementation record](docs/IMPLEMENTATION_2026-10-19.md). Fresh, redacted screenshots from real devices are still an acceptance gate; the historical captures elsewhere in the repository are not evidence of the refreshed interface.
 
 ## Capabilities
 
-| Capability | Current source | Acceptance status |
-| --- | --- | --- |
-| Native macOS app and menu-bar companion | Implemented foundation | Signed/current-bundle capture and full interaction testing open |
-| Windows WPF companion | Implemented foundation | Historical portable core tests and cross-build; physical Windows acceptance open |
-| Chosen-window capture and guidance | Implemented foundation | Permission denial, moving windows and multi-display testing open |
-| On-device Apple Speech | Implemented foundation | Real dictation/insertion acceptance open |
-| NVIDIA Parakeet V3 (~465 MB model archive) | Implemented macOS and Windows | Real-model quality and installation benchmarking open |
-| Cloud transcription and model polishing | In adopted code | Provider/account-specific tests required |
-| Helpers, opt-in memory, routines and text artifacts | Implemented macOS foundation | Historical helper/restart evidence; broader lifecycle and Windows parity open |
-| Gemini BYOK and bounded workspace tools | Implemented | Native action approvals and cancellation need acceptance |
-| Offline test runner | Merged to main | Missing prerequisites count as incomplete, not success |
-| Whisper, complete offline-only privacy mode, full-document retrieval | **Planned** | Not integrated or released |
+Source presence is not the same as end-to-end acceptance. The table describes the current implementation and its open checks.
 
-[Competitor feature crosswalk](docs/FULL_SPEC_CROSSWALK.md) and [roadmap](docs/PRODUCT_ROADMAP.md) track more granular states. Source presence is not an end-to-end pass.
+| Capability | Current implementation | Acceptance still open |
+| --- | --- | --- |
+| macOS desktop app and menu-bar companion | Native SwiftUI and AppKit | Current-bundle permissions, capture, microphone, focus and visible UI checks |
+| Windows desktop app and tray companion | Native WPF/C# with shared TypeScript agent | Physical Windows rendering, capture, input, DPI and accessibility checks |
+| Chosen-window context and visual guidance | Native capture and teaching flows are present | Permission denial/revocation, stale targets, multi-display and safe teaching |
+| Local dictation | macOS Apple Speech and Parakeet V3; Windows Parakeet V3 foundation | Real microphone, language, insertion and focus-change checks |
+| Helpers, memory, routines and text artifacts | macOS foundation supports these workflows | Broader lifecycle checks and Windows UI/persistence parity |
+| Gemini BYOK and workspace tools | Provider and bounded file tools are implemented | Native approval, cancellation and live-provider acceptance |
+| Navy themes and app icon | Native theme controls, shared palette and regenerated app icons | Native screenshots, custom-picker/restart checks, mixed DPI and accessibility |
+| Offline verification | Local verification runner is available | Run it on the target operating system; skipped checks are not passes |
+
+The [feature crosswalk](docs/FULL_SPEC_CROSSWALK.md), [feature audit](docs/FEATURE_AUDIT.md) and [product roadmap](docs/PRODUCT_ROADMAP.md) track the wider scope. Whisper, guaranteed offline-only operation, full-document retrieval, broad account integrations and commercial distribution are not represented as delivered.
+
+## Current engineering status
+
+As of **19 October 2026**, the UI and icon work is on [draft PR #9](https://github.com/Itskorrah/clicky-bro/pull/9), stacked on [draft PR #8](https://github.com/Itskorrah/clicky-bro/pull/8). [Draft PR #1](https://github.com/Itskorrah/clicky-bro/pull/1) remains separate for capture diagnostics and Stop safety. None should merge until its platform gates pass.
+
+The latest local verification for the navy/icon source reported:
+
+- macOS native suite: **717 passed**.
+- Python suite: **39 passed**; focused palette checks: **7 passed**.
+- Windows WPF cross-build on macOS: **0 errors**, with one inherited high-DPI manifest warning.
+- Windows portable core tests run on macOS: **1,079 passed, 5 failed**. The five failures depend on Windows paths or npm-shim behavior on a macOS host; they remain failures and are **not** a Windows pass.
+- GitHub reported no checks for PR #9 at the time of the update. No physical Windows acceptance or release approval is claimed.
+
+See [build evidence](docs/BUILD_STATUS.md), [the current checkpoint](docs/DEVELOPMENT_CHECKPOINT_2026-10-19.md) and the [remaining acceptance sequence](docs/NEXT_STEPS.md). The exact continuation instructions for a Windows PC are in [CODEX_WINDOWS.md](CODEX_WINDOWS.md).
 
 ## Get started
 
-These instructions start the **development build from source**, not a consumer installer. Use disposable files when testing automation. Do not commit API keys.
+These commands build the development app from source. They do not install a consumer release. Use disposable windows and files for testing, and keep provider keys out of Git.
 
 ### macOS
 
-Requires Xcode, Node.js 24 and Python 3.9+:
+Requires Xcode, Node.js 24 and Python 3.9 or later.
 
 ~~~bash
 git clone https://github.com/Itskorrah/clicky-bro.git
@@ -80,104 +101,95 @@ python3 scripts/dev.py build
 python3 scripts/dev.py launch
 ~~~
 
-The Gemini key prompt hides input. The launcher stages development products under the clicky-bro user cache and preserves the isolated runtime under Application Support. Prior ignored local runtime files are migrated conservatively; originals are preserved.
-
-**Mac permissions are tied to the exact running build.** Follow [macOS troubleshooting](docs/TESTING_MACOS.md) to configure Screen Recording, microphone, speech and Accessibility. An old OpenClicky entry does not prove the current build can capture a frame. See [Gemini setup](docs/GEMINI_SETUP.md) for tests that may consume quota.
+The Gemini setup prompt hides key input. The launcher stages development products in Clicky Bro's own user cache and keeps its runtime under its private Application Support location. It does not reuse HeyClicky's identity. Permissions are tied to the exact running build; follow [macOS testing and troubleshooting](docs/TESTING_MACOS.md). Provider tests can consume quota; check [Gemini setup](docs/GEMINI_SETUP.md) first.
 
 ### Windows
 
-The native client uses WPF/C# with the shared TypeScript agent. On Windows 11 x64 install Node.js 24 and the .NET 8 SDK; use [Windows testing instructions](docs/TESTING_WINDOWS.md). Minimal developer build:
+Requires Windows 11 x64, Git, Node.js 24 and the .NET 8 SDK. Python 3.9 or
+later is optional for the Python suite and local verification scripts.
 
 ~~~powershell
 npm ci --prefix app --ignore-scripts
 npm run build --prefix app --workspace agent
 dotnet build app/windows/OpenClicky.Windows.sln -c Debug
+dotnet test app/windows/tests/OpenClicky.Core.Tests/OpenClicky.Core.Tests.csproj -c Debug
 dotnet run --project app/windows/src/OpenClicky.Windows -c Debug
 ~~~
 
-A macOS cross-build does not prove native Windows capture, focus, microphone, hotkey or input behaviour.
+The app uses its own Clicky Bro identity and settings. Do not migrate or overwrite another app's profile. A macOS cross-build does not prove Windows capture, focus, microphone, hotkey, input or accessibility behaviour. Follow the [Windows acceptance guide](docs/TESTING_WINDOWS.md) and [Windows Codex handoff](CODEX_WINDOWS.md).
 
 ## Offline dictation
 
-There are currently two local speech routes on the Mac:
+- **Apple Speech** requires no extra model download. On-device behaviour depends on the supported OS and language.
+- **Parakeet V3 through sherpa-onnx** downloads an archive of about 465 MB, checks its SHA-256, reports progress, supports cancellation and removal, and unloads when idle or under memory pressure. It supports 25 primarily European languages, not Arabic.
+- **Cloud transcription and text polishing are separate choices.** Using a local recognizer does not guarantee the complete writing workflow stays offline.
 
-- **Apple Speech:** no extra model download; on-device operation depends on the supported OS/language.
-- **Parakeet V3 through sherpa-onnx:** approximately 465 MB downloaded archive, SHA-256 integrity checking, progress, cancellation, removal and memory-pressure/idle unload. It supports 25 primarily European languages, **not Arabic**.
-
-The Windows foundation also implements Parakeet. Local transcription has **no per-minute cloud API quota**, but uses CPU, memory and disk. Optional transcript polishing can independently use a cloud model, so a local recogniser does **not** necessarily make the final writing process offline.
-
-Downloadable multilingual Whisper models, long-form VAD and a guaranteed offline-only mode are prioritised in the [speech roadmap](docs/PRODUCT_ROADMAP.md). None is currently marketed as completed.
+Model quality, installation, language coverage and real microphone behaviour need device-specific checks. Downloadable multilingual Whisper models and a guaranteed offline-only mode remain roadmap work.
 
 ## Privacy, security and authority
 
-**A local-first design, not a claim of formal security certification.**
+Clicky Bro is designed to be local-first. It is not formally security-certified.
 
-- **Deliberate visual sharing.** A person chooses a window; the capture code rejects stale/missing targets rather than expanding to the whole screen.
-- **Separate transcription and polishing.** Local speech, cloud transcription and model-based text clean-up have different data destinations.
-- **Observation is not action.** Ask/Teach must not silently authorize computer control.
-- **Scoped workspace permissions.** File writes require the helper's separate opt-in. **This opt-in currently grants broad writes within the workspace; it is not per-file native confirmation.** Use a disposable workspace.
-- **Effective cancellation matters.** Native Stop, pending approvals and selected-window diagnostics are in [PR #1](https://github.com/Itskorrah/clicky-bro/pull/1), pending full fresh device verification.
-- **Licences stay attached.** The adopted core is MIT; third-party runtime/model licences and redistribution must be reviewed before distribution.
+- **Choose what to share.** A person chooses a window for contextual capture. A missing or stale target must not broaden capture to the whole screen.
+- **Keep speech destinations distinct.** Local recognition, cloud transcription and model-based text cleanup have separate data paths.
+- **Observation is not action authority.** Teaching can point and explain; clicking requires distinct user authority. Content from a document, webpage or model response cannot approve an action.
+- **Scope workspace access.** File writes require a separate opt-in. That opt-in currently allows writes within the selected workspace; it is not per-file confirmation. Use a disposable workspace.
+- **Make cancellation effective.** Stop and pending-action handling are tracked in [PR #1](https://github.com/Itskorrah/clicky-bro/pull/1) and still need full live acceptance.
+- **Preserve provenance.** The adopted application source is MIT-licensed. Third-party code, models and redistribution terms require their own review.
 
-See [source provenance](docs/PROVENANCE.md) and [build evidence](docs/BUILD_STATUS.md).
+See [source provenance](docs/PROVENANCE.md) and [the project engineering rules](AGENTS.md).
 
 ## Development and verification
 
-The app retains native SwiftUI/AppKit and WPF clients, rather than running as a browser wrapper.
+Clicky Bro keeps native SwiftUI/AppKit and WPF clients, with a shared TypeScript agent.
 
-~~~text
-app/macos/OpenClicky/       SwiftUI + AppKit, window capture and voice
-app/windows/                Windows WPF client and .NET core
-app/agent/                  TypeScript Gemini/Codex agent and workspace tools
-app/backend/                Optional provider backend
-design/tokens.json          Cross-platform Azure colour contract
-scripts/dev.py              Native macOS development launcher
-scripts/check_local.py      CI-free local verification
-tests/                      Python, integration and token-parity tests
-docs/                       Setup, security, roadmap and evidence
-.agents/skills/evolve/      Audit → implement → verify → deliver workflow
-~~~
+| Area | Location |
+| --- | --- |
+| macOS app | app/macos/ |
+| Windows app and .NET core | app/windows/ |
+| Shared agent and workspace tools | app/agent/ |
+| Optional provider backend | app/backend/ |
+| Cross-platform design tokens | design/tokens.json |
+| Native macOS launcher | scripts/dev.py |
+| CI-free verification runner | scripts/check_local.py |
+| Product and acceptance records | docs/ |
+| Project Evolve workflow | .agents/skills/evolve/ |
+| KStack desktop-development workflow | User-managed local tooling; not part of the shipped app |
 
-### Run local tests without GitHub Actions
+KStack's native-desktop workflow and the project's Evolve audit/build/verify skills guide scoped work. They do not install app dependencies or change global Codex, authentication or billing settings.
 
-GitHub Actions allocation can be exhausted. Run tests on a suitable local machine:
+Run the local checks on a suitable machine:
 
 ~~~bash
 npm ci --prefix app --ignore-scripts
 python3 scripts/check_local.py --list
 python3 scripts/check_local.py --report .local/evidence/checks.json
 
-# On a Mac with Xcode:
+# On a Mac with Xcode
 python3 scripts/check_local.py --native
 
-# With .NET SDK for portable Windows core tests:
+# With the .NET SDK
 python3 scripts/check_local.py --windows
 ~~~
 
-Exit code **0** means all selected checks passed; **1** means a test failed; **2** means at least one was skipped. The optional report never writes captured command output or provider secrets, and existing reports are not overwritten. No source-only test can substitute for real OS permission/audio/GUI acceptance.
+Exit code **0** means every selected check passed, **1** means a check failed and **2** means at least one check was skipped. Reports do not contain captured command output or provider secrets, and existing reports are not overwritten. Source tests cannot replace real OS permission, audio, GUI or accessibility acceptance.
 
-The [dated development status](docs/BUILD_STATUS.md) reports historical 18 October results: 705 macOS unit tests, 119 TypeScript tests and 15 offline Python tests passed; Windows portable core reported 1,066/1,071, including five upstream-matching failures. **These numbers are historical and predate the current design work and native PR.** Do not use them as release certification.
+## Roadmap and release gates
 
-## Roadmap and production gates
+1. **Native safety:** prove current-bundle capture, permission denial and revocation, microphone use, focus-safe insertion and Stop on real devices.
+2. **Theme and companion:** inspect native settings, custom colours, persistence, edge placement, click-through, reduced motion and accessibility on macOS and Windows.
+3. **Cross-platform parity:** complete Windows Helpers, Memory and Routines UI/persistence, and verify the native app on a Windows PC.
+4. **Broader workflows:** add integrations one at a time with scoped authentication, clear denial/revocation and real action receipts.
+5. **Distribution:** review licences, stabilize application identity, sign installers and validate update/rollback behavior.
 
-| Milestone | Acceptance target |
-| --- | --- |
-| **Native baseline** | Current-bundle selected-window, microphone, focus-safe insertion and Stop proven on a real Mac |
-| **Visual design** | Azure across Home, companion, dictation, workspace and settings; contrast/keyboard/dark-mode screenshots |
-| **Local voice** | User-consented Whisper models benchmarked against Parakeet, with local-only audio and optional local text clean-up |
-| **Useful intelligence** | Document context and grounded teaching, safe file approvals, durable tasks and search |
-| **Distribution** | Physical Windows parity, stable macOS identity, signed installers and tested updates |
+Accounts, plans, billing, signed installers, notarisation and trusted updates are separate product work; this development branch does not claim them as shipped.
 
-See the detailed [product roadmap](docs/PRODUCT_ROADMAP.md), [feature audit](docs/FEATURE_AUDIT.md) and [competitive crosswalk](docs/FULL_SPEC_CROSSWALK.md).
+## Contributing and acknowledgements
 
-## Contributors, licensing and acknowledgements
+Read [AGENTS.md](AGENTS.md), the [foundation decision](docs/FOUNDATION_DECISION.md), the [Evolve skill](.agents/skills/evolve/SKILL.md) and [provenance notes](docs/PROVENANCE.md) before changing capture, native permissions or agent authority. Preserve user state, test with benign fixtures and report the exact commit and platform for each result.
 
-Read [AGENTS.md](AGENTS.md), [foundation decision](docs/FOUNDATION_DECISION.md) and [Evolve engineering skill](.agents/skills/evolve/SKILL.md) before changing native input, permissions or agent authority. Preserve user state, use benign fixture data, and report real platform/commit identifiers with verification.
-
-The native foundation is based on the pinned [Prasanth OpenClicky](https://github.com/prasanthsasikumar/openclicky) MIT source; original credits and licences are preserved under app/. See [PROVENANCE.md](docs/PROVENANCE.md). HeyClicky and Superwhisper are independent competitive references, not affiliated projects. No proprietary competitor artwork is used in the new design direction.
+The adopted native foundation is based on the pinned [Prasanth OpenClicky](https://github.com/prasanthsasikumar/openclicky) MIT source. Original credits and third-party licences remain with the source under app/. HeyClicky and Superwhisper are independent product references; Clicky Bro is not affiliated with them and does not use competitor artwork.
 
 <div align="center">
-  <sub>Built for a desktop assistant that is pleasant to use, clear about its permissions, and honest about what works.</sub>
+  <sub>Thoughtful desktop assistance, clear permissions and honest acceptance status.</sub>
 </div>
-
-The [current native development checkpoint](docs/DEVELOPMENT_CHECKPOINT_2026-10-19.md) distinguishes accepted changes from the open theme, cursor and agent-safety work.

@@ -219,7 +219,7 @@ public sealed class OverlayWindow : Window
             CornerRadius = new CornerRadius(6),
             Padding = new Thickness(8, verticalPadding, 8, verticalPadding),
             Child = text,
-            Effect = new DropShadowEffect { Color = DS.Colors.OverlayCursor, ShadowDepth = 0, BlurRadius = 12, Opacity = 0.5, RenderingBias = RenderingBias.Performance },
+            Effect = new DropShadowEffect { Color = DS.Colors.OverlayCursor, ShadowDepth = 0, BlurRadius = 6, Opacity = 0.2, RenderingBias = RenderingBias.Performance },
             IsHitTestVisible = false,
         };
         return (bubble, text);
@@ -549,7 +549,8 @@ public sealed class OverlayWindow : Window
         if (welcomeShows)
         {
             var size = Measure(welcomeBubble);
-            Place(welcomeBubble, bubblePosition.X + 10, bubblePosition.Y + 18 - size.Height / 2);
+            Place(welcomeBubble, OverlayBubbleGeometry.Offset(bubblePosition.X + 10, size.Width, screenWidth),
+                    OverlayBubbleGeometry.Offset(bubblePosition.Y + 18 - size.Height / 2, size.Height, screenHeight));
         }
 
         // The caption: wraps at 300 and flips to the buddy's left when it would run off the screen.
@@ -562,7 +563,8 @@ public sealed class OverlayWindow : Window
             var size = Measure(captionBubble);
             var fitsToTheRight = bubblePosition.X + 10 + size.Width <= screenWidth - 12;
             var left = fitsToTheRight ? bubblePosition.X + 10 : bubblePosition.X - 10 - size.Width;
-            Place(captionBubble, left, bubblePosition.Y + 12);
+            Place(captionBubble, OverlayBubbleGeometry.Offset(left, size.Width, screenWidth),
+                    OverlayBubbleGeometry.Offset(bubblePosition.Y + 12, size.Height, screenHeight));
         }
 
         // The pointing bubble: pops in 0.5 → 1 with a glow that settles.
@@ -574,10 +576,13 @@ public sealed class OverlayWindow : Window
             var scale = navigationBubbleScale.Value;
             navigationBubbleScaleTransform.ScaleX = scale;
             navigationBubbleScaleTransform.ScaleY = scale;
-            navigationBubbleGlow.Opacity = Math.Clamp(0.5 + (1.0 - scale) * 1.0, 0, 1);
-            navigationBubbleGlow.BlurRadius = (6 + (1.0 - scale) * 16) * 2;
+            navigationBubbleGlow.Opacity = Math.Clamp(0.16 + (1.0 - scale) * 0.15, 0, 0.3);
+            var glowRadius = 4 + (1.0 - scale) * 4;
+            if (Math.Abs(navigationBubbleGlow.BlurRadius - glowRadius) > 0.05)
+                navigationBubbleGlow.BlurRadius = glowRadius;
             var size = Measure(navigationBubble);
-            Place(navigationBubble, bubblePosition.X + 10, bubblePosition.Y + 18 - size.Height / 2);
+            Place(navigationBubble, OverlayBubbleGeometry.Offset(bubblePosition.X + 10, size.Width, screenWidth),
+                    OverlayBubbleGeometry.Offset(bubblePosition.Y + 18 - size.Height / 2, size.Height, screenHeight));
         }
     }
 

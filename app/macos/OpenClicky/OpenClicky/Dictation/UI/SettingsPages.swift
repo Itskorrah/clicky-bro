@@ -114,20 +114,21 @@ struct SettingsFormView: View {
 /// The settings window's colours and type: the system's own, so the window reads as part of
 /// macOS in light and dark.
 enum SettingsLook {
-    /// The proposal's orange accent: #D24E2A in light, #E8653F in dark.
+    /// The user's selected accent, with Navy Slate as the new-install default.
     static var accent: Color { DS.Colors.accent }
+    static var accentText: Color { DS.Colors.accentText }
     static let rowTitle = Font.system(size: 13)
     static let caption = Font.system(size: 11)
     static let micro = Font.system(size: 10)
     static let key = Font.system(size: 12, design: .monospaced)
     static func body(_ size: CGFloat, weight: Font.Weight = .regular) -> Font { .system(size: size, weight: weight) }
 
-    static let inkTertiary = Color(nsColor: .tertiaryLabelColor)
+    static let inkTertiary = DS.Colors.tertiaryText
     static let success = Color(nsColor: .systemGreen)
     static let danger = Color(nsColor: .systemRed)
-    static let selection = accent.opacity(0.12)
+    static var selection: Color { accent.opacity(0.12) }
     static let highlighter = Color.yellow.opacity(0.35)
-    static let hairline = Color(nsColor: .separatorColor)
+    static let hairline = DS.Colors.border
     static let warning = Color(nsColor: .systemOrange)
 
     enum Metric {

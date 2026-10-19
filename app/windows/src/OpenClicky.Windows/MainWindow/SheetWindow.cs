@@ -106,49 +106,103 @@ internal class SheetWindow : WpfUi.FluentWindow
     }
 }
 
-/// <summary>The mark: a ring whose top-right corner is square, with the pointer inside aiming up and to the left.</summary>
+/// <summary>The Clicky Bro assistant face and its four-point spark.</summary>
 public static class OpenClickyMarkDrawing
 {
-    private const double InnerRadius = 0.4125;
-    private static readonly Point ArrowTip = new(0.3125, 0.3125);
-    private static readonly Point ArrowRight = new(0.7475, 0.475);
-    private static readonly Point ArrowNotch = new(0.505, 0.52);
-    private static readonly Point ArrowBottom = new(0.4775, 0.7525);
+    private static readonly SolidColorBrush InkBrush = Brush(0x13, 0x23, 0x3B);
+    private static readonly SolidColorBrush CobaltBrush = Brush(0x2F, 0x81, 0xF7);
+    private static readonly SolidColorBrush PaleCyanBrush = Brush(0xA5, 0xD6, 0xFF);
+    private static readonly SolidColorBrush PaperBrush = Brush(0xF0, 0xF6, 0xFC);
 
-    /// <summary>The mark in a square of <paramref name="side"/> at (<paramref name="left"/>, <paramref name="top"/>), even-odd filled.</summary>
-    public static Geometry Geometry(double left, double top, double side)
+    private static SolidColorBrush Brush(byte red, byte green, byte blue)
     {
-        Point Scaled(Point unit) => new(left + unit.X * side, top + unit.Y * side);
-        var center = new Point(left + side / 2, top + side / 2);
-        var radius = side / 2;
-        var geometry = new StreamGeometry { FillRule = FillRule.EvenOdd };
-        using (var context = geometry.Open())
-        {
-            // Three quarters of the circle, clockwise from the right to the top, then the square corner.
-            context.BeginFigure(new Point(center.X + radius, center.Y), isFilled: true, isClosed: true);
-            context.ArcTo(new Point(center.X, center.Y - radius), new Size(radius, radius), 0, isLargeArc: true, SweepDirection.Clockwise, true, false);
-            context.LineTo(new Point(left + side, top), true, false);
-            // The hole.
-            var inner = InnerRadius * side;
-            context.BeginFigure(new Point(center.X + inner, center.Y), true, true);
-            context.ArcTo(new Point(center.X - inner, center.Y), new Size(inner, inner), 0, false, SweepDirection.Clockwise, true, false);
-            context.ArcTo(new Point(center.X + inner, center.Y), new Size(inner, inner), 0, false, SweepDirection.Clockwise, true, false);
-            // The pointer.
-            context.BeginFigure(Scaled(ArrowTip), true, true);
-            context.LineTo(Scaled(ArrowRight), true, false);
-            context.LineTo(Scaled(ArrowNotch), true, false);
-            context.LineTo(Scaled(ArrowBottom), true, false);
-        }
+        var brush = new SolidColorBrush(Color.FromRgb(red, green, blue));
+        brush.Freeze();
+        return brush;
+    }
+
+    private static Rect UnitRect(double left, double top, double side, double x0, double y0, double x1, double y1) =>
+        new(left + x0 * side, top + y0 * side, (x1 - x0) * side, (y1 - y0) * side);
+
+    private static Geometry Rounded(double left, double top, double side,
+        double x0, double y0, double x1, double y1, double radius)
+    {
+        var geometry = new RectangleGeometry(UnitRect(left, top, side, x0, y0, x1, y1), radius * side, radius * side);
         geometry.Freeze();
         return geometry;
     }
 
-    /// <summary>The app icon: the white mark on an orange rounded square (scripts/make-app-icon.py's look).</summary>
+    private static Geometry BodyGeometry(double left, double top, double side)
+    {
+        var group = new GeometryGroup { FillRule = FillRule.Nonzero };
+        group.Children.Add(Rounded(left, top, side, 0.31, 0.66, 0.445, 0.79, 0.055));
+        group.Children.Add(Rounded(left, top, side, 0.555, 0.66, 0.69, 0.79, 0.055));
+        group.Children.Add(Rounded(left, top, side, 0.21, 0.27, 0.79, 0.73, 0.15));
+        group.Freeze();
+        return group;
+    }
+
+    private static Geometry SparkGeometry(double left, double top, double side)
+    {
+        var cx = left + 0.755 * side;
+        var cy = top + 0.30 * side;
+        var radius = 0.13 * side;
+        var shoulder = 0.033 * side;
+        var points = new[]
+        {
+            new Point(cx, cy - radius),
+            new Point(cx + shoulder, cy - shoulder),
+            new Point(cx + radius, cy),
+            new Point(cx + shoulder, cy + shoulder),
+            new Point(cx, cy + radius),
+            new Point(cx - shoulder, cy + shoulder),
+            new Point(cx - radius, cy),
+            new Point(cx - shoulder, cy - shoulder),
+        };
+        var path = new StreamGeometry();
+        using (var context = path.Open())
+        {
+            context.BeginFigure(points[0], isFilled: true, isClosed: true);
+            for (var index = 1; index < points.Length; index++)
+                context.LineTo(points[index], isStroked: true, isSmoothJoin: false);
+        }
+        path.Freeze();
+        return path;
+    }
+
+    private static Geometry FaceGeometry(double left, double top, double side) =>
+        Rounded(left, top, side, 0.285, 0.36, 0.715, 0.63, 0.105);
+
+    private static Geometry EyesGeometry(double left, double top, double side)
+    {
+        var group = new GeometryGroup();
+        group.Children.Add(new EllipseGeometry(UnitRect(left, top, side, 0.385, 0.455, 0.455, 0.545)));
+        group.Children.Add(new EllipseGeometry(UnitRect(left, top, side, 0.545, 0.455, 0.615, 0.545)));
+        group.Freeze();
+        return group;
+    }
+
+    /// <summary>The monochrome mark silhouette in a square at (<paramref name="left"/>, <paramref name="top"/>).</summary>
+    public static Geometry Geometry(double left, double top, double side)
+    {
+        var group = new GeometryGroup { FillRule = FillRule.Nonzero };
+        group.Children.Add(BodyGeometry(left, top, side));
+        group.Children.Add(SparkGeometry(left, top, side));
+        group.Freeze();
+        return group;
+    }
+
+    /// <summary>The flat navy app tile with its cobalt assistant face and pale-cyan spark.</summary>
     public static DrawingImage AppIconImage()
     {
         var group = new DrawingGroup();
-        group.Children.Add(new GeometryDrawing(new SolidColorBrush(SettingsLook.AccentLight), null, new RectangleGeometry(new Rect(0, 0, 64, 64), 14, 14)));
-        group.Children.Add(new GeometryDrawing(Brushes.White, null, Geometry(14, 14, 36)));
+        var tile = new RectangleGeometry(new Rect(0, 0, 64, 64), 14, 14);
+        tile.Freeze();
+        group.Children.Add(new GeometryDrawing(InkBrush, null, tile));
+        group.Children.Add(new GeometryDrawing(CobaltBrush, null, BodyGeometry(0, 0, 64)));
+        group.Children.Add(new GeometryDrawing(PaperBrush, null, FaceGeometry(0, 0, 64)));
+        group.Children.Add(new GeometryDrawing(InkBrush, null, EyesGeometry(0, 0, 64)));
+        group.Children.Add(new GeometryDrawing(PaleCyanBrush, null, SparkGeometry(0, 0, 64)));
         var image = new DrawingImage(group);
         image.Freeze();
         return image;

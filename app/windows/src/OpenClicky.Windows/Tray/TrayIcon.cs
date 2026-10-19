@@ -120,7 +120,7 @@ public sealed class TrayIcon : IDisposable
         return GeneratedMarkIcon();
     }
 
-    /// <summary>The mark (a ring with a square top-right corner and the pointer inside), white on the orange accent, at the tray's size.</summary>
+    /// <summary>The flat navy app tile with its cobalt assistant face and pale-cyan spark, at tray size.</summary>
     public static Icon GeneratedMarkIcon()
     {
         var side = Math.Max(16, SystemInformation.SmallIconSize.Width);
@@ -128,11 +128,25 @@ public sealed class TrayIcon : IDisposable
         using (var graphics = Graphics.FromImage(bitmap))
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
             graphics.Clear(Color.Transparent);
-            using var background = new SolidBrush(Color.FromArgb(0xD2, 0x4E, 0x2A));
-            using (var rounded = RoundedRectangle(new RectangleF(0, 0, side, side), side * 0.22f)) graphics.FillPath(background, rounded);
-            using var mark = MarkPath(side * 0.2f, side * 0.2f, side * 0.6f);
-            graphics.FillPath(Brushes.White, mark);
+            var tile = new RectangleF(0, 0, side, side);
+            using (var background = new SolidBrush(Color.FromArgb(0x13, 0x23, 0x3B)))
+            using (var rounded = RoundedRectangle(tile, side * 0.225f))
+                graphics.FillPath(background, rounded);
+
+            DrawRounded(graphics, tile, 0.31f, 0.66f, 0.445f, 0.79f, 0.055f, Color.FromArgb(0x2F, 0x81, 0xF7));
+            DrawRounded(graphics, tile, 0.555f, 0.66f, 0.69f, 0.79f, 0.055f, Color.FromArgb(0x2F, 0x81, 0xF7));
+            DrawRounded(graphics, tile, 0.21f, 0.27f, 0.79f, 0.73f, 0.15f, Color.FromArgb(0x2F, 0x81, 0xF7));
+            DrawRounded(graphics, tile, 0.285f, 0.36f, 0.715f, 0.63f, 0.105f, Color.FromArgb(0xF0, 0xF6, 0xFC));
+            using (var eyes = new SolidBrush(Color.FromArgb(0x13, 0x23, 0x3B)))
+            {
+                graphics.FillEllipse(eyes, UnitRect(tile, 0.385f, 0.455f, 0.455f, 0.545f));
+                graphics.FillEllipse(eyes, UnitRect(tile, 0.545f, 0.455f, 0.615f, 0.545f));
+            }
+            using (var spark = SparkPath(tile))
+            using (var cyan = new SolidBrush(Color.FromArgb(0xA5, 0xD6, 0xFF)))
+                graphics.FillPath(cyan, spark);
         }
         var handle = bitmap.GetHicon();
         // Icon.FromHandle does not own the handle; clone it so the icon outlives the bitmap's handle.
@@ -144,6 +158,16 @@ public sealed class TrayIcon : IDisposable
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern bool DestroyIcon(IntPtr handle);
+
+    private static RectangleF UnitRect(RectangleF tile, float x0, float y0, float x1, float y1) =>
+        new(tile.Left + x0 * tile.Width, tile.Top + y0 * tile.Height, (x1 - x0) * tile.Width, (y1 - y0) * tile.Height);
+
+    private static void DrawRounded(Graphics graphics, RectangleF tile, float x0, float y0, float x1, float y1, float radius, Color colour)
+    {
+        using var brush = new SolidBrush(colour);
+        using var path = RoundedRectangle(UnitRect(tile, x0, y0, x1, y1), radius * Math.Min(tile.Width, tile.Height));
+        graphics.FillPath(brush, path);
+    }
 
     private static GraphicsPath RoundedRectangle(RectangleF bounds, float radius)
     {
@@ -157,21 +181,24 @@ public sealed class TrayIcon : IDisposable
         return path;
     }
 
-    /// <summary>OpenClickyMark's proportions (OpenClickyMark.swift), filled even-odd.</summary>
-    private static GraphicsPath MarkPath(float left, float top, float side)
+    /// <summary>The pale-cyan four-point spark shared with OpenClickyMark.swift.</summary>
+    private static GraphicsPath SparkPath(RectangleF tile)
     {
-        PointF Scaled(float x, float y) => new(left + x * side, top + y * side);
-        var path = new GraphicsPath(FillMode.Alternate);
-        var center = new PointF(left + side / 2, top + side / 2);
-        var radius = side / 2;
-        // Three quarters of the circle, clockwise from the right to the top, then the square corner.
-        path.StartFigure();
-        path.AddArc(center.X - radius, center.Y - radius, side, side, 0, 270);
-        path.AddLine(center.X, top, left + side, top);
-        path.CloseFigure();
-        var inner = 0.4125f * side;
-        path.AddEllipse(center.X - inner, center.Y - inner, inner * 2, inner * 2);
-        path.AddPolygon([Scaled(0.3125f, 0.3125f), Scaled(0.7475f, 0.475f), Scaled(0.505f, 0.52f), Scaled(0.4775f, 0.7525f)]);
+        var cx = tile.Left + 0.755f * tile.Width;
+        var cy = tile.Top + 0.30f * tile.Height;
+        var radius = 0.13f * Math.Min(tile.Width, tile.Height);
+        var shoulder = 0.033f * Math.Min(tile.Width, tile.Height);
+        var path = new GraphicsPath();
+        path.AddPolygon([
+            new PointF(cx, cy - radius),
+            new PointF(cx + shoulder, cy - shoulder),
+            new PointF(cx + radius, cy),
+            new PointF(cx + shoulder, cy + shoulder),
+            new PointF(cx, cy + radius),
+            new PointF(cx - shoulder, cy + shoulder),
+            new PointF(cx - radius, cy),
+            new PointF(cx - shoulder, cy - shoulder),
+        ]);
         return path;
     }
 

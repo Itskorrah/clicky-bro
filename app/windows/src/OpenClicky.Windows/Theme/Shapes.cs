@@ -3,8 +3,8 @@
 //  OpenClicky (Windows port of the shapes in OverlayWindow.swift, OpenClickyMark.swift,
 //  OrbPanel.swift and NotchHUD.swift)
 //
-//  The pointer's triangle, the mark (ring + pointer), the orb's own small mark and pixel grid,
-//  and the island's outline with its top corners flaring out into the edge it hangs from.
+//  The pointer's triangle, the orb's own small mark and pixel grid, and the island's outline with
+//  its top corners flaring out into the edge it hangs from.
 //  Same maths as the SwiftUI shapes; WPF and SwiftUI views are both y-down.
 //
 
@@ -27,44 +27,6 @@ public static class Shapes
         figure.Segments.Add(new LineSegment(new Point(midX - size / 2, midY + triangleHeight / 3), true));
         figure.Segments.Add(new LineSegment(new Point(midX + size / 2, midY + triangleHeight / 3), true));
         var geometry = new PathGeometry(new[] { figure });
-        geometry.Freeze();
-        return geometry;
-    }
-
-    // OpenClickyMark proportions in a unit square, y down, measured off the icon artwork.
-    public const double MarkInnerRadius = 0.4125;
-    public static readonly Point MarkArrowTip = new(0.3125, 0.3125);
-    public static readonly Point MarkArrowRight = new(0.7475, 0.475);
-    public static readonly Point MarkArrowNotch = new(0.505, 0.52);
-    public static readonly Point MarkArrowBottom = new(0.4775, 0.7525);
-
-    /// <summary>The mark: a ring whose top-right corner is square, with the pointer inside aiming up-left. Even-odd.</summary>
-    public static Geometry OpenClickyMark(Rect rect)
-    {
-        var side = Math.Min(rect.Width, rect.Height);
-        var originX = rect.X + rect.Width / 2 - side / 2;
-        var originY = rect.Y + rect.Height / 2 - side / 2;
-        Point Scaled(Point unitPoint) => new(originX + unitPoint.X * side, originY + unitPoint.Y * side);
-        var center = new Point(originX + side / 2, originY + side / 2);
-
-        var geometry = new PathGeometry { FillRule = FillRule.EvenOdd };
-        // The outer edge: three quarters of a circle (right → bottom → left → top), then the square corner.
-        var outer = new PathFigure { StartPoint = new Point(center.X + side / 2, center.Y), IsClosed = true };
-        outer.Segments.Add(new ArcSegment(new Point(center.X, center.Y - side / 2), new Size(side / 2, side / 2), 0, true, SweepDirection.Clockwise, true));
-        outer.Segments.Add(new LineSegment(new Point(originX + side, originY), true));
-        geometry.Figures.Add(outer);
-        // The hole.
-        var innerRadius = MarkInnerRadius * side;
-        var hole = new PathFigure { StartPoint = new Point(center.X + innerRadius, center.Y), IsClosed = true };
-        hole.Segments.Add(new ArcSegment(new Point(center.X - innerRadius, center.Y), new Size(innerRadius, innerRadius), 0, false, SweepDirection.Clockwise, true));
-        hole.Segments.Add(new ArcSegment(new Point(center.X + innerRadius, center.Y), new Size(innerRadius, innerRadius), 0, false, SweepDirection.Clockwise, true));
-        geometry.Figures.Add(hole);
-        // The pointer.
-        var arrow = new PathFigure { StartPoint = Scaled(MarkArrowTip), IsClosed = true };
-        arrow.Segments.Add(new LineSegment(Scaled(MarkArrowRight), true));
-        arrow.Segments.Add(new LineSegment(Scaled(MarkArrowNotch), true));
-        arrow.Segments.Add(new LineSegment(Scaled(MarkArrowBottom), true));
-        geometry.Figures.Add(arrow);
         geometry.Freeze();
         return geometry;
     }

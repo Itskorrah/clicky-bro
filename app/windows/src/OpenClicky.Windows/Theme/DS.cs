@@ -47,31 +47,34 @@ public static class DS
         private static bool IsDarkAppearance(DictationSettings settings) =>
             settings.Appearance == DictationAppearance.Dark
             || (settings.Appearance == DictationAppearance.System && MainWindowTheme.SystemUsesDarkTheme());
-        /// Semantic Azure palette, mirrored in SwiftUI and XAML.
-        public static class AzureLight
+        /// Primer-inspired light surfaces, mirrored in SwiftUI and XAML.
+        public static class PrimerLight
         {
-            public static readonly Color Canvas = Hex("#F7FAFF");
+            public static readonly Color Canvas = Hex("#F6F8FA");
             public static readonly Color Surface = Hex("#FFFFFF");
-            public static readonly Color SurfaceRaised = Hex("#EFF6FF");
-            public static readonly Color PrimaryText = Hex("#0F172A");
-            public static readonly Color SecondaryText = Hex("#64748B");
-            public static readonly Color Border = Hex("#DEE7F3");
-            public static readonly Color Accent = Hex("#2563EB");
+            public static readonly Color SurfaceRaised = Hex("#F6F8FA");
+            public static readonly Color PrimaryText = Hex("#1F2328");
+            public static readonly Color SecondaryText = Hex("#59636E");
+            public static readonly Color TertiaryText = Hex("#66707A");
+            public static readonly Color Border = Hex("#D0D7DE");
+            public static readonly Color Accent = Hex("#2B547B");
         }
 
-        public static class AzureDark
+        /// <summary>Primer-inspired dark surfaces, mirrored in SwiftUI and XAML.</summary>
+        public static class PrimerDark
         {
-            public static readonly Color Canvas = Hex("#0B1220");
-            public static readonly Color Surface = Hex("#172338");
-            public static readonly Color SurfaceRaised = Hex("#1D2B44");
-            public static readonly Color PrimaryText = Hex("#F8FAFC");
-            public static readonly Color SecondaryText = Hex("#A8B6CA");
-            public static readonly Color Border = Hex("#334155");
-            public static readonly Color Accent = Hex("#60A5FA");
+            public static readonly Color Canvas = Hex("#0D1117");
+            public static readonly Color Surface = Hex("#161B22");
+            public static readonly Color SurfaceRaised = Hex("#21262D");
+            public static readonly Color PrimaryText = Hex("#E6EDF3");
+            public static readonly Color SecondaryText = Hex("#A1AAB4");
+            public static readonly Color TertiaryText = Hex("#8B949E");
+            public static readonly Color Border = Hex("#30363D");
+            public static readonly Color Accent = Hex("#80A9D4");
         }
         /// <summary>The agent result card's status dot while the companion is still working (Radix Amber 9).</summary>
         public static readonly Color Warning = Hex("#FFB224");
-        /// <summary>The pointer and its bubbles: red-orange like the current HeyClicky cursor.</summary>
+        /// <summary>The pointer and its bubbles, using the separate companion-follow preference.</summary>
         public static Color OverlayCursor
         {
             get
@@ -98,18 +101,18 @@ public static class DS
     /// <summary>The island, always dark: it is part of the top of the screen, not the app's appearance.</summary>
     public static class HUD
     {
-        public static readonly Color Island = Hex("#0B1220");
+        public static readonly Color Island = Hex("#0D1117");
         /// <summary>Pills and the gear in the band, a step lighter than the island.</summary>
-        public static readonly Color BandControl = Hex("#172338");
-        public static readonly Color SurfaceRaised = Hex("#22324A");
+        public static readonly Color BandControl = Hex("#161B22");
+        public static readonly Color SurfaceRaised = Hex("#21262D");
         /// <summary>The (i) button and other secondary squares on a surface.</summary>
-        public static readonly Color SurfaceRaisedSoft = Hex("#293C56");
+        public static readonly Color SurfaceRaisedSoft = Hex("#30363D");
         public static readonly Color Text = Hex("#FFFFFF");
-        public static readonly Color Text2 = Hex("#B8C8E0");
-        public static readonly Color Text3 = Hex("#9BAFCB");
-        public static readonly Color Pointer = Hex("#60A5FA");
+        public static readonly Color Text2 = Hex("#C9D1D9");
+        public static readonly Color Text3 = Hex("#A1AAB4");
+        public static readonly Color Pointer = Hex("#80A9D4");
         /// <summary>The "!" disc behind a permission card's mark.</summary>
-        public static readonly Color PointerTint = Hex("#193454");
+        public static readonly Color PointerTint = Hex("#1C2C3D");
         public static readonly Color Live = Hex("#34C77B");
         /// <summary>The tour's "heard you" line.</summary>
         public static readonly Color Good = Color.FromRgb(102, 217, 128);

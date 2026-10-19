@@ -1,7 +1,10 @@
 # Test clicky-bro on Windows
 
-Physical Windows testing is deferred by the user. The repository contains a
-native Windows client and shared TypeScript agent, not a macOS executable port.
+Native Windows acceptance has not yet been performed. Earlier WPF builds and
+portable-core test runs were executed on macOS and do not count as Windows
+acceptance. Use the [Windows Codex handoff](../CODEX_WINDOWS.md) to continue on
+a Windows 11 PC. The repository contains a native Windows client and shared
+TypeScript agent, not a macOS executable port.
 
 ## Build and run
 
@@ -13,7 +16,7 @@ Open PowerShell in its root folder:
 npm ci --prefix app --ignore-scripts
 npm run build --prefix app --workspace agent
 dotnet build app/windows/OpenClicky.Windows.sln -c Debug
-dotnet test app/windows/tests/OpenClicky.Core.Tests -c Debug
+dotnet test app/windows/tests/OpenClicky.Core.Tests/OpenClicky.Core.Tests.csproj -c Debug
 dotnet run --project app/windows/src/OpenClicky.Windows -c Debug
 ```
 
@@ -22,9 +25,15 @@ OpenClicky for compatibility. The client uses its own `.clicky-bro` identity and
 settings under your user profile. Keep an existing OpenClicky/HeyClicky install's
 settings separate; no migration is automatic.
 
-In the app's account/provider settings, enter your own Gemini key and choose
-`gemini-3.5-flash-lite`. Use the Windows system voice and Windows speech input for
-initial checks. Do not enable billing or paste a key into a Git-tracked file.
+Provider checks are optional; the app build and offline checks do not require a
+Gemini key. Only run a live provider check when the user's already-authorized
+free usage is confirmed. A free-model allowlist is not a billing cap. Do not
+enable billing or paid fallback; skip provider checks if the available free
+usage cannot be confirmed. Never paste a key into a Git-tracked file or report.
+
+If that optional boundary is satisfied, enter your own Gemini key in the app's
+account/provider settings and choose `gemini-3.5-flash-lite`. Use the Windows
+system voice and Windows speech input for initial checks. Do not enable billing.
 
 If you want to use the shared agent, set its command to Node plus the absolute
 path to `app/agent/dist/cli.js` in this checkout. Use a new empty agent workspace.
@@ -101,7 +110,7 @@ Helpers/Memory/Routines workspace window is not yet implemented as the same
 Windows UI. Connected account services and general MCP execution through the
 new Gemini runtime are not claimed working without explicit configuration.
 
-## Latest local Windows-source checks
+## 18 October Windows-source checks on macOS (historical)
 
 On 18 October 2026, the Windows core suite ran on the macOS development host
 with the pinned .NET SDK 8.0.426:
@@ -156,7 +165,7 @@ An earlier cross-build and self-contained publish preceded the latest source
 repairs; that publish folder is stale and does not verify this source. No Windows
 hardware, capture, audio or input test has run.
 
-## 19 October PR #8/#9 checks on macOS
+## 19 October earlier theme and companion checks on macOS (historical)
 
 The PR #8 theme branch at `30d552f` and the integrated PR #8/#9 branch at
 `946ca50` were checked on the macOS development host. The WPF cross-build passed.
@@ -167,7 +176,22 @@ are retained in the test report; no production code or tests were weakened to
 hide host differences. This result is neither a native Windows test pass nor a
 reason to claim the five tests pass on Windows.
 
-The user had no Windows machine available for this pass. Native WPF colour
-dialog, settings persistence, companion rendering, mixed-DPI monitors, screen
-reader, keyboard, capture, audio and input acceptance remain pending. Reports
-for this run are under ignored `.local/evidence/acceptance-2026-10-19/`.
+No Windows PC was available during this macOS verification pass. Native WPF
+colour dialog, settings persistence, companion rendering, mixed-DPI monitors,
+screen reader, keyboard, capture, audio and input acceptance remain pending.
+The [Windows handoff](../CODEX_WINDOWS.md) contains the continuation steps.
+Reports for this run are under ignored `.local/evidence/acceptance-2026-10-19/`.
+
+## 19 October navy and icon checks on macOS (latest recorded)
+
+The navy/icon source at 210ec8e was checked on macOS. The native macOS suite
+passed **717/717**; the Python suite passed **39/39**; focused palette checks
+passed **7/7**. The WPF cross-build completed with **0 errors** and one inherited
+WFAC010 high-DPI manifest warning. The Windows portable core suite, run on
+macOS, reported **1,079 passed, 5 failed, 0 skipped (1,084 total)**. Those five
+failures depend on Windows paths or npm-shim behavior on a macOS host; they are
+not a Windows pass. GitHub reported no checks for PR #9 at that time.
+
+Native Windows theme, icon, overlay, DPI, keyboard, Narrator, capture, audio and
+input acceptance remain open. No Windows hardware check is claimed. See
+[CODEX_WINDOWS.md](../CODEX_WINDOWS.md) for the continuation checklist.
