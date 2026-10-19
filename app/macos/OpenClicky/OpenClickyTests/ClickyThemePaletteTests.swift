@@ -8,6 +8,8 @@ struct ClickyThemePaletteTests {
             for dark in [false, true] {
                 let resolved = ClickyThemePalette.resolve(preset: preset.id, customHex: "#FFFFFF", dark: dark)
                 #expect(ClickyThemePalette.contrast(resolved, dark ? "#202329" : "#FFFFFF") >= 4.5)
+                #expect(ClickyThemePalette.contrast(
+                    ClickyThemePalette.textOnAccent(resolved), resolved) >= 4.5)
             }
         }
     }
