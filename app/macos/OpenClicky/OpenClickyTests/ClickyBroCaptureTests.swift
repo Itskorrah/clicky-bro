@@ -25,10 +25,14 @@ struct ClickyBroCaptureTests {
         let before = CGRect(x: 20, y: -100, width: 800, height: 600)
         let moved = CGRect(x: 21, y: -100, width: 800, height: 600)
         let resized = CGRect(x: 20, y: -100, width: 801, height: 600)
+        let infiniteOrigin = CGRect(x: .infinity, y: -100, width: 800, height: 600)
+        let infiniteExtent = CGRect(x: 20, y: -100, width: .infinity, height: 600)
         #expect(CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: before))
         #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: moved))
         #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: before, after: resized))
         #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: .zero, after: .zero))
+        #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: infiniteOrigin, after: infiniteOrigin))
+        #expect(!CompanionScreenCaptureUtility.hasStableWindowFrame(before: infiniteExtent, after: infiniteExtent))
     }
 
     @Test func captureDiagnosisSeparatesPermissionFromDeliveredFrame() {

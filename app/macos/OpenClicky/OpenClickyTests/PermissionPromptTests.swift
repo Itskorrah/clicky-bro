@@ -297,7 +297,11 @@ struct PermissionPromptTests {
         model.setBusy(true)
         model.setSpeaking(true)
         model.setHovering(true)
-        try await Task.sleep(nanoseconds: 600_000_000)
+        // Busy-state reconciliation has a 400 ms grace period. Poll the expected
+        // state so a loaded test runner can schedule that task before the bound.
+        for _ in 0..<150 where model.expansion != .compact {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
         #expect(model.expansion == .compact)
 
         model.setSpeaking(false)

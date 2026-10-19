@@ -62,12 +62,21 @@ describe("native Gemini runtime", () => {
         const { cfg } = fixture();
         let enteredApproval!: () => void;
         const entered = new Promise<void>(resolve => { enteredApproval = resolve; });
+        const requests: any[] = [];
         const agent = new GeminiAgent(cfg, {
             onApproval: () => {
                 enteredApproval();
                 return new Promise<never>(() => {});
             },
-        }, async () => answer([{ functionCall: { name: "write_file", args: { path: "cancelled.txt", content: "must not write" } } }]));
+        }, async (_url, init) => {
+            requests.push(JSON.parse(init!.body as string));
+            return requests.length === 1
+                ? answer([
+                    { functionCall: { id: "call-1", name: "write_file", args: { path: "cancelled.txt", content: "must not write" } } },
+                    { functionCall: { id: "call-2", name: "write_file", args: { path: "later.txt", content: "must not write either" } } },
+                ])
+                : answer([{ text: "Resumed after Stop" }]);
+        });
         await agent.start();
         const running = agent.run("write file");
         await entered;
@@ -75,6 +84,152 @@ describe("native Gemini runtime", () => {
         const result = await running;
         expect(result.status).toBe("interrupted");
         expect(fs.existsSync(path.join(cfg.workspace, "cancelled.txt"))).toBe(false);
+        expect(fs.existsSync(path.join(cfg.workspace, "later.txt"))).toBe(false);
+
+        const resumed = await agent.run("continue", { threadId: result.threadId });
+        expect(resumed.status).toBe("completed");
+        const sentResponses = requests[1].contents.flatMap((content: any) => content.parts ?? [])
+            .filter((part: any) => part.functionResponse);
+        expect(sentResponses.map((part: any) => part.functionResponse.id)).toEqual(["call-1", "call-2"]);
+        expect(sentResponses.every((part: any) => /cancelled by Stop/.test(part.functionResponse.response.error))).toBe(true);
+    });
+    it("keeps a file created during approval instead of overwriting it", async () => {
+        const { cfg } = fixture();
+        const target = path.join(cfg.workspace, "appeared.txt");
+        let calls = 0;
+        const requests: any[] = [];
+        const agent = new GeminiAgent(cfg, {
+            onApproval: async () => {
+                fs.writeFileSync(target, "created while approval was waiting");
+                return "accept";
+            },
+        }, async (_url, init) => {
+            requests.push(JSON.parse(init!.body as string));
+            return calls++ === 0
+                ? answer([{ functionCall: { name: "write_file", args: { path: "appeared.txt", content: "approved content" } } }])
+                : answer([{ text: "Write refused" }]);
+        });
+        await agent.start();
+        await agent.run("write appeared.txt");
+        expect(fs.readFileSync(target, "utf8")).toBe("created while approval was waiting");
+        expect(requests[1].contents.at(-1).parts[0].functionResponse.response.error).toMatch(/appeared while awaiting approval/);
+    });
+    it("refuses a hard-linked workspace path that would modify an outside file", async () => {
+        const { cfg, root } = fixture();
+        const outside = path.join(root, "outside.txt");
+        const linked = path.join(cfg.workspace, "linked.txt");
+        fs.mkdirSync(cfg.workspace, { recursive: true });
+        fs.writeFileSync(outside, "outside original");
+        fs.linkSync(outside, linked);
+        let approvals = 0;
+        let calls = 0;
+        const requests: any[] = [];
+        const agent = new GeminiAgent(cfg, { onApproval: async () => { approvals++; return "accept"; } },
+            async (_url, init) => {
+                requests.push(JSON.parse(init!.body as string));
+                return calls++ === 0
+                    ? answer([{ functionCall: { name: "write_file", args: { path: "linked.txt", content: "outside changed" } } }])
+                    : answer([{ text: "Write refused" }]);
+            });
+        await agent.start();
+        await agent.run("write linked.txt");
+        expect(approvals).toBe(0);
+        expect(fs.readFileSync(outside, "utf8")).toBe("outside original");
+        expect(requests[1].contents.at(-1).parts[0].functionResponse.response.error).toMatch(/multiple hard links/);
+    });
+    it.each(["../outside.txt", "escape.txt"])("keeps write targets inside the workspace for %s", async (writePath) => {
+        const { cfg, root } = fixture();
+        const outside = path.join(root, "outside.txt");
+        fs.writeFileSync(outside, "outside original");
+        fs.mkdirSync(cfg.workspace, { recursive: true });
+        if (writePath === "escape.txt")
+            fs.symlinkSync(outside, path.join(cfg.workspace, writePath));
+        let approvals = 0;
+        let calls = 0;
+        const requests: any[] = [];
+        const agent = new GeminiAgent(cfg, { onApproval: async () => { approvals++; return "accept"; } },
+            async (_url, init) => {
+                requests.push(JSON.parse(init!.body as string));
+                return calls++ === 0
+                    ? answer([{ functionCall: { name: "write_file", args: { path: writePath, content: "outside changed" } } }])
+                    : answer([{ text: "Write refused" }]);
+            });
+        await agent.start();
+        await agent.run("write outside.txt");
+        expect(approvals).toBe(0);
+        expect(fs.readFileSync(outside, "utf8")).toBe("outside original");
+        expect(requests[1].contents.at(-1).parts[0].functionResponse.response.error).toMatch(/outside/);
+    });
+    it("refuses an existing file replaced while approval is pending", async () => {
+        const { cfg } = fixture();
+        const target = path.join(cfg.workspace, "replace.txt");
+        let calls = 0;
+        const requests: any[] = [];
+        const agent = new GeminiAgent(cfg, {
+            onApproval: async () => {
+                fs.unlinkSync(target);
+                fs.writeFileSync(target, "replacement content");
+                return "accept";
+            },
+        }, async (_url, init) => {
+            requests.push(JSON.parse(init!.body as string));
+            return calls++ === 0
+                ? answer([{ functionCall: { name: "write_file", args: { path: "replace.txt", content: "approved content" } } }])
+                : answer([{ text: "Write refused" }]);
+        });
+        await agent.start();
+        fs.writeFileSync(target, "original content");
+        await agent.run("write replace.txt");
+        expect(fs.readFileSync(target, "utf8")).toBe("replacement content");
+        expect(requests[1].contents.at(-1).parts[0].functionResponse.response.error).toMatch(/changed while awaiting approval/);
+    });
+    it("refuses an existing file replaced by an outside symlink during approval", async () => {
+        const { cfg, root } = fixture();
+        const outside = path.join(root, "outside.txt");
+        const target = path.join(cfg.workspace, "replace-link.txt");
+        let calls = 0;
+        const requests: any[] = [];
+        const agent = new GeminiAgent(cfg, {
+            onApproval: async () => {
+                fs.unlinkSync(target);
+                fs.symlinkSync(outside, target);
+                return "accept";
+            },
+        }, async (_url, init) => {
+            requests.push(JSON.parse(init!.body as string));
+            return calls++ === 0
+                ? answer([{ functionCall: { name: "write_file", args: { path: "replace-link.txt", content: "outside changed" } } }])
+                : answer([{ text: "Write refused" }]);
+        });
+        await agent.start();
+        fs.writeFileSync(outside, "outside original");
+        fs.writeFileSync(target, "original content");
+        await agent.run("write replace-link.txt");
+        expect(fs.readFileSync(outside, "utf8")).toBe("outside original");
+        expect(requests[1].contents.at(-1).parts[0].functionResponse.response.error).toMatch(/outside/);
+    });
+    it("rechecks symlinks installed while approval is pending", async () => {
+        const { cfg, root } = fixture();
+        const outside = path.join(root, "outside.txt");
+        const target = path.join(cfg.workspace, "appeared-link.txt");
+        fs.writeFileSync(outside, "outside original");
+        let calls = 0;
+        const requests: any[] = [];
+        const agent = new GeminiAgent(cfg, {
+            onApproval: async () => {
+                fs.symlinkSync(outside, target);
+                return "accept";
+            },
+        }, async (_url, init) => {
+            requests.push(JSON.parse(init!.body as string));
+            return calls++ === 0
+                ? answer([{ functionCall: { name: "write_file", args: { path: "appeared-link.txt", content: "outside changed" } } }])
+                : answer([{ text: "Write refused" }]);
+        });
+        await agent.start();
+        await agent.run("write appeared-link.txt");
+        expect(fs.readFileSync(outside, "utf8")).toBe("outside original");
+        expect(requests[1].contents.at(-1).parts[0].functionResponse.response.error).toMatch(/outside/);
     });
     it("prevents traversal and symlink reads outside the workspace", async () => {
         const { cfg, root } = fixture();

@@ -100,8 +100,12 @@ enum CompanionScreenCaptureUtility {
     }
 
     nonisolated static func hasStableWindowFrame(before: CGRect, after: CGRect) -> Bool {
-        before == after && before.width > 0 && before.height > 0 &&
-            before.width.isFinite && before.height.isFinite
+        before == after && hasFinitePositiveGeometry(before) && hasFinitePositiveGeometry(after)
+    }
+
+    private nonisolated static func hasFinitePositiveGeometry(_ frame: CGRect) -> Bool {
+        frame.minX.isFinite && frame.minY.isFinite && frame.maxX.isFinite && frame.maxY.isFinite &&
+            frame.width > 0 && frame.height > 0 && frame.width.isFinite && frame.height.isFinite
     }
 
     static func captureSelectedWindow() async throws -> CompanionScreenCapture {
