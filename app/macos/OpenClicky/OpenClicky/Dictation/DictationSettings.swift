@@ -264,6 +264,12 @@ final class DictationSettings: ObservableObject {
         haptics = defaults.object(forKey: Keys.haptics) == nil ? true : defaults.bool(forKey: Keys.haptics)
         reduceAnimation = defaults.bool(forKey: Keys.reduceAnimation)
         appearance = DictationAppearance(rawValue: defaults.string(forKey: Keys.appearance) ?? "") ?? .system
+        let chosenPreset = defaults.string(forKey: Keys.accentPreset) ?? "coral"
+        accentPreset = ClickyThemePalette.presets.contains(where: { $0.id == chosenPreset }) ? chosenPreset : "coral"
+        customAccentHex = ClickyThemePalette.normalizedHex(defaults.string(forKey: Keys.customAccentHex)) ?? "#D24E2A"
+        companionFollowsAccent = defaults.object(forKey: Keys.companionFollowsAccent) == nil
+            ? true : defaults.bool(forKey: Keys.companionFollowsAccent)
+        customCompanionHex = ClickyThemePalette.normalizedHex(defaults.string(forKey: Keys.customCompanionHex)) ?? "#E8653F"
         inactivityTimeoutMinutes = defaults.object(forKey: Keys.inactivityTimeoutMinutes) == nil ? 3 : defaults.integer(forKey: Keys.inactivityTimeoutMinutes)
         clipboardHistoryEnabled = defaults.bool(forKey: Keys.clipboardHistoryEnabled)
         incognito = defaults.bool(forKey: Keys.incognito)
@@ -300,6 +306,10 @@ final class DictationSettings: ObservableObject {
         static let haptics = "dictation.haptics"
         static let reduceAnimation = "dictation.reduceAnimation"
         static let appearance = "dictation.appearance"
+        static let accentPreset = "appearance.accentPreset"
+        static let customAccentHex = "appearance.customAccentHex"
+        static let companionFollowsAccent = "appearance.companionFollowsAccent"
+        static let customCompanionHex = "appearance.customCompanionHex"
         static let inactivityTimeoutMinutes = "dictation.inactivityTimeoutMinutes"
         static let clipboardHistoryEnabled = "dictation.clipboardHistoryEnabled"
         static let incognito = "dictation.incognito"
@@ -392,6 +402,30 @@ final class DictationSettings: ObservableObject {
     /// once picked; until then it follows the Mac.
     @Published var region: AppRegion { didSet { defaults.set(region.rawValue, forKey: Keys.region) } }
     @Published var appearance: DictationAppearance { didSet { defaults.set(appearance.rawValue, forKey: Keys.appearance) } }
+    /// Added preferences are opt-in and never rewrite an existing orb, appearance or hotkey.
+    @Published var accentPreset: String {
+        didSet {
+            if !ClickyThemePalette.presets.contains(where: { $0.id == accentPreset }) { accentPreset = "coral" }
+            defaults.set(accentPreset, forKey: Keys.accentPreset)
+        }
+    }
+    @Published var customAccentHex: String {
+        didSet {
+            if let normal = ClickyThemePalette.normalizedHex(customAccentHex) {
+                defaults.set(normal, forKey: Keys.customAccentHex)
+            }
+        }
+    }
+    @Published var companionFollowsAccent: Bool {
+        didSet { defaults.set(companionFollowsAccent, forKey: Keys.companionFollowsAccent) }
+    }
+    @Published var customCompanionHex: String {
+        didSet {
+            if let normal = ClickyThemePalette.normalizedHex(customCompanionHex) {
+                defaults.set(normal, forKey: Keys.customCompanionHex)
+            }
+        }
+    }
     /// A take with this long of silence ends on its own. 0 = never.
     @Published var inactivityTimeoutMinutes: Int { didSet { defaults.set(inactivityTimeoutMinutes, forKey: Keys.inactivityTimeoutMinutes) } }
     @Published var preferredMicrophoneUID: String? {
