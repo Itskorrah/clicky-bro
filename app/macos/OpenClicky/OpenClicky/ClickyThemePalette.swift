@@ -40,6 +40,11 @@ enum ClickyThemePalette {
         return ensureContrast(colour, against: dark ? "#202329" : "#FFFFFF", dark: dark)
     }
 
+    /// Dynamic on-accent text; white on a pale blue pointer fails contrast in dark mode.
+    static func textOnAccent(_ accent: String) -> String {
+        contrast("#FFFFFF", accent) >= contrast("#0F172A", accent) ? "#FFFFFF" : "#0F172A"
+    }
+
     static func contrast(_ first: String, _ second: String) -> Double {
         let a = luminance(first), b = luminance(second)
         return (max(a, b) + 0.05) / (min(a, b) + 0.05)
