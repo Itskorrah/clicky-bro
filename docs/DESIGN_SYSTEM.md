@@ -1,6 +1,6 @@
-# Clicky Bro Azure — native design contract
+# Clicky Bro Classic — native design contract
 
-**State:** foundation implemented 19 October 2026; **not** a completed visual redesign or a photographed GUI release.
+**State:** native design-token foundation and a proposed customisable Classic theme implementation, 19 October 2026. The native customisation feature is not accepted until compiled and tested on both operating systems. No replacement of the existing settings layout is authorised.
 
 ## Product principle
 
@@ -10,7 +10,7 @@ This work is **inspired by the simplicity of HeyClicky**, not an asset/branding/
 
 ## Tokens
 
-The machine-readable source of truth is [Azure tokens](../design/tokens.json), with matching declarations in:
+The Azure preset reference is [Azure tokens](../design/tokens.json), with matching declarations in the original code. The new adjustable accent uses native persisted preference keys and separate palette resolvers, detailed in [THEME_CUSTOMISATION.md](THEME_CUSTOMISATION.md):
 
 - macOS: [DesignSystem.swift](../app/macos/OpenClicky/OpenClicky/DesignSystem.swift), DS.Colors (adaptive to the active NSAppearance)
 - Windows C#: [Theme/DS.cs](../app/windows/src/OpenClicky.Windows/Theme/DS.cs), AzureLight and AzureDark
