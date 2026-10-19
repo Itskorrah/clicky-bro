@@ -28,6 +28,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using OpenClicky.Core.Companion;
+using OpenClicky.Core.Dictation;
 using OpenClicky.Core.Platform;
 using OpenClicky.Core.Pointing;
 using OpenClicky.Windows.Theme;
@@ -139,7 +140,7 @@ public sealed class OverlayWindow : Window
         screenFrame = screen.FrameInPixels();
         screenWidth = screen.BoundsInDips.Width;
         screenHeight = screen.BoundsInDips.Height;
-        Title = "clicky-bro pointer";
+        Title = "Clicky Bro pointer";
         FloatingWindowSupport.Configure(this, clickThrough: true);
         viewportWidth = Math.Min(ViewportLeftReach + ViewportRightReach, screenWidth);
         viewportHeight = Math.Min(ViewportTopReach + ViewportBottomReach, screenHeight);
@@ -195,6 +196,8 @@ public sealed class OverlayWindow : Window
         Loaded += (_, _) => OnAppear();
         Closed += (_, _) => TearDown();
         model.PropertyChanged += OnModelPropertyChanged;
+        DictationSettings.Shared.PropertyChanged += OnThemeChanged;
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnSystemAppearanceChanged;
         System.Windows.Media.CompositionTarget.Rendering += OnRendering;
         lastFrameTime = MotionClock.Now;
     }
@@ -368,6 +371,42 @@ public sealed class OverlayWindow : Window
                 default:
                     return true;
             }
+        }
+    }
+
+    /// The compact overlay is not rebuilt when the selected colour changes.
+    /// Reuse the same native controls and update only their colour brushes.
+    private void OnThemeChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName is nameof(DictationSettings.AccentPreset)
+            or nameof(DictationSettings.CustomAccentHex)
+            or nameof(DictationSettings.CompanionFollowsAccent)
+            or nameof(DictationSettings.CustomCompanionHex)
+            or nameof(DictationSettings.Appearance))
+            Dispatcher.BeginInvoke(ApplyPointerColour);
+    }
+
+    private void OnSystemAppearanceChanged(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs args)
+    {
+        if (args.Category is Microsoft.Win32.UserPreferenceCategory.Color
+            or Microsoft.Win32.UserPreferenceCategory.General
+            or Microsoft.Win32.UserPreferenceCategory.VisualStyle)
+            Dispatcher.BeginInvoke(ApplyPointerColour);
+    }
+
+    private void ApplyPointerColour()
+    {
+        if (isClosed) return;
+        var accent = DS.Colors.OverlayCursor;
+        var brush = DS.Brush(accent);
+        triangle.SetAccentColor(accent);
+        waveform.SetAccentColor(accent);
+        spinner.SetAccentColor(accent);
+        clickRipple.Stroke = brush;
+        foreach (var bubble in new[] { welcomeBubble, captionBubble, navigationBubble })
+        {
+            bubble.Background = brush;
+            if (bubble.Effect is DropShadowEffect shadow) shadow.Color = accent;
         }
     }
 
@@ -834,5 +873,7 @@ public sealed class OverlayWindow : Window
         isClosed = true;
         System.Windows.Media.CompositionTarget.Rendering -= OnRendering;
         model.PropertyChanged -= OnModelPropertyChanged;
+        DictationSettings.Shared.PropertyChanged -= OnThemeChanged;
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnSystemAppearanceChanged;
     }
 }
