@@ -27,6 +27,11 @@ extension SettingsCatalog {
                 keywords: ["light", "dark", "auto", "match the mac", "theme", "mode", "colour", "color"],
                 view: AnyView(AppearancePicker(settings: settings))),
             SettingsItem(
+                id: "general.colourScheme", page: .general, section: "",
+                title: "Colour scheme", detail: "Keep the classic look or choose an accent and companion colour.",
+                keywords: ["theme", "colour", "color", "accent", "coral", "blue", "custom", "cursor"],
+                view: AnyView(ThemeColoursRow(settings: settings))),
+            SettingsItem(
                 id: "general.hudPlacement", page: .general, section: "",
                 title: "Where clicky-bro lives", detail: "The notch, a drawer on the left or right edge, or hidden until you use a shortcut.",
                 keywords: ["notch", "island", "hud", "side", "edge", "drawer", "hide", "hidden", "position", "placement", "shortcuts only"],
@@ -121,6 +126,55 @@ private struct AppearancePicker: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+/// Keeps the existing settings form: no replacement dashboard or parallel preferences.
+private struct ThemeColoursRow: View {
+    @ObservedObject var settings: DictationSettings
+
+    private func colourBinding(_ keyPath: ReferenceWritableKeyPath<DictationSettings, String>) -> Binding<Color> {
+        Binding(
+            get: { Color(hex: settings[keyPath: keyPath]) },
+            set: { value in
+                let rgba = NSColor(value).usingColorSpace(.sRGB) ?? .systemOrange
+                settings[keyPath: keyPath] = String(format: "#%02X%02X%02X",
+                    Int((rgba.redComponent * 255).rounded()),
+                    Int((rgba.greenComponent * 255).rounded()),
+                    Int((rgba.blueComponent * 255).rounded()))
+            })
+    }
+
+    var body: some View {
+        SettingsRow(title: "Colour scheme",
+                    detail: "Classic Coral by default. Changes appear without restarting.") {
+            VStack(alignment: .leading, spacing: 9) {
+                Picker("App accent", selection: $settings.accentPreset) {
+                    ForEach(ClickyThemePalette.presets, id: \.id) { preset in
+                        Text(preset.title).tag(preset.id)
+                    }
+                }
+                .pickerStyle(.menu)
+                .accessibilityLabel("App accent colour")
+                if settings.accentPreset == "custom" {
+                    ColorPicker("Custom accent", selection: colourBinding(\.customAccentHex), supportsOpacity: false)
+                        .accessibilityLabel("Custom app accent colour")
+                }
+                Toggle("Companion follows accent", isOn: $settings.companionFollowsAccent)
+                    .toggleStyle(.switch)
+                if !settings.companionFollowsAccent {
+                    ColorPicker("Companion colour", selection: colourBinding(\.customCompanionHex), supportsOpacity: false)
+                        .accessibilityLabel("Custom companion colour")
+                }
+                Button("Reset colours") {
+                    settings.accentPreset = "coral"
+                    settings.companionFollowsAccent = true
+                }
+                .buttonStyle(.link)
+                .accessibilityHint("Restores Classic Coral and makes the companion follow the accent")
+            }
+            .frame(width: 210, alignment: .leading)
+        }
     }
 }
 
