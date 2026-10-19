@@ -179,3 +179,5 @@ The native foundation is based on the pinned [Prasanth OpenClicky](https://githu
 <div align="center">
   <sub>Built for a desktop assistant that is pleasant to use, clear about its permissions, and honest about what works.</sub>
 </div>
+
+The [current native development checkpoint](docs/DEVELOPMENT_CHECKPOINT_2026-10-19.md) distinguishes accepted changes from the open theme, cursor and agent-safety work.
